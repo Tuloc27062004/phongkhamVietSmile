@@ -1,51 +1,81 @@
-# Hướng Dẫn Kết Nối Máy Chấm Công Phần Cứng (Vân Tay, Khuôn Mặt, Thẻ Từ)
-## Dự Án: Viet Smile Clinic Suite
+# Hướng Dẫn Kết Nối Máy Chấm Công (Vân Tay / Khuôn Mặt) Cho Phòng Khám Nha Khoa CT
+## Hệ thống Platform Multi-Tenant (Phòng Khám Nha Khoa CT)
 
-Hệ thống đã được thiết kế sẵn sàng 100% về cả cơ sở dữ liệu (`devices`, `device_logs`), giao diện quản lý thiết bị (`/biometric/devices`) lẫn luồng cập nhật dữ liệu chấm công thời gian thực (`/attendance/checkin`).
-
----
-
-### 1. Đăng ký thiết bị phần cứng trên Hệ thống Web
-
-1. Đăng nhập hệ thống với tài khoản Quản trị / Quản lý nhân sự.
-2. Truy cập menu **Thiết bị nhận dạng** (đường dẫn: `/biometric/devices`).
-3. Nhấn nút **Thêm thiết bị** và điền đầy đủ các trường:
-   - **Tên thiết bị**: *Ví dụ: Máy Vân tay Sảnh Tầng 1*
-   - **Loại thiết bị**: Chọn *Vân tay (Fingerprint)*, *Khuôn mặt (Face)*, hoặc *Thẻ từ (Card)*.
-   - **Mã Serial Number**: Nhập chính xác mã Serial printed ở đằng sau hoặc dưới đáy thiết bị (ví dụ: `ZKT-8839201`).
-   - **Địa chỉ IP / Vị trí**: Nhập IP nội bộ phòng khám (ví dụ: `192.168.1.200`) và vị trí đặt máy.
+Hệ thống **Clinic Platform** hỗ trợ kiến trúc Multi-Tenancy (Multi-Clinic). Mỗi phòng khám được định danh bằng một **`organization_id`** riêng biệt để cách ly hoàn toàn dữ liệu nhân sự, lịch làm việc và dữ liệu chấm công.
 
 ---
 
-### 2. Cấu hình đẩy dữ liệu tự động (ADMS / Push SDK / Cloud API) từ Máy Chấm Công
+### 📷 Phân Tích Thông Số Chi Tiết Từ Máy Chấm Công Của "Nha Khoa CT" (Theo Hình Ảnh)
 
-Hầu hết các máy chấm công vân tay & nhận diện khuôn mặt hiện nay (ZKTeco, Hikvision, Dahua, Ronald Jack...) đều hỗ trợ chế độ ADMS / Push Webhook.
+Dựa trên hình ảnh giao diện cấu hình phần mềm máy chấm công thực tế của phòng khám **Nha Khoa CT**:
 
-#### Thao tác trên màn hình máy chấm công:
-1. Nhấn **Menu/OK** -> Chọn **Thiết lập mạng (Network Settings)** -> **Cài đặt Server Cloud / ADMS**.
-2. Kích hoạt tính năng **Đẩy dữ liệu tự động (Enable Push Server / ADMS)**.
-3. Điền các tham số kết nối đến Supabase Backend:
-   - **Địa chỉ Server (Server Domain / Webhook URL)**: `https://kuvuvufzqtvdcyygkaym.supabase.co/rest/v1/device_logs`
-   - **Port**: `443` (HTTPS Protocol).
-   - **Headers Authentications** (Cài đặt trong mục Custom Header của máy):
-     - `apikey`: `sb_publishable_mi_7Ri91IRykRz0W_UKF6w_7V-2WYH9`
-     - `Authorization`: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1dnV2dWZ6cXR2ZGN5eWdrYXltIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjQzMzg5NywiZXhwIjoyMTAyMDA5ODk3fQ.Df8njL4F5G5zv_ItrQBNeW0RsHGmOjPXDMxvjkBsm9I`
-
----
-
-### 3. Đồng bộ Mã Nhân Viên trên Máy Chấm Công & Hệ Thống Web
-
-Để dữ liệu chấm công khớp chính xác với từng nhân viên:
-
-1. **Trên Máy chấm công**: Khi lấy dấu vân tay hoặc chụp khuôn mặt cho nhân viên mới, máy sẽ gán 1 mã số định danh ID (ví dụ: `101`, `102`, `1001`).
-2. **Trên Web Phòng khám**:
-   - Truy cập **Hồ sơ nhân viên** (`/staff/profiles`).
-   - Chọn nhân viên tương ứng và sửa thông tin **Mã máy chấm công (Device User ID)** điền đúng mã ID trên máy (`1001`).
+- **Mã máy**: `MCC0001`
+- **ID máy**: `1`
+- **Tên máy**: `Máy MCC0001`
+- **Seri (Serial Number)**: `8116243500205`
+- **Số đăng ký**: `110707`
+- **Địa chỉ IP nội bộ**: `192.168.1.202`
+- **Cổng Port**: `4370` (Port chuẩn truyền dữ liệu SDK qua TCP/IP)
+- **Kiểu kết nối**: `TCP/IP`
 
 ---
 
-### 4. Cơ chế Hoạt động Realtime trên Giao diện Web
+### 🛠️ 2 Phương Thức Kết Nối Máy Chấm Công `MCC0001` Vào Platform
 
-- Ngay khi nhân viên quét vân tay hoặc khuôn mặt thành công tại máy phần cứng, máy sẽ tự động gọi HTTP POST đẩy bản ghi vào bảng `device_logs`.
-- Hệ thống **Supabase Realtime (WebSockets)** sẽ tự động push tín hiệu về màn hình **Chấm công thực tế** (`/attendance/checkin`).
-- Màn hình sẽ ngay lập tức ghi nhận ca làm, tính số phút muộn/về sớm và hiện thông báo trực tiếp trên màn hình của Quản lý mà không cần tải lại trang.
+---
+
+#### 🔹 PHƯƠNG THỨC 1: Kết nối trực tiếp qua API Endpoint của Platform (Khuyên Dùng)
+
+Nếu máy chấm công hỗ trợ tính năng **Sử dụng địa chỉ Web (Web / ADMS / Push Server)**:
+
+1. **Trên giao diện máy chấm công** (như trong ảnh):
+   - Tích chọn ô: **[x] Sử dụng địa chỉ web**.
+   - Tại ô **Địa chỉ Web**, thay `google.com.vn` bằng URL endpoint API của Platform:
+     ```text
+     https://kuvuvufzqtvdcyygkaym.supabase.co/functions/v1/device-events
+     hoặc: https://<domain-platform>/api/public/device/events
+     ```
+2. **Khai báo API Key của Phòng Khám Nha Khoa CT**:
+   - Mỗi phòng khám sẽ có 1 `API Key` gắn liền với `organization_id` của Nha Khoa CT.
+   - Thêm Header: `x-api-key: <API_KEY_NHA_KHOA_CT>`
+
+---
+
+#### 🔹 PHƯƠNG THỨC 2: Kết nối qua Agent Trung Gian (Windows Service Client Agent)
+
+Đối với các dòng máy chấm công truyền thống kết nối qua mạng LAN IP `192.168.1.202:4370` (như hình trên):
+
+1. **Cài đặt VietSmile Agent** trên 1 máy tính nằm cùng mạng LAN với máy chấm công `192.168.1.202`.
+2. **Cấu hình file `agent.config.json` trên máy tính đó**:
+   ```json
+   {
+     "organization_name": "Nha Khoa CT",
+     "api_endpoint": "https://kuvuvufzqtvdcyygkaym.supabase.co/rest/v1",
+     "api_key": "<API_KEY_NHA_KHOA_CT>",
+     "devices": [
+       {
+         "device_name": "Máy MCC0001 - Nha Khoa CT",
+         "ip_address": "192.168.1.202",
+         "port": 4370,
+         "serial_number": "8116243500205",
+         "device_id": 1
+       }
+     ]
+   }
+   ```
+3. Agent sẽ tự động lắng nghe dữ liệu quét vân tay từ port `4370` của máy `192.168.1.202` và đồng bộ tức thì lên Cloud Platform cho **Nha Khoa CT**.
+
+---
+
+### 📋 Các Bước Khai Báo Trên Web Admin Của "Nha Khoa CT"
+
+1. **Truy cập Trang Quản Lý Thiết Bị**: `/biometric/devices`
+2. **Thêm mới thiết bị**:
+   - **Tên thiết bị**: `Máy MCC0001 - Nha Khoa CT`
+   - **Serial Number**: `8116243500205`
+   - **IP Address**: `192.168.1.202`
+   - **Loại thiết bị**: `Vân tay / Khuôn mặt`
+3. **Đồng bộ Mã ID Nhân Viên**:
+   - Khi tạo nhân viên thuộc phòng khám **Nha Khoa CT** tại `/staff/profiles`, điền ô **Mã máy chấm công (Device User ID)** trùng với Mã Nhân Viên cài đặt trên máy `MCC0001`.
+4. **Kiểm tra Realtime**:
+   - Khi nhân viên quét vân tay/khuôn mặt trên máy `MCC0001`, dữ liệu sẽ tự động đẩy về hệ thống của phòng khám **Nha Khoa CT** và hiển thị tại trang **Chấm công thực tế** (`/attendance/checkin`).
