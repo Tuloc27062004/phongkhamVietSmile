@@ -64,11 +64,10 @@ Hệ thống điều hướng chuẩn Enterprise SaaS, tất cả người dùng
 
 ## 🗄️ 4. CHUỖI KẾT NỐI DATABASE CHO DEVELOPER MỚI
 
-Chi tiết toàn bộ chuỗi kết nối Database Postgres và API Keys đã được lưu hành riêng tại file:
-👉 [docs/setup/DATABASE_CONNECTIONS.md](file:///d:/PhongKhamPlatform/phongkhamVietSmile/docs/setup/DATABASE_CONNECTIONS.md)
+Hướng dẫn cấu hình chuỗi kết nối Database Postgres và API Keys (không chứa secrets thật) tại file:
+👉 [docs/setup/DATABASE_CONNECTIONS.md](docs/setup/DATABASE_CONNECTIONS.md)
 
-- **Postgres Connection URI**: `postgresql://postgres:Vietsmileclinic%40123@db.kuvuvufzqtvdcyygkaym.supabase.co:5432/postgres`
-- **Supabase Project Ref**: `kuvuvufzqtvdcyygkaym`
+> ⚠️ Secrets thật (mật khẩu DB, service role key) **không** được lưu trong repo. Liên hệ quản trị viên nền tảng qua kênh nội bộ để nhận giá trị thật, rồi điền vào file `.env` cục bộ (đã gitignore).
 
 ---
 
@@ -93,12 +92,14 @@ Chi tiết toàn bộ chuỗi kết nối Database Postgres và API Keys đã đ
 
 ---
 
-## 🔑 5. THÔNG TIN TÀI KHOẢN SUPER ADMIN GZV PLATFORM
+## 🔑 5. TÀI KHOẢN SUPER ADMIN GZV PLATFORM
 
-| Email Super Admin | Mật Khẩu | Quyền Hạn | Phạm Vi Quản Lý |
-| :--- | :--- | :--- | :--- |
-| `tuloc2706@gmail.com` | `123456` | **Super Admin (6 Roles)** | Toàn bộ 10 Chuyên khoa & Đa phòng khám GZV |
-| `stephensouth1307@gmail.com` | `123456` | **Super Admin (6 Roles)** | Toàn bộ 10 Chuyên khoa & Đa phòng khám GZV |
+| Email Super Admin | Quyền Hạn | Phạm Vi Quản Lý |
+| :--- | :--- | :--- |
+| `tuloc2706@gmail.com` | **Super Admin (6 Roles)** | Toàn bộ 10 Chuyên khoa & Đa phòng khám GZV |
+| `stephensouth1307@gmail.com` | **Super Admin (6 Roles)** | Toàn bộ 10 Chuyên khoa & Đa phòng khám GZV |
+
+> ⚠️ Mật khẩu không được lưu trong repo. Đổi mật khẩu qua Supabase Auth Dashboard hoặc màn hình "Quên mật khẩu" của ứng dụng.
 
 ---
 
