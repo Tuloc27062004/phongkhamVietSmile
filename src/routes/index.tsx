@@ -19,13 +19,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Việt Smile Clinic Suite — Chấm công & lịch hẹn nha khoa" },
+      { title: "Bá Lộc Clinic Platform — Nền Tảng Quản Trị Y Tế & Chấm Công Đa Phòng Khám" },
       {
         name: "description",
         content:
           "Phần mềm nội bộ cho phòng khám nha khoa: chấm công vân tay realtime, hồ sơ nhân sự, lịch hẹn và nhắc lịch khách hàng, báo cáo Excel.",
       },
-      { property: "og:title", content: "Việt Smile Clinic Suite — Chấm công & lịch hẹn nha khoa" },
+      { property: "og:title", content: "Bá Lộc Clinic Platform — Nền Tảng Quản Trị Y Tế & Chấm Công Đa Phòng Khám" },
       {
         property: "og:description",
         content:
