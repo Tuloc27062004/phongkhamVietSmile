@@ -12,8 +12,8 @@ All environment variables have been configured and verified for the Clinic Flow 
 
 ```env
 # Project Configuration
-VITE_SUPABASE_PROJECT_ID=kbitflsgfxpjldpxihju
-VITE_SUPABASE_URL=https://kbitflsgfxpjldpxihju.supabase.co
+VITE_SUPABASE_PROJECT_ID=kuvuvufzqtvdcyygkaym
+VITE_SUPABASE_URL=https://kuvuvufzqtvdcyygkaym.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_EouuLrW78DX9c6NH2rjdxg_GTJc9pDV
 ```
 
@@ -28,8 +28,8 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_EouuLrW78DX9c6NH2rjdxg_GTJc9pDV
 
 ```env
 # Service Account (Never expose to client)
-SUPABASE_PROJECT_ID=kbitflsgfxpjldpxihju
-SUPABASE_URL=https://kbitflsgfxpjldpxihju.supabase.co
+SUPABASE_PROJECT_ID=kuvuvufzqtvdcyygkaym
+SUPABASE_URL=https://kuvuvufzqtvdcyygkaym.supabase.co
 SUPABASE_PUBLISHABLE_KEY=sb_publishable_EouuLrW78DX9c6NH2rjdxg_GTJc9pDV
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 SUPABASE_SECRET_KEY=<secret-key>
@@ -59,8 +59,8 @@ JWT=<jwt-secret>
 
 ### Development (.env.development.local)
 ```
-VITE_SUPABASE_PROJECT_ID=kbitflsgfxpjldpxihju
-VITE_SUPABASE_URL=https://kbitflsgfxpjldpxihju.supabase.co
+VITE_SUPABASE_PROJECT_ID=kuvuvufzqtvdcyygkaym
+VITE_SUPABASE_URL=https://kuvuvufzqtvdcyygkaym.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_EouuLrW78DX9c6NH2rjdxg_GTJc9pDV
 ```
 
@@ -70,8 +70,8 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_EouuLrW78DX9c6NH2rjdxg_GTJc9pDV
 
 ### Production (.env.production)
 ```
-VITE_SUPABASE_PROJECT_ID=kbitflsgfxpjldpxihju
-VITE_SUPABASE_URL=https://kbitflsgfxpjldpxihju.supabase.co
+VITE_SUPABASE_PROJECT_ID=kuvuvufzqtvdcyygkaym
+VITE_SUPABASE_URL=https://kuvuvufzqtvdcyygkaym.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_EouuLrW78DX9c6NH2rjdxg_GTJc9pDV
 ```
 
@@ -125,8 +125,8 @@ touch .env.development.local
 
 2. **Add variables**
 ```
-VITE_SUPABASE_PROJECT_ID=kbitflsgfxpjldpxihju
-VITE_SUPABASE_URL=https://kbitflsgfxpjldpxihju.supabase.co
+VITE_SUPABASE_PROJECT_ID=kuvuvufzqtvdcyygkaym
+VITE_SUPABASE_URL=https://kuvuvufzqtvdcyygkaym.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_EouuLrW78DX9c6NH2rjdxg_GTJc9pDV
 ```
 
