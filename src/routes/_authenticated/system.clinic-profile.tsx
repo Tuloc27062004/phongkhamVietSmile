@@ -112,12 +112,33 @@ function ClinicProfilePage() {
   const profileQuery = useSessionProfile(session?.user.id);
   const canEdit = profileQuery.data?.roles.includes("administrator") ?? false;
 
+  const orgId = profileQuery.data?.organizationId;
+
   const clinicQuery = useQuery({
-    queryKey: ["clinic-profile-full"],
+    queryKey: ["clinic-profile-full", orgId],
+    enabled: Boolean(orgId),
     queryFn: async () => {
-      const { data, error } = await supabase.from("clinic_profiles").select("*").maybeSingle();
-      if (error) throw error;
-      return data;
+      const { data } = await supabase
+        .from("clinic_profiles")
+        .select("*")
+        .eq("organization_id", orgId as string)
+        .maybeSingle();
+
+      if (data) return data;
+
+      // Read default name from organization
+      const { data: org } = await supabase
+        .from("organizations")
+        .select("name")
+        .eq("id", orgId as string)
+        .maybeSingle();
+
+      return {
+        id: null,
+        organization_id: orgId,
+        name: org?.name ?? "GZV Platform",
+        short_name: org?.name ?? "GZV Platform",
+      };
     },
   });
 
@@ -138,24 +159,28 @@ function ClinicProfilePage() {
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      const clinic = clinicQuery.data;
-      if (!clinic) throw new Error("Chưa có hồ sơ phòng khám");
+      if (!orgId) throw new Error("Chưa xác định phòng khám");
+
       const payload = Object.fromEntries(
         Object.entries(values).map(([key, value]) => [key, value === undefined ? null : value]),
       ) as TablesUpdate<"clinic_profiles">;
-      const { error } = await supabase.from("clinic_profiles").update(payload).eq("id", clinic.id);
-      if (error) throw error;
 
-      await supabase.from("audit_logs").insert({
-        organization_id: clinic.organization_id,
-        user_id: session?.user.id ?? null,
-        actor_name: profileQuery.data?.fullName ?? null,
-        action: "clinic_profile.updated",
-        entity_type: "clinic_profiles",
-        entity_id: clinic.id,
-        new_values: values,
-        user_agent: typeof navigator === "undefined" ? null : navigator.userAgent,
-      });
+      const { data: existing } = await supabase
+        .from("clinic_profiles")
+        .select("id")
+        .eq("organization_id", orgId)
+        .maybeSingle();
+
+      if (existing?.id) {
+        const { error } = await supabase.from("clinic_profiles").update(payload).eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("clinic_profiles").insert({
+          ...payload,
+          organization_id: orgId,
+        });
+        if (error) throw error;
+      }
     },
     onSuccess: async () => {
       toast.success("Đã lưu hồ sơ phòng khám");
