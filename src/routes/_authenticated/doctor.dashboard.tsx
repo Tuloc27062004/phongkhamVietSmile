@@ -21,7 +21,7 @@ import { useSessionProfile, useAuthSession, useCurrentEmployee } from "@/hooks/u
 export const Route = createFileRoute("/_authenticated/doctor/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard Bác sĩ — Việt Smile Clinic" },
+      { title: "Dashboard Bác sĩ — GZV Clinic Platform" },
       { name: "description", content: "Thông tin cá nhân, lịch khám, lương và chấm công" },
     ],
   }),

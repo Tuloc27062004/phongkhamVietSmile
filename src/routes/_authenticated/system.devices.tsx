@@ -42,14 +42,14 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/system/devices")({
   head: () => ({
     meta: [
-      { title: "Máy chấm công — Việt Smile Clinic Suite" },
+      { title: "Máy chấm công — GZV Clinic Platform" },
       {
         name: "description",
         content: "Quản lý các máy chấm công kết nối với hệ thống.",
       },
       {
         property: "og:title",
-        content: "Máy chấm công — Việt Smile Clinic Suite",
+        content: "Máy chấm công — GZV Clinic Platform",
       },
     ],
   }),

@@ -1,6 +1,6 @@
 -- Migration: Seed Organization Multi-Tenancy Data
 -- 1. Phòng Khám Nha Khoa CT (Khách hàng chính thức)
--- 2. Phòng Khám Bá Lộc (Hệ thống Test 100%)
+-- 2. Phòng Khám GZV System (Hệ thống Test 100%)
 
 DO $$
 DECLARE
@@ -13,9 +13,9 @@ BEGIN
   ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name
   RETURNING id INTO v_org_ct_id;
 
-  -- Insert/Get Organization Phòng Khám Bá Lộc (Test System)
+  -- Insert/Get Organization Hệ Thống GZV Platform (Central Hub)
   INSERT INTO public.organizations (name, code, is_active)
-  VALUES ('Phòng Khám Bá Lộc (Test System)', 'BALOC_TEST', true)
+  VALUES ('Hệ Thống GZV Platform (Central Hub)', 'GZV_PLATFORM', true)
   ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name
   RETURNING id INTO v_org_baloc_id;
 
@@ -48,7 +48,7 @@ BEGIN
       status = EXCLUDED.status;
   END IF;
 
-  -- Seed máy chấm công thử nghiệm cho Phòng Khám Bá Lộc
+  -- Seed máy chấm công thử nghiệm cho Phòng Khám GZV System
   IF v_org_baloc_id IS NOT NULL THEN
     INSERT INTO public.devices (
       organization_id,

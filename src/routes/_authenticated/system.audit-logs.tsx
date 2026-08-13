@@ -19,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/system/audit-logs")({
   head: () => ({
     meta: [
-      { title: "Nhật ký hoạt động — Việt Smile Clinic Suite" },
+      { title: "Nhật ký hoạt động — GZV Clinic Platform" },
       { name: "description", content: "Xem lịch sử thay đổi dữ liệu trong hệ thống." },
     ],
   }),

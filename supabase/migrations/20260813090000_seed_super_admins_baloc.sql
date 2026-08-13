@@ -1,5 +1,5 @@
 -- Migration: Setup Super Admin accounts for 'tuloc2706@gmail.com' and 'stephensouth1307@gmail.com'
--- Assigned to 'BALOC_TEST' organization with full role-switching privileges across all 6 roles.
+-- Assigned to 'GZV_PLATFORM' organization with full role-switching privileges across all 6 roles.
 
 DO $$
 DECLARE
@@ -7,12 +7,12 @@ DECLARE
   v_user1_id UUID;
   v_user2_id UUID;
 BEGIN
-  -- 1. Ensure Organization 'Phòng Khám Bá Lộc (Test System)' exists
-  SELECT id INTO v_org_baloc_id FROM public.organizations WHERE code = 'BALOC_TEST';
+  -- 1. Ensure Organization 'Hệ Thống GZV Platform (Central Hub)' exists
+  SELECT id INTO v_org_baloc_id FROM public.organizations WHERE code = 'GZV_PLATFORM';
 
   IF v_org_baloc_id IS NULL THEN
     INSERT INTO public.organizations (name, code, is_active)
-    VALUES ('Phòng Khám Bá Lộc (Test System)', 'BALOC_TEST', true)
+    VALUES ('Hệ Thống GZV Platform (Central Hub)', 'GZV_PLATFORM', true)
     RETURNING id INTO v_org_baloc_id;
   END IF;
 
@@ -68,7 +68,7 @@ BEGIN
     organization_id, user_id, full_name, email, employee_code, is_active, job_title, department_id
   )
   VALUES (
-    v_org_baloc_id, v_user1_id, 'BS. Tù Lộc (Tổng Quản Lý)', 'tuloc2706@gmail.com', 'EMP_BALOC_01', true, 'Bác sĩ Trưởng Khoa / Super Admin', NULL
+    v_org_baloc_id, v_user1_id, 'BS. Tù Lộc (Tổng Quản Lý)', 'tuloc2706@gmail.com', 'EMP_GZV_01', true, 'Bác sĩ Trưởng Khoa / Super Admin', NULL
   )
   ON CONFLICT DO NOTHING;
 
@@ -124,7 +124,7 @@ BEGIN
     organization_id, user_id, full_name, email, employee_code, is_active, job_title, department_id
   )
   VALUES (
-    v_org_baloc_id, v_user2_id, 'BS. Stephen South (Tổng Quản Lý)', 'stephensouth1307@gmail.com', 'EMP_BALOC_02', true, 'Giám Đốc Y Khoa / Super Admin', NULL
+    v_org_baloc_id, v_user2_id, 'BS. Stephen South (Tổng Quản Lý)', 'stephensouth1307@gmail.com', 'EMP_GZV_02', true, 'Giám Đốc Y Khoa / Super Admin', NULL
   )
   ON CONFLICT DO NOTHING;
 

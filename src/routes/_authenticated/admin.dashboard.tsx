@@ -31,7 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/admin/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard Quản Trị Đa Phòng Khám — Bá Lộc Platform" },
+      { title: "Dashboard Quản Trị Đa Phòng Khám — GZV Platform" },
       { name: "description", content: "Trung tâm quản trị hệ thống và các phòng khám chi nhánh" },
     ],
   }),
@@ -59,7 +59,7 @@ interface ClinicOption {
 function AdminDashboard() {
   const queryClient = useQueryClient();
 
-  // Query: Danh sách phòng khám dành cho Super Admin Bá Lộc
+  // Query: Danh sách phòng khám dành cho Super Admin GZV Platform
   const clinicsQuery = useQuery({
     queryKey: ["super-admin-clinics"],
     queryFn: async () => {
@@ -170,7 +170,7 @@ function AdminDashboard() {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">
-                    Bá Lộc Platform Control Center
+                    GZV Platform Control Center
                   </span>
                   <Badge variant="outline" className="border-blue-400/30 text-blue-300 text-[10px]">
                     Super Admin

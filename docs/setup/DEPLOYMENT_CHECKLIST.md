@@ -388,5 +388,5 @@ After all steps complete, confirm:
 ---
 
 Generated: August 5, 2026
-Project: Clinic Flow (Nha khoa Việt Smile)
+Project: Clinic Flow (Phòng Khám GZV System)
 Version: 1.0 Complete

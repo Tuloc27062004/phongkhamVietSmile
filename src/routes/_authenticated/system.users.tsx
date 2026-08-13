@@ -30,12 +30,12 @@ import { APP_ROLES, ROLE_LABELS, type AppRole } from "@/lib/permissions";
 export const Route = createFileRoute("/_authenticated/system/users")({
   head: () => ({
     meta: [
-      { title: "Tài khoản người dùng — Việt Smile Clinic Suite" },
+      { title: "Tài khoản người dùng — GZV Clinic Platform" },
       {
         name: "description",
         content: "Duyệt tài khoản đăng ký mới và phân vai trò cho người dùng phòng khám.",
       },
-      { property: "og:title", content: "Tài khoản người dùng — Việt Smile Clinic Suite" },
+      { property: "og:title", content: "Tài khoản người dùng — GZV Clinic Platform" },
       {
         property: "og:description",
         content: "Duyệt tài khoản đăng ký mới và phân vai trò trong phòng khám.",

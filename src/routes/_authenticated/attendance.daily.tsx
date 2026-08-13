@@ -38,14 +38,14 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/attendance/daily")({
   head: () => ({
     meta: [
-      { title: "Chấm công theo ngày — Việt Smile Clinic Suite" },
+      { title: "Chấm công theo ngày — GZV Clinic Platform" },
       {
         name: "description",
         content: "Xem và quản lý chấm công nhân viên từng ngày.",
       },
       {
         property: "og:title",
-        content: "Chấm công theo ngày — Việt Smile Clinic Suite",
+        content: "Chấm công theo ngày — GZV Clinic Platform",
       },
     ],
   }),

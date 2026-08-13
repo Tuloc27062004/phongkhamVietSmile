@@ -24,13 +24,13 @@ import { createAgentKey, listAgentKeys, revokeAgentKey } from "@/lib/device-agen
 export const Route = createFileRoute("/_authenticated/system/agent")({
   head: () => ({
     meta: [
-      { title: "Kết nối Agent chấm công — Việt Smile Clinic Suite" },
+      { title: "Kết nối Agent chấm công — GZV Clinic Platform" },
       {
         name: "description",
         content:
           "Tạo khóa API cho Windows Agent để đẩy dữ liệu vân tay từ máy chấm công lên hệ thống theo thời gian thực.",
       },
-      { property: "og:title", content: "Kết nối Agent chấm công — Việt Smile Clinic Suite" },
+      { property: "og:title", content: "Kết nối Agent chấm công — GZV Clinic Platform" },
       {
         property: "og:description",
         content: "Cấu hình Agent Windows đọc log vân tay và đồng bộ realtime.",

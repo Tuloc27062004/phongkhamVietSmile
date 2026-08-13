@@ -39,7 +39,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/hr/payroll")({
   head: () => ({
     meta: [
-      { title: "Tính Lương — Việt Smile Clinic Suite" },
+      { title: "Tính Lương — GZV Clinic Platform" },
       { name: "description", content: "Tính lương, trừ lương đi trễ, vắng mặt tự động." },
     ],
   }),

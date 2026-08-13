@@ -32,7 +32,7 @@ import { useAuthSession, useSessionProfile } from "@/hooks/use-session";
 export const Route = createFileRoute("/_authenticated/system/sync")({
   head: () => ({
     meta: [
-      { title: "Trạng thái đồng bộ — Việt Smile Clinic Suite" },
+      { title: "Trạng thái đồng bộ — GZV Clinic Platform" },
       { name: "description", content: "Cấu hình và theo dõi đồng bộ máy chấm công." },
     ],
   }),

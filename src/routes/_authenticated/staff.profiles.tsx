@@ -26,7 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/staff/profiles")({
   head: () => ({
     meta: [
-      { title: "Hồ sơ nhân viên — Việt Smile Clinic Suite" },
+      { title: "Hồ sơ nhân viên — GZV Clinic Platform" },
       { name: "description", content: "Xem và quản lý hồ sơ các bác sĩ và nhân viên phòng khám." },
     ],
   }),

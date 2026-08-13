@@ -17,14 +17,14 @@ ALTER TABLE public.super_admin_sessions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "super_admin_session_policy" ON public.super_admin_sessions
   FOR ALL TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
--- Function: Check if user is Super Admin (Bá Lộc Super Admin users)
+-- Function: Check if user is Super Admin (GZV Super Admin users)
 CREATE OR REPLACE FUNCTION public.is_super_admin(_user_id uuid DEFAULT auth.uid())
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
   SELECT EXISTS (
     SELECT 1 FROM public.user_profiles up
     JOIN public.organizations o ON up.organization_id = o.id
     WHERE up.id = _user_id 
-      AND o.code = 'BALOC_TEST'
+      AND o.code = 'GZV_PLATFORM'
       AND public.has_role(_user_id, 'administrator')
   );
 $$;
@@ -62,7 +62,7 @@ DECLARE
   v_uid uuid := auth.uid();
 BEGIN
   IF NOT public.is_super_admin(v_uid) THEN
-    RAISE EXCEPTION 'Chỉ Super Admin của Phòng Khám Bá Lộc mới có quyền chuyển đổi phòng khám quản lý!';
+    RAISE EXCEPTION 'Chỉ Super Admin của Phòng Khám GZV System mới có quyền chuyển đổi phòng khám quản lý!';
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM public.organizations WHERE id = target_org_id AND is_active = true) THEN

@@ -17,12 +17,12 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Bảng điều khiển — Việt Smile Clinic Suite" },
+      { title: "Bảng điều khiển — GZV Clinic Platform" },
       {
         name: "description",
         content: "Tổng quan hoạt động phòng khám: nhân sự, ca làm việc và cấu hình hệ thống.",
       },
-      { property: "og:title", content: "Bảng điều khiển — Việt Smile Clinic Suite" },
+      { property: "og:title", content: "Bảng điều khiển — GZV Clinic Platform" },
       { property: "og:description", content: "Tổng quan hoạt động phòng khám nha khoa." },
     ],
   }),

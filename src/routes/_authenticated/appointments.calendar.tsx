@@ -34,13 +34,13 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/appointments/calendar")({
   head: () => ({
     meta: [
-      { title: "Lịch khám theo phòng — Việt Smile Clinic Suite" },
+      { title: "Lịch khám theo phòng — GZV Clinic Platform" },
       {
         name: "description",
         content:
           "Lịch khám dạng calendar theo phòng điều trị và khung giờ, xác nhận hẹn chỉ với một chạm.",
       },
-      { property: "og:title", content: "Lịch khám theo phòng — Việt Smile Clinic Suite" },
+      { property: "og:title", content: "Lịch khám theo phòng — GZV Clinic Platform" },
       {
         property: "og:description",
         content: "Xem lịch khám theo phòng, đặt hẹn vào slot trống và xác nhận nhanh.",

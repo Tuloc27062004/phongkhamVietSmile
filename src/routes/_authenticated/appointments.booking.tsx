@@ -39,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/appointments/booking")({
   }),
   head: () => ({
     meta: [
-      { title: "Đặt hẹn khám — Việt Smile Clinic Suite" },
+      { title: "Đặt hẹn khám — GZV Clinic Platform" },
       {
         name: "description",
         content: "Đặt hẹn khám bệnh nhân và gửi nhắc nhở tự động.",

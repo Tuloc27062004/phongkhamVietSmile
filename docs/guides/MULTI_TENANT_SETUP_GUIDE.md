@@ -1,4 +1,4 @@
-# Hướng Dẫn Cấu Hình Multi-Tenancy: "Nha Khoa CT" (Chính Thức) & "Phòng Khám Bá Lộc" (Test System 100%)
+# Hướng Dẫn Cấu Hình Multi-Tenancy: "Nha Khoa CT" (Chính Thức) & "Phòng Khám GZV System" (Test System 100%)
 
 Hệ thống Clinic Platform được thiết kế với kiến trúc **Multi-Tenant (Đa phòng khám)**. Mỗi phòng khám có một không gian độc lập (`organization_id`), tách biệt 100% dữ liệu nhân sự, thiết bị và chấm công.
 
@@ -23,7 +23,7 @@ Hệ thống Clinic Platform được thiết kế với kiến trúc **Multi-Te
 
 ## 🧪 2. PHÒNG KHÁM BÁ LỘC (Môi Trường Test 100%)
 
-- **Mã định danh (Code)**: `BALOC_TEST`
+- **Mã định danh (Code)**: `GZV_PLATFORM`
 - **Mục đích**: Nơi thử nghiệm 100% các tính năng mới, giả lập chấm công, thử nghiệm tính năng kiểm soát ra vào, đẩy log giả lập mà không ảnh hưởng tới dữ liệu thật của khách hàng Nha Khoa CT.
 - **Máy chấm công giả lập / Test device**:
   - **Mã máy**: `TEST_BALOC_01`
@@ -33,7 +33,7 @@ Hệ thống Clinic Platform được thiết kế với kiến trúc **Multi-Te
 - **Kết nối Cloud Endpoint**:
   ```text
   URL: https://kuvuvufzqtvdcyygkaym.supabase.co/rest/v1/device_logs
-  API Key Org: <API_KEY_BALOC_TEST>
+  API Key Org: <API_KEY_GZV_PLATFORM>
   ```
 
 ---

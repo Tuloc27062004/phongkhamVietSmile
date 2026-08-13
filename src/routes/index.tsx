@@ -19,13 +19,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Bá Lộc Clinic Platform — Nền Tảng Quản Trị Y Tế & Chấm Công Đa Phòng Khám" },
+      { title: "GZV Clinic Platform — Nền Tảng Quản Trị Y Tế & Chấm Công Đa Phòng Khám" },
       {
         name: "description",
         content:
           "Phần mềm nội bộ cho phòng khám nha khoa: chấm công vân tay realtime, hồ sơ nhân sự, lịch hẹn và nhắc lịch khách hàng, báo cáo Excel.",
       },
-      { property: "og:title", content: "Bá Lộc Clinic Platform — Nền Tảng Quản Trị Y Tế & Chấm Công Đa Phòng Khám" },
+      { property: "og:title", content: "GZV Clinic Platform — Nền Tảng Quản Trị Y Tế & Chấm Công Đa Phòng Khám" },
       {
         property: "og:description",
         content:
@@ -136,7 +136,7 @@ function Landing() {
               <Sparkles className="size-4 text-primary-foreground" />
             </div>
             <div>
-              <p className="text-sm font-semibold">Việt Smile Clinic Suite</p>
+              <p className="text-sm font-semibold">GZV Clinic Platform</p>
               <p className="text-xs text-muted-foreground">Hệ thống quản lý phòng khám nha khoa</p>
             </div>
           </div>
@@ -346,7 +346,7 @@ function Landing() {
 
       <footer className="border-t border-border/70 py-8">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} Việt Smile Clinic Suite — Hệ thống nội bộ</span>
+          <span>© {new Date().getFullYear()} GZV Clinic Platform — Hệ thống nội bộ</span>
           <span>Chấm công realtime · Lịch hẹn · Báo cáo Excel</span>
         </div>
       </footer>

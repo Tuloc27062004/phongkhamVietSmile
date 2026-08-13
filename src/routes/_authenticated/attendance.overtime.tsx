@@ -36,14 +36,14 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/attendance/overtime")({
   head: () => ({
     meta: [
-      { title: "Tăng ca — Việt Smile Clinic Suite" },
+      { title: "Tăng ca — GZV Clinic Platform" },
       {
         name: "description",
         content: "Xem và quản lý tăng ca cho nhân viên.",
       },
       {
         property: "og:title",
-        content: "Tăng ca — Việt Smile Clinic Suite",
+        content: "Tăng ca — GZV Clinic Platform",
       },
     ],
   }),

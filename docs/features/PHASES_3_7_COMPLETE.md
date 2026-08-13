@@ -363,7 +363,7 @@ After deployment, test:
 
 ## Version Information
 
-- **Project:** Clinic Flow (Nha khoa Việt Smile)
+- **Project:** Clinic Flow (Phòng Khám GZV System)
 - **Phase:** 3-7 Complete
 - **Version:** 1.0
 - **Release Date:** August 5, 2026

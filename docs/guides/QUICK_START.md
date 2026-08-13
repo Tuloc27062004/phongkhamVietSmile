@@ -273,5 +273,5 @@ Status: ✓ Complete and tested
 
 **Version:** 1.0
 **Date:** August 5, 2026
-**Project:** Clinic Flow (Nha khoa Việt Smile)
+**Project:** Clinic Flow (Phòng Khám GZV System)
 **Status:** Ready for Deployment ✓

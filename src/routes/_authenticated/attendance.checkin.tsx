@@ -24,13 +24,13 @@ import { useAuthSession } from "@/hooks/use-session";
 export const Route = createFileRoute("/_authenticated/attendance/checkin")({
   head: () => ({
     meta: [
-      { title: "Chấm công thực tế — Việt Smile Clinic Suite" },
+      { title: "Chấm công thực tế — GZV Clinic Platform" },
       {
         name: "description",
         content:
           "Theo dõi chấm công vân tay từ máy chấm công theo thời gian thực và chấm công dự phòng khi thiết bị lỗi.",
       },
-      { property: "og:title", content: "Chấm công thực tế — Việt Smile Clinic Suite" },
+      { property: "og:title", content: "Chấm công thực tế — GZV Clinic Platform" },
       {
         property: "og:description",
         content: "Dữ liệu chấm công vân tay realtime từ máy chấm công của phòng khám.",

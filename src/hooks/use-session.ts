@@ -106,13 +106,26 @@ export function useClinicProfile(organizationId: string | undefined) {
     queryKey: ["clinic-profile", organizationId],
     enabled: Boolean(organizationId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: profile } = await supabase
         .from("clinic_profiles")
         .select("*")
         .eq("organization_id", organizationId as string)
         .maybeSingle();
-      if (error) throw error;
-      return data;
+
+      if (profile && profile.name) return profile;
+
+      // Fallback read from organizations table
+      const { data: org } = await supabase
+        .from("organizations")
+        .select("name")
+        .eq("id", organizationId as string)
+        .maybeSingle();
+
+      return {
+        name: org?.name ?? "GZV Platform",
+        short_name: org?.name ?? "GZV Platform",
+        logo_url: null,
+      };
     },
   });
 }

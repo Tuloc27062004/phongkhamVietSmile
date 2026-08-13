@@ -23,7 +23,7 @@ import { useState } from "react";
 export const Route = createFileRoute("/_authenticated/doctor/schedule")({
   head: () => ({
     meta: [
-      { title: "Lịch khám — Việt Smile Clinic" },
+      { title: "Lịch khám — GZV Clinic Platform" },
       { name: "description", content: "Lịch khám của bác sĩ" },
     ],
   }),

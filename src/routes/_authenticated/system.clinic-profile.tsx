@@ -20,12 +20,12 @@ import type { TablesUpdate } from "@/integrations/supabase/types";
 export const Route = createFileRoute("/_authenticated/system/clinic-profile")({
   head: () => ({
     meta: [
-      { title: "Hồ sơ phòng khám — Việt Smile Clinic Suite" },
+      { title: "Hồ sơ phòng khám — GZV Clinic Platform" },
       {
         name: "description",
         content: "Cấu hình thông tin phòng khám: tên, địa chỉ, liên hệ, giờ làm việc và chính sách.",
       },
-      { property: "og:title", content: "Hồ sơ phòng khám — Việt Smile Clinic Suite" },
+      { property: "og:title", content: "Hồ sơ phòng khám — GZV Clinic Platform" },
       { property: "og:description", content: "Cấu hình thông tin và nhận diện phòng khám." },
     ],
   }),

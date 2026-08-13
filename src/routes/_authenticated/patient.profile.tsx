@@ -23,7 +23,7 @@ import { useAuthSession } from "@/hooks/use-session";
 export const Route = createFileRoute("/_authenticated/patient/profile")({
   head: () => ({
     meta: [
-      { title: "Hồ sơ bệnh nhân — Việt Smile Clinic" },
+      { title: "Hồ sơ bệnh nhân — GZV Clinic Platform" },
       { name: "description", content: "Thông tin và lịch khám của bệnh nhân" },
     ],
   }),

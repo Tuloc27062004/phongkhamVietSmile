@@ -24,7 +24,7 @@ import { useAuthSession, useSessionProfile } from "@/hooks/use-session";
 export const Route = createFileRoute("/_authenticated/system/settings")({
   head: () => ({
     meta: [
-      { title: "Cài đặt hệ thống — Việt Smile Clinic Suite" },
+      { title: "Cài đặt hệ thống — GZV Clinic Platform" },
       { name: "description", content: "Quản lý các thiết lập chung của phòng khám." },
     ],
   }),

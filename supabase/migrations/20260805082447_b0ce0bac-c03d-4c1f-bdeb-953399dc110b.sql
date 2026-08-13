@@ -340,10 +340,10 @@ CREATE POLICY "audit insert" ON public.audit_logs FOR INSERT TO authenticated
 
 -- ============ DEMO SEED ============
 INSERT INTO public.organizations (id, name, slug, is_default) VALUES
-  ('11111111-1111-4111-8111-111111111111','Nha khoa Việt Smile','viet-smile', true);
+  ('11111111-1111-4111-8111-111111111111','Phòng Khám GZV System','viet-smile', true);
 
 INSERT INTO public.clinic_profiles (organization_id, name, short_name, legal_name, address, ward, district, city, maps_url, phone, hotline, appointment_phone, email, website, facebook, zalo, working_hours, lunch_break, weekly_days_off, tax_code, representative_name, manager_name, reminder_policy, attendance_policy, overtime_policy, grace_period_minutes, description, footer_info)
-VALUES ('11111111-1111-4111-8111-111111111111','Nha khoa Việt Smile','Việt Smile','Công ty TNHH Nha khoa Việt Smile','128 Nguyễn Văn Cừ','Phường 2','Quận 5','TP. Hồ Chí Minh','https://maps.google.com/?q=128+Nguyen+Van+Cu','028 3838 1234','1900 1234','0901 234 567','lienhe@vietsmile.vn','https://vietsmile.vn','https://facebook.com/vietsmile','0901234567','08:00 - 20:30','12:00 - 13:30','Chủ nhật','0312345678','Nguyễn Thị Hồng Vân','Trần Minh Quân','Nhắc lịch trước 24 giờ và 3 giờ','Chấm công bằng vân tay, cho phép trễ 5 phút','Tính tăng ca sau giờ kết thúc ca, tối thiểu 30 phút',5,'Phòng khám nha khoa hiện đại, tận tâm với nụ cười Việt.','© 2026 Nha khoa Việt Smile — 128 Nguyễn Văn Cừ, Quận 5, TP.HCM');
+VALUES ('11111111-1111-4111-8111-111111111111','Phòng Khám GZV System','Bá Lộc','Công ty TNHH Phòng Khám GZV System','128 Nguyễn Văn Cừ','Phường 2','Quận 5','TP. Hồ Chí Minh','https://maps.google.com/?q=128+Nguyen+Van+Cu','028 3838 1234','1900 1234','0901 234 567','lienhe@gzv.vn','https://gzv.vn','https://facebook.com/gzv','0901234567','08:00 - 20:30','12:00 - 13:30','Chủ nhật','0312345678','Nguyễn Thị Hồng Vân','Trần Minh Quân','Nhắc lịch trước 24 giờ và 3 giờ','Chấm công bằng vân tay, cho phép trễ 5 phút','Tính tăng ca sau giờ kết thúc ca, tối thiểu 30 phút',5,'Phòng khám nha khoa hiện đại, tận tâm với nụ cười Việt.','© 2026 Phòng Khám GZV System — 128 Nguyễn Văn Cừ, Quận 5, TP.HCM');
 
 INSERT INTO public.departments (id, organization_id, name, code, description, display_order) VALUES
   ('22222222-0001-4111-8111-111111111111','11111111-1111-4111-8111-111111111111','Bác sĩ','BS','Đội ngũ bác sĩ nha khoa',1),

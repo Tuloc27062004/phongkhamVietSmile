@@ -1,17 +1,17 @@
 -- Migration: Link UID 8710ca82-32c2-4765-be14-9c92f1626f2f for stephensouth1307@gmail.com
--- Grant Super Admin / Full 6 Roles under 'Phòng Khám Bá Lộc (Test System)'
+-- Grant Super Admin / Full 6 Roles under 'Hệ Thống GZV Platform (Central Hub)'
 
 DO $$
 DECLARE
   v_target_uid UUID := '8710ca82-32c2-4765-be14-9c92f1626f2f'::uuid;
   v_org_baloc_id UUID;
 BEGIN
-  -- 1. Get Organization 'BALOC_TEST'
-  SELECT id INTO v_org_baloc_id FROM public.organizations WHERE code = 'BALOC_TEST';
+  -- 1. Get Organization 'GZV_PLATFORM'
+  SELECT id INTO v_org_baloc_id FROM public.organizations WHERE code = 'GZV_PLATFORM';
 
   IF v_org_baloc_id IS NULL THEN
     INSERT INTO public.organizations (name, code, is_active)
-    VALUES ('Phòng Khám Bá Lộc (Test System)', 'BALOC_TEST', true)
+    VALUES ('Hệ Thống GZV Platform (Central Hub)', 'GZV_PLATFORM', true)
     RETURNING id INTO v_org_baloc_id;
   END IF;
 
@@ -41,7 +41,7 @@ BEGIN
     organization_id, user_id, full_name, email, employee_code, is_active, job_title
   )
   VALUES (
-    v_org_baloc_id, v_target_uid, 'BS. Stephen South (Tổng Quản Lý)', 'stephensouth1307@gmail.com', 'EMP_BALOC_02', true, 'Giám Đốc Y Khoa / Super Admin'
+    v_org_baloc_id, v_target_uid, 'BS. Stephen South (Tổng Quản Lý)', 'stephensouth1307@gmail.com', 'EMP_GZV_02', true, 'Giám Đốc Y Khoa / Super Admin'
   )
   ON CONFLICT DO NOTHING;
 

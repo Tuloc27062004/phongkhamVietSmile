@@ -18,12 +18,12 @@ import { hasAnyRole } from "@/lib/permissions";
 export const Route = createFileRoute("/_authenticated/rooms")({
   head: () => ({
     meta: [
-      { title: "Phòng & khung giờ — Việt Smile Clinic Suite" },
+      { title: "Phòng & khung giờ — GZV Clinic Platform" },
       {
         name: "description",
         content: "Quản lý phòng điều trị, ghế nha khoa và khung giờ nhận hẹn của phòng khám.",
       },
-      { property: "og:title", content: "Phòng & khung giờ — Việt Smile Clinic Suite" },
+      { property: "og:title", content: "Phòng & khung giờ — GZV Clinic Platform" },
       {
         property: "og:description",
         content: "Thiết lập phòng điều trị và slot nhận hẹn theo từng ngày trong tuần.",

@@ -43,7 +43,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/biometric/devices")({
   head: () => ({
     meta: [
-      { title: "Thiết bị nhận dạng - Việt Smile Clinic Suite" },
+      { title: "Thiết bị nhận dạng - GZV Clinic Platform" },
       {
         name: "description",
         content: "Quản lý thiết bị vân tay và nhận diện khuôn mặt.",

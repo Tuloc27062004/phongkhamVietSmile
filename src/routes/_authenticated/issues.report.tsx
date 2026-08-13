@@ -18,7 +18,7 @@ import { useAuthSession } from "@/hooks/use-session";
 export const Route = createFileRoute("/_authenticated/issues/report")({
   head: () => ({
     meta: [
-      { title: "Báo cáo sự cố — Việt Smile Clinic" },
+      { title: "Báo cáo sự cố — GZV Clinic Platform" },
       { name: "description", content: "Báo cáo lỗi hoặc sự cố hệ thống" },
     ],
   }),

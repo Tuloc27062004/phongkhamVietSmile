@@ -361,7 +361,7 @@ You're done! 🎉
 
 ---
 
-**Project:** Clinic Flow (Nha khoa Việt Smile)
+**Project:** Clinic Flow (Phòng Khám GZV System)
 **Status:** ✓ Ready for Deployment
 **Next:** Read QUICK_START.md
 **Total Time:** ~30 minutes

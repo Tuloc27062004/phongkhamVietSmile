@@ -473,6 +473,6 @@ Organization (root)
 
 ---
 
-Generated for: Nha khoa Việt Smile Clinic Suite
+Generated for: Phòng Khám GZV System Clinic Suite
 System: clinic-flow
 Prepared: August 2026

@@ -18,15 +18,15 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Đăng nhập — Việt Smile Clinic Suite" },
+      { title: "Đăng nhập — GZV Clinic Platform" },
       {
         name: "description",
-        content: "Đăng nhập vào hệ thống quản lý phòng khám nha khoa Việt Smile.",
+        content: "Đăng nhập vào hệ thống quản lý phòng khám nha khoa GZV Platform.",
       },
-      { property: "og:title", content: "Đăng nhập — Việt Smile Clinic Suite" },
+      { property: "og:title", content: "Đăng nhập — GZV Clinic Platform" },
       {
         property: "og:description",
-        content: "Khu vực dành cho nhân viên phòng khám nha khoa Việt Smile.",
+        content: "Khu vực dành cho nhân viên phòng khám nha khoa GZV Platform.",
       },
     ],
   }),
@@ -114,7 +114,7 @@ function AuthPage() {
           <div className="flex size-10 items-center justify-center rounded-xl bg-card/20">
             <Sparkles className="size-5 text-primary-foreground" />
           </div>
-          <p className="text-lg font-semibold text-primary-foreground">Việt Smile Clinic Suite</p>
+          <p className="text-lg font-semibold text-primary-foreground">GZV Clinic Platform</p>
         </div>
         <div className="max-w-md">
           <h2 className="text-3xl font-semibold leading-snug text-primary-foreground">
@@ -126,7 +126,7 @@ function AuthPage() {
           </p>
         </div>
         <p className="text-xs text-primary-foreground/70">
-          © 2026 Nha khoa Việt Smile — Hệ thống quản lý nội bộ
+          © 2026 Phòng Khám GZV System Platform — Hệ thống quản lý nội bộ
         </p>
       </div>
 
@@ -166,7 +166,7 @@ function AuthPage() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  placeholder="ten@vietsmile.vn"
+                  placeholder="ten@gzv.vn"
                   autoComplete="email"
                   required
                 />

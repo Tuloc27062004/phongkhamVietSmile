@@ -41,7 +41,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/attendance/manual")({
   head: () => ({
     meta: [
-      { title: "Chấm công thủ công - Việt Smile Clinic Suite" },
+      { title: "Chấm công thủ công - GZV Clinic Platform" },
       {
         name: "description",
         content: "Quản lý chấm công thủ công cho nhân viên.",
