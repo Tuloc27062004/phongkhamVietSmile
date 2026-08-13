@@ -53,24 +53,52 @@ interface ClinicOption {
   id: string;
   name: string;
   code: string;
+  clinic_category: string;
+  clinic_category_label: string;
+  max_employees: number;
+  max_doctors: number;
+  max_devices: number;
+  employee_count: number;
+  doctor_count: number;
+  device_count: number;
   is_active_workspace: boolean;
 }
+
+const CATEGORY_ICONS: Record<string, string> = {
+  dental: "🦷",
+  general: "🏥",
+  obgyn: "👶",
+  pediatrics: "🧸",
+  dermatology: "✨",
+  ophthalmology: "👁️",
+  ent: "👂",
+  aesthetics: "💄",
+  rehab: "🦾",
+  hospital: "🏬",
+};
 
 function AdminDashboard() {
   const queryClient = useQueryClient();
 
-  // Query: Danh sách phòng khám dành cho Super Admin GZV Platform
+  // Query: Danh sách phòng khám nhóm theo cây danh mục chuyên khoa dành cho Super Admin GZV Platform
   const clinicsQuery = useQuery({
-    queryKey: ["super-admin-clinics"],
+    queryKey: ["super-admin-clinics-taxonomy"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("super_admin_list_clinics");
+      const { data, error } = await supabase.rpc("super_admin_list_clinics_taxonomy");
       if (error) {
-        // Fallback cho tài khoản không phải Super Admin
-        const { data: currentOrg } = await supabase
-          .from("organizations")
-          .select("id, name, code")
-          .maybeSingle();
-        return currentOrg ? [{ ...currentOrg, is_active_workspace: true }] : [];
+        // Fallback đọc trực tiếp nếu chưa chạy RPC
+        const { data: orgs } = await supabase.rpc("super_admin_list_clinics");
+        return ((orgs as unknown as ClinicOption[]) || []).map((o) => ({
+          ...o,
+          clinic_category: o.clinic_category || "general",
+          clinic_category_label: o.clinic_category_label || "Phòng Khám Đa Khoa",
+          max_employees: 50,
+          max_doctors: 20,
+          max_devices: 10,
+          employee_count: 0,
+          doctor_count: 0,
+          device_count: 0,
+        }));
       }
       return (data as unknown as ClinicOption[]) || [];
     },
@@ -157,6 +185,17 @@ function AdminDashboard() {
 
   const currentWorkspace = clinicsQuery.data?.find((c) => c.is_active_workspace);
 
+  // Group clinics by category label
+  const groupedClinics = (clinicsQuery.data || []).reduce(
+    (acc, clinic) => {
+      const cat = clinic.clinic_category_label || "Chuyên Khoa Khác";
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(clinic);
+      return acc;
+    },
+    {} as Record<string, ClinicOption[]>,
+  );
+
   return (
     <div className="space-y-8">
       {/* Super Admin Clinic Workspace Switcher Bar */}
@@ -170,34 +209,50 @@ function AdminDashboard() {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">
-                    GZV Platform Control Center
+                    GZV CLINIC PLATFORM — CONTROL CENTER
                   </span>
                   <Badge variant="outline" className="border-blue-400/30 text-blue-300 text-[10px]">
-                    Super Admin
+                    Super Admin Center
                   </Badge>
                 </div>
-                <h2 className="text-lg font-bold text-white">
-                  Đang quản lý: {currentWorkspace?.name || "Chưa chọn phòng khám"}
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <span>{CATEGORY_ICONS[currentWorkspace?.clinic_category || "general"]}</span>
+                  <span>Đang quản lý: {currentWorkspace?.name || "GZV Central Hub"}</span>
+                  <span className="text-xs font-normal text-slate-400">({currentWorkspace?.clinic_category_label})</span>
                 </h2>
               </div>
             </div>
 
             {clinicsQuery.data.length > 1 && (
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-slate-300 whitespace-nowrap">Chuyển phòng khám:</span>
+                <span className="text-sm font-medium text-slate-300 whitespace-nowrap">Chọn Chi Nhánh / Chuyên Khoa:</span>
                 <Select
                   value={currentWorkspace?.id}
                   onValueChange={(val) => switchClinicMutation.mutate(val)}
                   disabled={switchClinicMutation.isPending}
                 >
-                  <SelectTrigger className="w-[240px] border-slate-700 bg-slate-800/80 text-white">
+                  <SelectTrigger className="w-[300px] border-slate-700 bg-slate-800/90 text-white font-medium">
                     <SelectValue placeholder="Chọn phòng khám..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
-                    {clinicsQuery.data.map((clinic) => (
-                      <SelectItem key={clinic.id} value={clinic.id} className="focus:bg-blue-600 focus:text-white">
-                        {clinic.name} ({clinic.code})
-                      </SelectItem>
+                  <SelectContent className="bg-slate-900 border-slate-800 text-white max-h-[400px]">
+                    {Object.entries(groupedClinics).map(([categoryLabel, clinics]) => (
+                      <div key={categoryLabel} className="px-2 py-1.5">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-blue-400 mb-1 border-b border-slate-800 pb-1">
+                          {categoryLabel}
+                        </div>
+                        {clinics.map((clinic) => (
+                          <SelectItem
+                            key={clinic.id}
+                            value={clinic.id}
+                            className="focus:bg-blue-600 focus:text-white cursor-pointer py-1.5"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span>{clinic.name}</span>
+                              <span className="text-[10px] text-slate-400">({clinic.code})</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </div>
                     ))}
                   </SelectContent>
                 </Select>
@@ -330,6 +385,108 @@ function AdminDashboard() {
           </div>
         </Card>
       </div>
+
+      {/* Super Admin Detailed Clinic Management Table */}
+      <Card className="p-6 shadow-md border-0 bg-white">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <Building2 className="size-5 text-blue-600" />
+              <span>Danh Sách & Quản Lý Chi Tiết Tất Cả Các Phòng Khám</span>
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Super Admin GZV Platform: Theo dõi giới hạn nhân sự, bác sĩ, thiết bị máy chấm công và vai trò các phòng khám khách hàng.
+            </p>
+          </div>
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+            + Thêm Phòng Khám Chi Nhánh Mới
+          </Button>
+        </div>
+
+        <div className="overflow-x-auto rounded-lg border border-gray-100">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-600 border-b">
+              <tr>
+                <th className="px-4 py-3">Tên Phòng Khám / Cơ Sở</th>
+                <th className="px-4 py-3">Mã Code / Slug</th>
+                <th className="px-4 py-3">Chuyên Khoa</th>
+                <th className="px-4 py-3 text-center">Hạn Mạch Nhân Sự</th>
+                <th className="px-4 py-3 text-center">Bác Sĩ</th>
+                <th className="px-4 py-3 text-center">Máy Vân Tay</th>
+                <th className="px-4 py-3 text-center">Trạng Thái</th>
+                <th className="px-4 py-3 text-right">Thao Tác Quản Lý</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {(clinicsQuery.data || []).map((clinic) => (
+                <tr key={clinic.id} className={clinic.is_active_workspace ? "bg-blue-50/50 font-medium" : "hover:bg-gray-50/80"}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-lg">{CATEGORY_ICONS[clinic.clinic_category || "general"]}</span>
+                      <div>
+                        <div className="font-semibold text-gray-900 flex items-center gap-1.5">
+                          <span>{clinic.name}</span>
+                          {clinic.is_active_workspace && (
+                            <Badge className="bg-blue-600 text-[10px] py-0 px-1.5">Đang làm việc</Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <code className="rounded bg-slate-100 px-2 py-0.5 text-xs font-mono text-slate-700">
+                      {clinic.code}
+                    </code>
+                  </td>
+                  <td className="px-4 py-3">
+                    <Badge variant="outline" className="text-xs border-slate-200">
+                      {clinic.clinic_category_label}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="font-semibold text-slate-800">{clinic.employee_count}</span> / <span className="text-slate-500">{clinic.max_employees || 50}</span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="font-semibold text-slate-800">{clinic.doctor_count}</span> / <span className="text-slate-500">{clinic.max_doctors || 20}</span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="font-semibold text-slate-800">{clinic.device_count}</span> / <span className="text-slate-500">{clinic.max_devices || 10}</span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {clinic.is_active_workspace ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                        <span className="size-2 rounded-full bg-emerald-500"></span> Đang hoạt động
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                        <span className="size-2 rounded-full bg-slate-300"></span> Sẵn sàng
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      {!clinic.is_active_workspace && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                          onClick={() => switchClinicMutation.mutate(clinic.id)}
+                          disabled={switchClinicMutation.isPending}
+                        >
+                          Vào Kiểm Tra Dữ Liệu
+                        </Button>
+                      )}
+                      <Button size="sm" variant="ghost" className="h-8 text-xs text-slate-600" asChild>
+                        <a href="/system/clinic-profile">Cấu Hình Hồ Sơ</a>
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }
