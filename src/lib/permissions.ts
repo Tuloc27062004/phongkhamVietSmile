@@ -10,7 +10,6 @@ import {
   DollarSign,
   FileSpreadsheet,
   Fingerprint,
-  Gauge,
   HeartPulse,
   History,
   LayoutDashboard,
@@ -91,15 +90,14 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Quản lý Chấm công & Vân tay",
     items: [
       { title: "Chấm công", to: "/attendance/checkin", icon: Fingerprint, roles: ALL },
-      { title: "Bảng công tổng hợp tháng", to: "/attendance/monthly", icon: FileSpreadsheet, roles: STAFF },
+      {
+        title: "Chấm công tháng & Xuất dữ liệu",
+        to: "/attendance/monthly",
+        icon: FileSpreadsheet,
+        roles: STAFF,
+      },
       { title: "Điều chỉnh công", to: "/attendance/adjustments", icon: Timer, roles: STAFF },
       { title: "Tăng ca", to: "/attendance/overtime", icon: History, roles: STAFF },
-    ],
-  },
-  {
-    label: "Báo cáo & Xuất dữ liệu",
-    items: [
-      { title: "Báo cáo & Xuất dữ liệu", to: "/reports/attendance", icon: Gauge, roles: STAFF },
     ],
   },
   {

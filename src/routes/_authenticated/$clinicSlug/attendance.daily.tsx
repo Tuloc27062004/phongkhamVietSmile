@@ -135,8 +135,9 @@ function AttendanceDailyPage() {
 
   const formatTime = (time: string | null) => {
     if (!time) return "—";
-    const [hours, minutes] = time.split(":");
-    return `${hours}:${minutes}`;
+    const date = new Date(time);
+    if (Number.isNaN(date.getTime())) return "—";
+    return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
   };
 
   const calculateDuration = (
@@ -144,10 +145,11 @@ function AttendanceDailyPage() {
     checkOut: string | null,
   ) => {
     if (!checkIn || !checkOut) return "—";
-    const [inH, inM] = checkIn.split(":").map(Number);
-    const [outH, outM] = checkOut.split(":").map(Number);
-    if (inH === undefined || inM === undefined || outH === undefined || outM === undefined) return "—";
-    const diff = (outH - inH) * 60 + (outM - inM);
+    const inDate = new Date(checkIn);
+    const outDate = new Date(checkOut);
+    if (Number.isNaN(inDate.getTime()) || Number.isNaN(outDate.getTime())) return "—";
+    const diff = Math.round((outDate.getTime() - inDate.getTime()) / 60000);
+    if (diff < 0) return "—";
     const hours = Math.floor(diff / 60);
     const minutes = diff % 60;
     return `${hours}h ${minutes}m`;

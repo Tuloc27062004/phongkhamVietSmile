@@ -115,6 +115,31 @@ function AdminDashboard() {
     },
   });
 
+  const infraQuery = useQuery({
+    queryKey: ["admin-infra-status"],
+    queryFn: async () => {
+      const [devices, lastSync] = await Promise.all([
+        supabase.from("devices").select("id, is_active, status"),
+        supabase
+          .from("device_sync_logs")
+          .select("status, started_at")
+          .order("started_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ]);
+      if (devices.error) throw devices.error;
+      if (lastSync.error) throw lastSync.error;
+
+      const rows = devices.data ?? [];
+      return {
+        deviceTotal: rows.length,
+        deviceOnline: rows.filter((d) => d.is_active && d.status === "online").length,
+        lastSyncAt: lastSync.data?.started_at ?? null,
+        lastSyncStatus: lastSync.data?.status ?? null,
+      };
+    },
+  });
+
   if (statsQuery.isLoading || clinicsQuery.isLoading) {
     return <LoadingState rows={4} />;
   }
@@ -156,55 +181,55 @@ function AdminDashboard() {
     <div className="space-y-8">
       {/* Super Admin Clinic Workspace Switcher Bar */}
       {clinicsQuery.data && clinicsQuery.data.length > 0 && (
-        <Card className="border-l-4 border-l-blue-600 bg-gradient-to-r from-slate-900 to-indigo-950 p-4 text-white shadow-xl">
+        <Card className="brand-gradient border-0 p-4 text-primary-foreground shadow-panel">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-blue-500/20 text-blue-400 backdrop-blur-md">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-white/15 text-primary-foreground backdrop-blur-md">
                 <Building2 className="size-6" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/70">
                     GZV CLINIC PLATFORM — CONTROL CENTER
                   </span>
-                  <Badge variant="outline" className="border-blue-400/30 text-blue-300 text-[10px]">
+                  <Badge variant="outline" className="border-white/25 text-primary-foreground/90 text-[10px]">
                     Super Admin Center
                   </Badge>
                 </div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <h2 className="text-lg font-bold text-primary-foreground flex items-center gap-2">
                   <span>{CATEGORY_ICONS[currentWorkspace?.clinic_category || "general"]}</span>
                   <span>Đang quản lý: {currentWorkspace?.name || "GZV Central Hub"}</span>
-                  <span className="text-xs font-normal text-slate-400">({currentWorkspace?.clinic_category_label})</span>
+                  <span className="text-xs font-normal text-primary-foreground/60">({currentWorkspace?.clinic_category_label})</span>
                 </h2>
               </div>
             </div>
 
             {clinicsQuery.data.length > 1 && (
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-slate-300 whitespace-nowrap">Chọn Chi Nhánh / Chuyên Khoa:</span>
+                <span className="text-sm font-medium text-primary-foreground/70 whitespace-nowrap">Chọn Chi Nhánh / Chuyên Khoa:</span>
                 <Select
                   value={currentWorkspace?.slug ?? ""}
                   onValueChange={(slug) => switchClinic.mutate({ slug, subpath: "/admin/dashboard" })}
                   disabled={switchClinic.isPending}
                 >
-                  <SelectTrigger className="w-[300px] border-slate-700 bg-slate-800/90 text-white font-medium">
+                  <SelectTrigger className="w-[300px] border-white/20 bg-black/15 text-primary-foreground font-medium">
                     <SelectValue placeholder="Chọn phòng khám..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-800 text-white max-h-[400px]">
+                  <SelectContent className="bg-navy border-white/10 text-navy-foreground max-h-[400px]">
                     {Object.entries(groupedClinics).map(([categoryLabel, clinics]) => (
                       <div key={categoryLabel} className="px-2 py-1.5">
-                        <div className="text-[11px] font-bold uppercase tracking-wider text-blue-400 mb-1 border-b border-slate-800 pb-1">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-navy-foreground/60 mb-1 border-b border-white/10 pb-1">
                           {categoryLabel}
                         </div>
                         {clinics.map((clinic) => (
                           <SelectItem
                             key={clinic.id}
                             value={clinic.slug}
-                            className="focus:bg-blue-600 focus:text-white cursor-pointer py-1.5"
+                            className="focus:bg-primary focus:text-primary-foreground cursor-pointer py-1.5"
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span>{clinic.name}</span>
-                              <span className="text-[10px] text-slate-400">({clinic.code})</span>
+                              <span className="text-[10px] text-navy-foreground/60">({clinic.code})</span>
                             </div>
                           </SelectItem>
                         ))}
@@ -269,21 +294,21 @@ function AdminDashboard() {
       {/* Main Grid */}
       <div className="grid gap-6 md:grid-cols-3">
         {/* Attendance Today */}
-        <Card className="overflow-hidden border-0 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-md md:col-span-1">
+        <Card className="surface-card md:col-span-1">
           <div className="space-y-4 p-6">
-            <h3 className="font-semibold text-gray-900">Chấm công hôm nay</h3>
+            <h3 className="font-semibold text-foreground">Chấm công hôm nay</h3>
             <div className="space-y-3">
-              <div className="flex items-center justify-between rounded-lg bg-white/60 px-3 py-2">
-                <span className="text-sm text-gray-600">Đã chấm công</span>
-                <span className="font-semibold text-blue-600">{stats.attendance_today}</span>
+              <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+                <span className="text-sm text-muted-foreground">Đã chấm công</span>
+                <span className="font-semibold text-primary">{stats.attendance_today}</span>
               </div>
-              <div className="flex items-center justify-between rounded-lg bg-white/60 px-3 py-2">
-                <span className="text-sm text-gray-600">Đi trễ</span>
-                <span className="font-semibold text-orange-600">{stats.late_today}</span>
+              <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+                <span className="text-sm text-muted-foreground">Đi trễ</span>
+                <span className="font-semibold text-warning-foreground">{stats.late_today}</span>
               </div>
-              <div className="flex items-center justify-between rounded-lg bg-white/60 px-3 py-2">
-                <span className="text-sm text-gray-600">Vắng</span>
-                <span className="font-semibold text-red-600">{stats.absent_today}</span>
+              <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+                <span className="text-sm text-muted-foreground">Vắng</span>
+                <span className="font-semibold text-destructive">{stats.absent_today}</span>
               </div>
             </div>
             <Button variant="outline" className="w-full" asChild>
@@ -293,9 +318,9 @@ function AdminDashboard() {
         </Card>
 
         {/* Quick Management Actions */}
-        <Card className="overflow-hidden border-0 bg-gradient-to-br from-purple-50 to-pink-50 shadow-md md:col-span-1">
+        <Card className="surface-card md:col-span-1">
           <div className="space-y-4 p-6">
-            <h3 className="font-semibold text-gray-900">Quản trị chuyên môn</h3>
+            <h3 className="font-semibold text-foreground">Quản trị chuyên môn</h3>
             <div className="space-y-2">
               <Button variant="outline" className="w-full justify-start" asChild>
                 <Link to={buildPath("/employees")}>Quản lý Y Bác sĩ & Nhân sự</Link>
@@ -313,41 +338,48 @@ function AdminDashboard() {
           </div>
         </Card>
 
-        {/* System & Hardware Health */}
-        <Card className="overflow-hidden border-0 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-md md:col-span-1">
+        {/* Device connectivity — real data, not decorative status */}
+        <Card className="surface-card md:col-span-1">
           <div className="space-y-4 p-6">
-            <h3 className="font-semibold text-gray-900">Trạng thái hạ tầng</h3>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-600" />
-                <span className="text-sm text-gray-700">Máy chấm công vân tay: Sẵn sàng</span>
+            <h3 className="font-semibold text-foreground">Máy chấm công phần cứng</h3>
+            {infraQuery.isLoading ? (
+              <div className="h-24 animate-pulse rounded-lg bg-muted" />
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  {(infraQuery.data?.deviceOnline ?? 0) > 0 ? (
+                    <CheckCircle2 className="size-4 text-success" />
+                  ) : (
+                    <ShieldAlert className="size-4 text-warning" />
+                  )}
+                  <span className="text-sm text-foreground">
+                    {infraQuery.data?.deviceOnline ?? 0}/{infraQuery.data?.deviceTotal ?? 0} thiết bị đang trực tuyến
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="size-4 text-success" />
+                  <span className="text-sm text-foreground">
+                    Đồng bộ gần nhất:{" "}
+                    {infraQuery.data?.lastSyncAt
+                      ? `${new Date(infraQuery.data.lastSyncAt).toLocaleString("vi-VN")} (${infraQuery.data.lastSyncStatus})`
+                      : "Chưa có lần đồng bộ nào"}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-600" />
-                <span className="text-sm text-gray-700">Supabase Cloud DB: Kết nối tốt</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-600" />
-                <span className="text-sm text-gray-700">Realtime Push Engine: Hoạt động</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldAlert className="size-4 text-blue-600" />
-                <span className="text-sm text-gray-700">Bảo mật RLS: Cách ly tuyệt đối</span>
-              </div>
-            </div>
+            )}
             <Button variant="outline" className="w-full" asChild>
-              <Link to={buildPath("/system/settings")}>Cấu hình nâng cao</Link>
+              <Link to={buildPath("/system/sync")}>Xem chi tiết đồng bộ</Link>
             </Button>
           </div>
         </Card>
       </div>
 
       {/* Super Admin Detailed Clinic Management Table */}
-      <Card className="p-6 shadow-md border-0 bg-white">
+      <Card className="quiet-card p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <Building2 className="size-5 text-blue-600" />
+            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Building2 className="size-5 text-primary" />
               <span>Danh Sách & Quản Lý Chi Tiết Tất Cả Các Phòng Khám</span>
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -357,9 +389,9 @@ function AdminDashboard() {
           <CreateClinicDialog />
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-gray-100">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-600 border-b">
+            <thead className="bg-muted text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
               <tr>
                 <th className="px-4 py-3">Tên Phòng Khám / Cơ Sở</th>
                 <th className="px-4 py-3">Mã Code / Slug</th>
@@ -371,49 +403,49 @@ function AdminDashboard() {
                 <th className="px-4 py-3 text-right">Thao Tác Quản Lý</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {(clinicsQuery.data || []).map((clinic) => (
-                <tr key={clinic.id} className={clinic.is_active_workspace ? "bg-blue-50/50 font-medium" : "hover:bg-gray-50/80"}>
+                <tr key={clinic.id} className={clinic.is_active_workspace ? "bg-primary/5 font-medium" : "hover:bg-muted/50"}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       <span className="text-lg">{CATEGORY_ICONS[clinic.clinic_category || "general"]}</span>
                       <div>
-                        <div className="font-semibold text-gray-900 flex items-center gap-1.5">
+                        <div className="font-semibold text-foreground flex items-center gap-1.5">
                           <span>{clinic.name}</span>
                           {clinic.is_active_workspace && (
-                            <Badge className="bg-blue-600 text-[10px] py-0 px-1.5">Đang làm việc</Badge>
+                            <Badge className="bg-primary text-[10px] py-0 px-1.5">Đang làm việc</Badge>
                           )}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <code className="rounded bg-slate-100 px-2 py-0.5 text-xs font-mono text-slate-700">
+                    <code className="rounded bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">
                       {clinic.code}
                     </code>
                   </td>
                   <td className="px-4 py-3">
-                    <Badge variant="outline" className="text-xs border-slate-200">
+                    <Badge variant="outline" className="text-xs">
                       {clinic.clinic_category_label}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <span className="font-semibold text-slate-800">{clinic.employee_count}</span> / <span className="text-slate-500">{clinic.max_employees || 50}</span>
+                    <span className="font-semibold text-foreground">{clinic.employee_count}</span> / <span className="text-muted-foreground">{clinic.max_employees || 50}</span>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <span className="font-semibold text-slate-800">{clinic.doctor_count}</span> / <span className="text-slate-500">{clinic.max_doctors || 20}</span>
+                    <span className="font-semibold text-foreground">{clinic.doctor_count}</span> / <span className="text-muted-foreground">{clinic.max_doctors || 20}</span>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <span className="font-semibold text-slate-800">{clinic.device_count}</span> / <span className="text-slate-500">{clinic.max_devices || 10}</span>
+                    <span className="font-semibold text-foreground">{clinic.device_count}</span> / <span className="text-muted-foreground">{clinic.max_devices || 10}</span>
                   </td>
                   <td className="px-4 py-3 text-center">
                     {clinic.is_active_workspace ? (
-                      <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-semibold">
-                        <span className="size-2 rounded-full bg-emerald-500"></span> Đang hoạt động
+                      <span className="inline-flex items-center gap-1 text-xs text-success font-semibold">
+                        <span className="size-2 rounded-full bg-success"></span> Đang hoạt động
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                        <span className="size-2 rounded-full bg-slate-300"></span> Sẵn sàng
+                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                        <span className="size-2 rounded-full bg-muted-foreground/40"></span> Sẵn sàng
                       </span>
                     )}
                   </td>
@@ -423,7 +455,7 @@ function AdminDashboard() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-8 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                          className="h-8 text-xs text-primary border-primary/25 hover:bg-primary/5"
                           onClick={() =>
                             switchClinic.mutate({ slug: clinic.slug, subpath: "/admin/dashboard" })
                           }
@@ -432,7 +464,7 @@ function AdminDashboard() {
                           Vào Kiểm Tra Dữ Liệu
                         </Button>
                       )}
-                      <Button size="sm" variant="ghost" className="h-8 text-xs text-slate-600" asChild>
+                      <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground" asChild>
                         <Link to={buildPath("/system/clinic-profile")}>Cấu Hình Hồ Sơ</Link>
                       </Button>
                     </div>
@@ -462,27 +494,27 @@ function AdminStatCard({
   suffix?: string;
   color: "blue" | "purple" | "green" | "emerald";
 }) {
-  const colorMap = {
-    blue: "from-blue-500 to-indigo-600 text-blue-600 bg-blue-50",
-    purple: "from-purple-500 to-pink-600 text-purple-600 bg-purple-50",
-    green: "from-green-500 to-emerald-600 text-green-600 bg-green-50",
-    emerald: "from-emerald-500 to-teal-600 text-emerald-600 bg-emerald-50",
+  const toneClasses: Record<string, string> = {
+    blue: "bg-primary/10 text-primary",
+    purple: "bg-info/10 text-info",
+    green: "bg-success/10 text-success",
+    emerald: "bg-warning/10 text-warning",
   };
 
   return (
-    <Card className="p-6 transition-all hover:shadow-lg">
+    <Card className="lift-card p-6">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-gray-500">{label}</p>
+          <p className="text-sm font-medium text-muted-foreground">{label}</p>
           <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-bold tracking-tight text-gray-900">
+            <span className="text-3xl font-bold tracking-tight text-foreground">
               {value}
             </span>
-            {suffix && <span className="text-lg font-semibold text-gray-600">{suffix}</span>}
+            {suffix && <span className="text-lg font-semibold text-muted-foreground">{suffix}</span>}
           </div>
-          <p className="text-xs text-gray-500">{subtext}</p>
+          <p className="text-xs text-muted-foreground">{subtext}</p>
         </div>
-        <div className={`rounded-xl p-3 ${colorMap[color].split(" ").slice(1).join(" ")}`}>
+        <div className={`rounded-xl p-3 ${toneClasses[color]}`}>
           <Icon className="size-6" />
         </div>
       </div>

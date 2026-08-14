@@ -15,9 +15,12 @@ import {
   Stethoscope,
   Wallet,
   CalendarClock,
+  AlertTriangle,
+  FileText,
 } from "lucide-react";
 import { useState } from "react";
 
+import { AvatarUploadField } from "@/components/avatar-upload-field";
 import { PageHeader, ErrorState, LoadingState, EmptyState } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -64,10 +68,16 @@ interface Patient {
   date_of_birth: string | null;
   gender: string | null;
   insurance_number: string | null;
+  avatar_url: string | null;
+  medical_notes: string | null;
+  allergies: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
   created_at: string;
 }
 
 type PatientFormState = {
+  id: string;
   patient_code: string;
   full_name: string;
   phone: string;
@@ -76,9 +86,15 @@ type PatientFormState = {
   gender: string;
   address: string;
   insurance_number: string;
+  avatar_url: string;
+  medical_notes: string;
+  allergies: string;
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
 };
 
 const EMPTY_FORM: PatientFormState = {
+  id: "",
   patient_code: "",
   full_name: "",
   phone: "",
@@ -87,6 +103,11 @@ const EMPTY_FORM: PatientFormState = {
   gender: "",
   address: "",
   insurance_number: "",
+  avatar_url: "",
+  medical_notes: "",
+  allergies: "",
+  emergency_contact_name: "",
+  emergency_contact_phone: "",
 };
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
@@ -99,9 +120,9 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
 };
 
 const PAYMENT_STATUS_BADGE: Record<string, { label: string; className: string }> = {
-  paid: { label: "Đã thanh toán", className: "bg-green-100 text-green-800" },
-  partial: { label: "Đã đặt cọc", className: "bg-yellow-100 text-yellow-800" },
-  unpaid: { label: "Chưa thanh toán", className: "bg-red-100 text-red-800" },
+  paid: { label: "Đã thanh toán", className: "bg-success/10 text-success" },
+  partial: { label: "Đã đặt cọc", className: "bg-warning/10 text-warning-foreground" },
+  unpaid: { label: "Chưa thanh toán", className: "bg-destructive/10 text-destructive" },
 };
 
 function genPatientCode() {
@@ -123,7 +144,7 @@ function PatientsPage() {
       let query = supabase
         .from("patients")
         .select(
-          "id, patient_code, full_name, phone, email, address, date_of_birth, gender, insurance_number, created_at",
+          "id, patient_code, full_name, phone, email, address, date_of_birth, gender, insurance_number, avatar_url, medical_notes, allergies, emergency_contact_name, emergency_contact_phone, created_at",
         )
         .is("deleted_at", null);
 
@@ -191,6 +212,7 @@ function PatientsPage() {
     mutationFn: async (values: PatientFormState) => {
       if (!values.full_name.trim()) throw new Error("Vui lòng nhập họ tên");
       const { error } = await supabase.from("patients").insert({
+        id: values.id,
         organization_id: org.id,
         patient_code: values.patient_code.trim() || genPatientCode(),
         full_name: values.full_name.trim(),
@@ -200,6 +222,11 @@ function PatientsPage() {
         gender: values.gender || null,
         address: values.address.trim() || null,
         insurance_number: values.insurance_number.trim() || null,
+        avatar_url: values.avatar_url || null,
+        medical_notes: values.medical_notes.trim() || null,
+        allergies: values.allergies.trim() || null,
+        emergency_contact_name: values.emergency_contact_name.trim() || null,
+        emergency_contact_phone: values.emergency_contact_phone.trim() || null,
       });
       if (error) throw error;
     },
@@ -226,6 +253,11 @@ function PatientsPage() {
           gender: values.gender || null,
           address: values.address.trim() || null,
           insurance_number: values.insurance_number.trim() || null,
+          avatar_url: values.avatar_url || null,
+          medical_notes: values.medical_notes.trim() || null,
+          allergies: values.allergies.trim() || null,
+          emergency_contact_name: values.emergency_contact_name.trim() || null,
+          emergency_contact_phone: values.emergency_contact_phone.trim() || null,
         })
         .eq("id", selectedPatient.id);
       if (error) throw error;
@@ -258,6 +290,7 @@ function PatientsPage() {
   const openEdit = () => {
     if (!selectedPatient) return;
     setForm({
+      id: selectedPatient.id,
       patient_code: selectedPatient.patient_code,
       full_name: selectedPatient.full_name,
       phone: selectedPatient.phone ?? "",
@@ -266,6 +299,11 @@ function PatientsPage() {
       gender: selectedPatient.gender ?? "",
       address: selectedPatient.address ?? "",
       insurance_number: selectedPatient.insurance_number ?? "",
+      avatar_url: selectedPatient.avatar_url ?? "",
+      medical_notes: selectedPatient.medical_notes ?? "",
+      allergies: selectedPatient.allergies ?? "",
+      emergency_contact_name: selectedPatient.emergency_contact_name ?? "",
+      emergency_contact_phone: selectedPatient.emergency_contact_phone ?? "",
     });
     setShowEditForm(true);
   };
@@ -289,7 +327,7 @@ function PatientsPage() {
         actions={
           <Button
             onClick={() => {
-              setForm({ ...EMPTY_FORM, patient_code: genPatientCode() });
+              setForm({ ...EMPTY_FORM, id: crypto.randomUUID(), patient_code: genPatientCode() });
               setShowAddForm(true);
             }}
           >
@@ -322,19 +360,30 @@ function PatientsPage() {
                     className={`cursor-pointer rounded-lg border-2 p-3 transition ${
                       selectedPatient?.id === patient.id
                         ? "border-primary bg-primary/5"
-                        : "border-gray-200 hover:border-gray-300"
+                        : "border-border hover:border-primary/40"
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-sm font-medium">{patient.full_name}</div>
-                      <Badge variant="outline" className="shrink-0 font-mono text-[10px]">
-                        {patient.patient_code}
-                      </Badge>
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-xs font-semibold text-muted-foreground">
+                        {patient.avatar_url ? (
+                          <img src={patient.avatar_url} alt={patient.full_name} className="size-full object-cover" />
+                        ) : (
+                          (patient.full_name.charAt(0) ?? "?").toUpperCase()
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="truncate text-sm font-medium">{patient.full_name}</div>
+                          <Badge variant="outline" className="shrink-0 font-mono text-[10px]">
+                            {patient.patient_code}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-muted-foreground">{patient.phone ?? "—"}</div>
+                        {stats[patient.id] && (
+                          <div className="text-xs text-primary">{stats[patient.id]!.count} lần khám</div>
+                        )}
+                      </div>
                     </div>
-                    <div className="mt-1 text-xs text-muted-foreground">{patient.phone ?? "—"}</div>
-                    {stats[patient.id] && (
-                      <div className="mt-1 text-xs text-blue-600">{stats[patient.id]!.count} lần khám</div>
-                    )}
                   </div>
                 ))
               ) : (
@@ -350,11 +399,24 @@ function PatientsPage() {
             <>
               <Card className="space-y-6 p-6">
                 <div className="flex items-start justify-between border-b pb-4">
-                  <div>
-                    <h2 className="text-2xl font-bold">{selectedPatient.full_name}</h2>
-                    <p className="mt-1 text-muted-foreground">
-                      Mã BN: <span className="font-mono">{selectedPatient.patient_code}</span>
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-xl font-semibold text-muted-foreground">
+                      {selectedPatient.avatar_url ? (
+                        <img
+                          src={selectedPatient.avatar_url}
+                          alt={selectedPatient.full_name}
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        (selectedPatient.full_name.charAt(0) ?? "?").toUpperCase()
+                      )}
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold">{selectedPatient.full_name}</h2>
+                      <p className="mt-1 text-muted-foreground">
+                        Mã BN: <span className="font-mono">{selectedPatient.patient_code}</span>
+                      </p>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={openEdit}>
@@ -412,26 +474,61 @@ function PatientsPage() {
                   <p className="font-medium">{selectedPatient.address || "—"}</p>
                 </div>
 
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Phone className="size-4" />
+                    <span className="text-sm">Liên hệ khẩn cấp</span>
+                  </div>
+                  <p className="font-medium">
+                    {selectedPatient.emergency_contact_name || selectedPatient.emergency_contact_phone
+                      ? `${selectedPatient.emergency_contact_name || "—"} · ${selectedPatient.emergency_contact_phone || "—"}`
+                      : "—"}
+                  </p>
+                </div>
+
+                {(selectedPatient.allergies || selectedPatient.medical_notes) && (
+                  <div className="space-y-3 border-t pt-4">
+                    {selectedPatient.allergies && (
+                      <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3">
+                        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" />
+                        <div>
+                          <p className="text-xs font-medium text-red-700">Dị ứng</p>
+                          <p className="text-sm text-red-900">{selectedPatient.allergies}</p>
+                        </div>
+                      </div>
+                    )}
+                    {selectedPatient.medical_notes && (
+                      <div className="flex items-start gap-2 text-muted-foreground">
+                        <FileText className="mt-0.5 size-4 shrink-0" />
+                        <div>
+                          <p className="text-xs font-medium">Ghi chú y tế</p>
+                          <p className="text-sm text-foreground">{selectedPatient.medical_notes}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-3 gap-4 border-t pt-4">
-                  <div className="rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+                  <div className="quiet-card p-4">
                     <p className="text-xs font-medium text-muted-foreground">Tổng lần khám</p>
-                    <p className="mt-1 text-2xl font-bold text-blue-600">
+                    <p className="mt-1 text-2xl font-bold text-primary">
                       {stats[selectedPatient.id]?.count || 0}
                     </p>
                   </div>
 
-                  <div className="rounded-lg bg-gradient-to-br from-green-50 to-green-100 p-4">
+                  <div className="quiet-card p-4">
                     <p className="text-xs font-medium text-muted-foreground">Lần khám gần nhất</p>
-                    <p className="mt-1 text-lg font-bold text-green-600">
+                    <p className="mt-1 text-lg font-bold text-success">
                       {stats[selectedPatient.id]?.lastVisit
                         ? new Date(stats[selectedPatient.id]!.lastVisit!).toLocaleDateString("vi-VN")
                         : "—"}
                     </p>
                   </div>
 
-                  <div className="rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 p-4">
+                  <div className="quiet-card p-4">
                     <p className="text-xs font-medium text-muted-foreground">Khách hàng từ</p>
-                    <p className="mt-1 text-lg font-bold text-purple-600">
+                    <p className="mt-1 text-lg font-bold text-info">
                       {new Date(selectedPatient.created_at).toLocaleDateString("vi-VN")}
                     </p>
                   </div>
@@ -475,7 +572,7 @@ function PatientsPage() {
                               {visit.payment_method && ` · ${PAYMENT_METHOD_LABELS[visit.payment_method] ?? visit.payment_method}`}
                             </span>
                             {visit.follow_up_date && (
-                              <span className="flex items-center gap-1 text-amber-600">
+                              <span className="flex items-center gap-1 text-warning-foreground">
                                 <CalendarClock className="size-3.5" />
                                 Tái khám: {new Date(visit.follow_up_date).toLocaleDateString("vi-VN")}
                               </span>
@@ -512,6 +609,17 @@ function PatientsPage() {
             <DialogTitle>{showEditForm ? "Sửa hồ sơ bệnh nhân" : "Thêm bệnh nhân mới"}</DialogTitle>
             <DialogDescription>Thông tin liên hệ và hồ sơ y tế cơ bản.</DialogDescription>
           </DialogHeader>
+
+          <div className="sm:col-span-2">
+            <Label className="mb-1.5 block">Ảnh bệnh nhân</Label>
+            <AvatarUploadField
+              value={form.avatar_url}
+              organizationId={org.id}
+              ownerId={form.id}
+              disabled={createMutation.isPending || updateMutation.isPending}
+              onUploaded={(url) => setForm((prev) => ({ ...prev, avatar_url: url }))}
+            />
+          </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
@@ -554,6 +662,38 @@ function PatientsPage() {
             <div className="space-y-1.5 sm:col-span-2">
               <Label>Số bảo hiểm y tế</Label>
               <Input value={form.insurance_number} onChange={(e) => setForm({ ...form, insurance_number: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Liên hệ khẩn cấp - Họ tên</Label>
+              <Input
+                value={form.emergency_contact_name}
+                onChange={(e) => setForm({ ...form, emergency_contact_name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Liên hệ khẩn cấp - Điện thoại</Label>
+              <Input
+                value={form.emergency_contact_phone}
+                onChange={(e) => setForm({ ...form, emergency_contact_phone: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Dị ứng</Label>
+              <Textarea
+                rows={2}
+                placeholder="VD: Dị ứng thuốc tê Lidocaine..."
+                value={form.allergies}
+                onChange={(e) => setForm({ ...form, allergies: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Ghi chú y tế</Label>
+              <Textarea
+                rows={3}
+                placeholder="Tiền sử bệnh, lưu ý điều trị..."
+                value={form.medical_notes}
+                onChange={(e) => setForm({ ...form, medical_notes: e.target.value })}
+              />
             </div>
           </div>
 

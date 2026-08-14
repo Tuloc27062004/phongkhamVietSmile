@@ -2,9 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
-  Building2,
   Users,
-  Clock,
   Search,
   Edit,
   Save,
@@ -12,6 +10,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +49,9 @@ interface EmployeeAssignment {
   employee_code: string;
   full_name: string;
   email: string;
+  department_id: string | null;
+  default_shift_id: string | null;
+  position_id: string | null;
   current_department: string;
   current_shift: string;
   current_position: string;
@@ -57,11 +59,17 @@ interface EmployeeAssignment {
   employment_status: string;
 }
 
+type EditDraft = {
+  department_id: string | null;
+  shift_id: string | null;
+  position_id: string | null;
+};
+
 function AssignmentPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editData, setEditData] = useState<Partial<EmployeeAssignment>>({});
+  const [editData, setEditData] = useState<EditDraft>({ department_id: null, shift_id: null, position_id: null });
 
   const employeesQuery = useQuery({
     queryKey: ["employees-assignment"],
@@ -76,7 +84,7 @@ function AssignmentPage() {
           employment_status,
           start_date,
           department_id,
-          shift_id,
+          default_shift_id,
           position_id,
           departments(name),
           positions(name),
@@ -88,17 +96,22 @@ function AssignmentPage() {
 
       if (error) throw error;
 
-      return (employees || []).map((emp: any) => ({
-        id: emp.id,
-        employee_code: emp.employee_code,
-        full_name: emp.full_name,
-        email: emp.email,
-        current_department: emp.departments?.name || "Chưa gán",
-        current_shift: emp.shifts?.name || "Chưa gán",
-        current_position: emp.positions?.name || "Chưa gán",
-        start_date: emp.start_date,
-        employment_status: emp.employment_status,
-      }));
+      return (employees || []).map(
+        (emp: any): EmployeeAssignment => ({
+          id: emp.id,
+          employee_code: emp.employee_code,
+          full_name: emp.full_name,
+          email: emp.email,
+          department_id: emp.department_id,
+          default_shift_id: emp.default_shift_id,
+          position_id: emp.position_id,
+          current_department: emp.departments?.name || "Chưa gán",
+          current_shift: emp.shifts?.name || "Chưa gán",
+          current_position: emp.positions?.name || "Chưa gán",
+          start_date: emp.start_date,
+          employment_status: emp.employment_status,
+        }),
+      );
     },
   });
 
@@ -141,23 +154,25 @@ function AssignmentPage() {
   });
 
   const updateAssignmentMutation = useMutation({
-    mutationFn: async (assignment: any) => {
+    mutationFn: async ({ id, draft }: { id: string; draft: EditDraft }) => {
       const { error } = await supabase
         .from("employees")
         .update({
-          department_id: assignment.department_id,
-          default_shift_id: assignment.shift_id,
-          position_id: assignment.position_id,
+          department_id: draft.department_id,
+          default_shift_id: draft.shift_id,
+          position_id: draft.position_id,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", assignment.id);
+        .eq("id", id);
 
       if (error) throw error;
     },
     onSuccess: () => {
+      toast.success("Đã cập nhật phân công");
       queryClient.invalidateQueries({ queryKey: ["employees-assignment"] });
       setEditingId(null);
     },
+    onError: (error: Error) => toast.error(error.message),
   });
 
   const filteredEmployees = (employeesQuery.data || []).filter((emp) =>
@@ -175,6 +190,15 @@ function AssignmentPage() {
     ).length,
   };
 
+  const startEdit = (emp: EmployeeAssignment) => {
+    setEditingId(emp.id);
+    setEditData({
+      department_id: emp.department_id,
+      shift_id: emp.default_shift_id,
+      position_id: emp.position_id,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -184,38 +208,38 @@ function AssignmentPage() {
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100">
+        <Card className="surface-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Tổng Nhân Viên</p>
-              <p className="text-3xl font-bold text-blue-600">{stats.totalEmployees}</p>
+              <p className="text-sm text-muted-foreground">Tổng Nhân Viên</p>
+              <p className="text-3xl font-bold text-primary">{stats.totalEmployees}</p>
             </div>
-            <div className="bg-blue-200 p-3 rounded-lg">
-              <Users className="w-6 h-6 text-blue-600" />
+            <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Users className="size-5" />
             </div>
           </div>
         </Card>
 
-        <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100">
+        <Card className="surface-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Đã Gán Công Việc</p>
-              <p className="text-3xl font-bold text-green-600">{stats.assigned}</p>
+              <p className="text-sm text-muted-foreground">Đã Gán Công Việc</p>
+              <p className="text-3xl font-bold text-success">{stats.assigned}</p>
             </div>
-            <div className="bg-green-200 p-3 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+            <div className="flex size-11 items-center justify-center rounded-lg bg-success/10 text-success">
+              <CheckCircle className="size-5" />
             </div>
           </div>
         </Card>
 
-        <Card className="p-6 bg-gradient-to-br from-red-50 to-red-100">
+        <Card className="surface-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Chưa Gán Công Việc</p>
-              <p className="text-3xl font-bold text-red-600">{stats.unassigned}</p>
+              <p className="text-sm text-muted-foreground">Chưa Gán Công Việc</p>
+              <p className="text-3xl font-bold text-destructive">{stats.unassigned}</p>
             </div>
-            <div className="bg-red-200 p-3 rounded-lg">
-              <AlertCircle className="w-6 h-6 text-red-600" />
+            <div className="flex size-11 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+              <AlertCircle className="size-5" />
             </div>
           </div>
         </Card>
@@ -264,26 +288,21 @@ function AssignmentPage() {
                     <TableCell>
                       <div>
                         <p className="font-medium">{emp.full_name}</p>
-                        <p className="text-sm text-gray-500">{emp.email}</p>
+                        <p className="text-sm text-muted-foreground">{emp.email}</p>
                       </div>
                     </TableCell>
                     <TableCell>
                       {editingId === emp.id ? (
                         <Select
-                          value={editData.current_department || emp.current_department}
-                          onValueChange={(value) =>
-                            setEditData({
-                              ...editData,
-                              current_department: value,
-                            })
-                          }
+                          value={editData.department_id ?? ""}
+                          onValueChange={(value) => setEditData({ ...editData, department_id: value })}
                         >
                           <SelectTrigger className="w-40">
-                            <SelectValue />
+                            <SelectValue placeholder="Chọn phòng ban" />
                           </SelectTrigger>
                           <SelectContent>
-                            {(departmentsQuery.data || []).map((dept: any) => (
-                              <SelectItem key={dept.id} value={dept.name}>
+                            {(departmentsQuery.data || []).map((dept) => (
+                              <SelectItem key={dept.id} value={dept.id}>
                                 {dept.name}
                               </SelectItem>
                             ))}
@@ -298,20 +317,15 @@ function AssignmentPage() {
                     <TableCell>
                       {editingId === emp.id ? (
                         <Select
-                          value={editData.current_shift || emp.current_shift}
-                          onValueChange={(value) =>
-                            setEditData({
-                              ...editData,
-                              current_shift: value,
-                            })
-                          }
+                          value={editData.shift_id ?? ""}
+                          onValueChange={(value) => setEditData({ ...editData, shift_id: value })}
                         >
                           <SelectTrigger className="w-40">
-                            <SelectValue />
+                            <SelectValue placeholder="Chọn ca" />
                           </SelectTrigger>
                           <SelectContent>
-                            {(shiftsQuery.data || []).map((shift: any) => (
-                              <SelectItem key={shift.id} value={shift.name}>
+                            {(shiftsQuery.data || []).map((shift) => (
+                              <SelectItem key={shift.id} value={shift.id}>
                                 {shift.name} ({shift.start_time} - {shift.end_time})
                               </SelectItem>
                             ))}
@@ -324,20 +338,15 @@ function AssignmentPage() {
                     <TableCell>
                       {editingId === emp.id ? (
                         <Select
-                          value={editData.current_position || emp.current_position}
-                          onValueChange={(value) =>
-                            setEditData({
-                              ...editData,
-                              current_position: value,
-                            })
-                          }
+                          value={editData.position_id ?? ""}
+                          onValueChange={(value) => setEditData({ ...editData, position_id: value })}
                         >
                           <SelectTrigger className="w-40">
-                            <SelectValue />
+                            <SelectValue placeholder="Chọn chức danh" />
                           </SelectTrigger>
                           <SelectContent>
-                            {(positionsQuery.data || []).map((pos: any) => (
-                              <SelectItem key={pos.id} value={pos.name}>
+                            {(positionsQuery.data || []).map((pos) => (
+                              <SelectItem key={pos.id} value={pos.id}>
                                 {pos.name}
                               </SelectItem>
                             ))}
@@ -357,14 +366,7 @@ function AssignmentPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => {
-                                updateAssignmentMutation.mutate({
-                                  id: emp.id,
-                                  department_id: editData.current_department,
-                                  shift_id: editData.current_shift,
-                                  position_id: editData.current_position,
-                                });
-                              }}
+                              onClick={() => updateAssignmentMutation.mutate({ id: emp.id, draft: editData })}
                               disabled={updateAssignmentMutation.isPending}
                             >
                               <Save className="w-4 h-4" />
@@ -378,14 +380,7 @@ function AssignmentPage() {
                             </Button>
                           </>
                         ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setEditingId(emp.id);
-                              setEditData(emp);
-                            }}
-                          >
+                          <Button size="sm" variant="outline" onClick={() => startEdit(emp)}>
                             <Edit className="w-4 h-4" />
                           </Button>
                         )}

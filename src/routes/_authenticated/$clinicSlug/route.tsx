@@ -1,4 +1,5 @@
 import { createFileRoute, notFound, Outlet, redirect, useRouterState } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import { AppShell } from "@/components/app-shell";
 import { PermissionDenied } from "@/components/page-state";
@@ -78,6 +79,22 @@ function ClinicLayout() {
 
   const allowed = routeRoles(relativePath);
   const permitted = allowed === null || hasAnyRole(profile.roles, allowed);
+
+  const faviconUrl = clinicQuery.data?.favicon_url ?? null;
+  useEffect(() => {
+    if (!faviconUrl) return;
+    let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "icon";
+      document.head.appendChild(link);
+    }
+    const previousHref = link.href;
+    link.href = faviconUrl;
+    return () => {
+      if (link) link.href = previousHref;
+    };
+  }, [faviconUrl]);
 
   return (
     <AppShell

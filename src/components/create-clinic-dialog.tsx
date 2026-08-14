@@ -58,6 +58,7 @@ export function CreateClinicDialog() {
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [category, setCategory] = useState<string>("general");
+  const [adminEmail, setAdminEmail] = useState("");
   const queryClient = useQueryClient();
   const switchClinic = useSwitchClinic();
 
@@ -67,19 +68,25 @@ export function CreateClinicDialog() {
         p_name: name.trim(),
         p_slug: (slugTouched ? slug : slugify(name)).trim(),
         p_clinic_category: category,
+        p_admin_email: adminEmail.trim() || null,
       });
       if (error) throw error;
       return data?.[0];
     },
     onSuccess: (created) => {
       if (!created) return;
-      toast.success(`Đã tạo phòng khám "${name}" thành công!`);
+      toast.success(
+        adminEmail.trim()
+          ? `Đã tạo phòng khám "${name}". Khi ${adminEmail.trim()} đăng ký tài khoản, họ sẽ tự động là quản trị viên của phòng khám này.`
+          : `Đã tạo phòng khám "${name}" thành công!`,
+      );
       void queryClient.invalidateQueries({ queryKey: ["super-admin-clinics-taxonomy"] });
       setOpen(false);
       setName("");
       setSlug("");
       setSlugTouched(false);
       setCategory("general");
+      setAdminEmail("");
       switchClinic.mutate({ slug: created.slug, subpath: "/admin/dashboard" });
     },
     onError: (err: Error) => {
@@ -100,8 +107,10 @@ export function CreateClinicDialog() {
         <DialogHeader>
           <DialogTitle>Tạo phòng khám mới</DialogTitle>
           <DialogDescription>
-            Tạo nhanh một phòng khám/chi nhánh mới theo loại hình chuyên khoa. Sau khi tạo, bạn sẽ
-            được chuyển thẳng vào không gian làm việc của phòng khám đó.
+            Tạo nhanh một phòng khám/chi nhánh mới theo loại hình chuyên khoa — tự động nạp sẵn
+            phòng ban, chức danh, ca làm việc, 1 phòng điều trị và vài dịch vụ khởi điểm. Sau khi
+            tạo, bạn sẽ được chuyển thẳng vào không gian làm việc của phòng khám đó để cấu hình
+            thêm chi tiết.
           </DialogDescription>
         </DialogHeader>
 
@@ -148,6 +157,21 @@ export function CreateClinicDialog() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="clinic-admin-email">Email quản trị viên phòng khám (tùy chọn)</Label>
+            <Input
+              id="clinic-admin-email"
+              type="email"
+              value={adminEmail}
+              onChange={(event) => setAdminEmail(event.target.value)}
+              placeholder="chunhaikhoa@email.com"
+            />
+            <p className="text-xs text-muted-foreground">
+              Người này đăng ký tài khoản (bằng đúng email trên) sẽ tự động trở thành quản trị viên
+              của phòng khám này, bỏ qua hàng chờ duyệt. Bỏ trống nếu bạn tự quản lý tạm thời.
+            </p>
           </div>
         </div>
 

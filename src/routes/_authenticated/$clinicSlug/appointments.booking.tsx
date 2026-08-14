@@ -88,7 +88,6 @@ function AppointmentBookingPage() {
   const [selectedService, setSelectedService] = useState("");
   const [time, setTime] = useState(searchParams.time ?? "09:00");
   const [notes, setNotes] = useState("");
-  const [showReminderForm, setShowReminderForm] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [paidAmount, setPaidAmount] = useState("0");
@@ -471,25 +470,29 @@ function AppointmentBookingPage() {
         <div className="lg:col-span-2 space-y-4">
           {/* Stats */}
           <div className="grid grid-cols-2 gap-4">
-            <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100">
+            <Card className="surface-card p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground font-medium">Tổng hôm nay</p>
-                  <p className="text-3xl font-bold text-blue-600 mt-1">{appointments.length}</p>
+                  <p className="text-3xl font-bold text-primary mt-1">{appointments.length}</p>
                 </div>
-                <Calendar className="w-8 h-8 text-blue-200" />
+                <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Calendar className="size-5" />
+                </div>
               </div>
             </Card>
 
-            <Card className="p-4 bg-gradient-to-br from-green-50 to-green-100">
+            <Card className="surface-card p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground font-medium">Cần nhắc nhở</p>
-                  <p className="text-3xl font-bold text-green-600 mt-1">
+                  <p className="text-3xl font-bold text-success mt-1">
                     {upcomingAppointments.filter((apt) => !apt.reminder_sent).length}
                   </p>
                 </div>
-                <Bell className="w-8 h-8 text-green-200" />
+                <div className="flex size-9 items-center justify-center rounded-lg bg-success/10 text-success">
+                  <Bell className="size-5" />
+                </div>
               </div>
             </Card>
           </div>
@@ -570,6 +573,7 @@ function AppointmentBookingPage() {
                             <Button
                               size="sm"
                               variant="outline"
+                              title="Đánh dấu đã nhắc lịch (gọi điện/nhắn tin thủ công) — hệ thống chưa gửi SMS/Email/Zalo tự động"
                               onClick={() =>
                                 sendReminderMutation.mutate(appointment.id)
                               }
@@ -578,9 +582,13 @@ function AppointmentBookingPage() {
                               <Send className="w-4 h-4" />
                             </Button>
                           ) : (
-                            <Badge variant="secondary" className="gap-1">
+                            <Badge
+                              variant="secondary"
+                              className="gap-1"
+                              title="Đã đánh dấu nhắc lịch thủ công"
+                            >
                               <CheckCircle2 className="w-3 h-3" />
-                              Đã gửi
+                              Đã nhắc
                             </Badge>
                           )}
                         </div>
@@ -597,25 +605,22 @@ function AppointmentBookingPage() {
             )}
           </Card>
 
-          {/* Reminder Settings */}
+          {/* Reminder tracking — honest about what actually exists today */}
           <Card className="p-6">
             <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
               <Repeat2 className="w-5 h-5" />
-              Cài đặt nhắc nhở
+              Nhắc lịch hẹn
             </h3>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between p-3 bg-muted rounded">
-                <span>Nhắc nhở SMS</span>
-                <Badge>Bật</Badge>
+                <span>Nhắc nhở SMS / Email / Zalo tự động</span>
+                <Badge variant="secondary">Chưa hỗ trợ</Badge>
               </div>
-              <div className="flex items-center justify-between p-3 bg-muted rounded">
-                <span>Nhắc nhở Email</span>
-                <Badge>Bật</Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted rounded">
-                <span>Thời điểm (trước khám)</span>
-                <span className="font-semibold">1 ngày</span>
-              </div>
+              <p className="text-xs text-muted-foreground">
+                Hệ thống chưa kết nối kênh gửi SMS/Email/Zalo. Nút <Send className="inline size-3" /> ở danh
+                sách hẹn hôm nay chỉ đánh dấu "đã nhắc" sau khi nhân viên tự gọi điện/nhắn tin cho bệnh nhân —
+                không tự động gửi gì cả.
+              </p>
             </div>
           </Card>
         </div>

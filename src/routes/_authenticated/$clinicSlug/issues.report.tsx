@@ -12,11 +12,15 @@ import {
   Send,
 } from "lucide-react";
 
+import { toast } from "sonner";
+
 import { ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthSession } from "@/hooks/use-session";
 
@@ -90,26 +94,30 @@ function ReportForm() {
     e.preventDefault();
 
     if (!formData.title.trim()) {
-      alert("Vui lòng nhập tiêu đề");
+      toast.error("Vui lòng nhập tiêu đề");
       return;
     }
 
     if (!formData.description.trim()) {
-      alert("Vui lòng mô tả chi tiết sự cố");
+      toast.error("Vui lòng mô tả chi tiết sự cố");
       return;
     }
 
-    await reportMutation.mutateAsync(formData);
-    setSubmitted(true);
-    setFormData({
-      category: "bug",
-      priority: "medium",
-      title: "",
-      description: "",
-      steps: "",
-    });
+    try {
+      await reportMutation.mutateAsync(formData);
+      setSubmitted(true);
+      setFormData({
+        category: "bug",
+        priority: "medium",
+        title: "",
+        description: "",
+        steps: "",
+      });
 
-    setTimeout(() => setSubmitted(false), 5000);
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Không gửi được báo cáo, vui lòng thử lại");
+    }
   };
 
   const categories = [
@@ -120,40 +128,40 @@ function ReportForm() {
   ];
 
   const priorities = [
-    { value: "low" as IssuePriority, label: "Thấp", color: "bg-blue-100 text-blue-800" },
-    { value: "medium" as IssuePriority, label: "Trung bình", color: "bg-yellow-100 text-yellow-800" },
-    { value: "high" as IssuePriority, label: "Cao", color: "bg-orange-100 text-orange-800" },
-    { value: "urgent" as IssuePriority, label: "Khẩn cấp", color: "bg-red-100 text-red-800" },
+    { value: "low" as IssuePriority, label: "Thấp", tone: "bg-info/15 text-info" },
+    { value: "medium" as IssuePriority, label: "Trung bình", tone: "bg-warning/15 text-warning-foreground" },
+    { value: "high" as IssuePriority, label: "Cao", tone: "bg-warning/25 text-warning-foreground" },
+    { value: "urgent" as IssuePriority, label: "Khẩn cấp", tone: "bg-destructive/15 text-destructive" },
   ];
 
   return (
     <div className="space-y-6">
       {submitted && (
-        <Card className="border-0 bg-gradient-to-r from-green-50 to-emerald-50 shadow-md">
+        <Card className="border border-success/25 bg-success/10 shadow-none">
           <div className="flex items-center gap-4 p-4">
-            <CheckCircle2 className="size-6 shrink-0 text-green-600" />
+            <CheckCircle2 className="size-6 shrink-0 text-success" />
             <div>
-              <p className="font-semibold text-green-900">Báo cáo đã được gửi!</p>
-              <p className="text-sm text-green-700">Cảm ơn bạn đã giúp chúng tôi cải thiện hệ thống.</p>
+              <p className="font-semibold text-foreground">Báo cáo đã được gửi!</p>
+              <p className="text-sm text-muted-foreground">Cảm ơn bạn đã giúp chúng tôi cải thiện hệ thống.</p>
             </div>
           </div>
         </Card>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card className="border-0 shadow-md">
-          <div className="space-y-4 p-6">
+        <Card className="quiet-card p-6">
+          <div className="space-y-4">
             <label className="block">
-              <p className="mb-3 font-semibold text-gray-900">Loại báo cáo</p>
+              <p className="mb-3 font-semibold text-foreground">Loại báo cáo</p>
               <div className="grid gap-3 md:grid-cols-2">
                 {categories.map((cat) => (
                   <label
                     key={cat.value}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-gray-200 p-3 transition hover:border-blue-400 hover:bg-blue-50"
-                    style={{
-                      borderColor: formData.category === cat.value ? "rgb(59, 130, 246)" : undefined,
-                      backgroundColor: formData.category === cat.value ? "rgb(239, 246, 255)" : undefined,
-                    }}
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${
+                      formData.category === cat.value
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/40 hover:bg-muted/50"
+                    }`}
                   >
                     <input
                       type="radio"
@@ -163,11 +171,11 @@ function ReportForm() {
                       onChange={(e) =>
                         setFormData({ ...formData, category: e.target.value as IssueCategory })
                       }
-                      className="size-4"
+                      className="size-4 accent-primary"
                     />
                     <div>
-                      <p className="font-medium text-gray-900">{cat.label}</p>
-                      <p className="text-xs text-gray-600">{cat.desc}</p>
+                      <p className="font-medium text-foreground">{cat.label}</p>
+                      <p className="text-xs text-muted-foreground">{cat.desc}</p>
                     </div>
                   </label>
                 ))}
@@ -176,11 +184,11 @@ function ReportForm() {
           </div>
         </Card>
 
-        <Card className="border-0 shadow-md">
-          <div className="space-y-4 p-6">
+        <Card className="quiet-card p-6">
+          <div className="space-y-4">
             <div>
               <label className="block">
-                <p className="mb-2 font-semibold text-gray-900">Mức độ ưu tiên</p>
+                <p className="mb-2 font-semibold text-foreground">Mức độ ưu tiên</p>
                 <div className="flex flex-wrap gap-2">
                   {priorities.map((pri) => (
                     <button
@@ -189,8 +197,8 @@ function ReportForm() {
                       onClick={() => setFormData({ ...formData, priority: pri.value })}
                       className={`rounded-lg px-3 py-2 font-medium transition ${
                         formData.priority === pri.value
-                          ? pri.color
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? pri.tone
+                          : "bg-muted text-muted-foreground hover:bg-muted/70"
                       }`}
                     >
                       {pri.label}
@@ -202,49 +210,47 @@ function ReportForm() {
 
             <div>
               <label className="block">
-                <p className="mb-2 font-semibold text-gray-900">Tiêu đề *</p>
-                <input
-                  type="text"
+                <p className="mb-2 font-semibold text-foreground">Tiêu đề *</p>
+                <Input
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Mô tả ngắn gọn vấn đề của bạn"
                   maxLength={200}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
                 />
-                <p className="mt-1 text-xs text-gray-500">{formData.title.length}/200</p>
+                <p className="mt-1 text-xs text-muted-foreground">{formData.title.length}/200</p>
               </label>
             </div>
           </div>
         </Card>
 
-        <Card className="border-0 shadow-md">
-          <div className="space-y-4 p-6">
+        <Card className="quiet-card p-6">
+          <div className="space-y-4">
             <label className="block">
-              <p className="mb-2 font-semibold text-gray-900">Mô tả chi tiết *</p>
-              <textarea
+              <p className="mb-2 font-semibold text-foreground">Mô tả chi tiết *</p>
+              <Textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Vui lòng mô tả chi tiết về sự cố, những gì bạn mong đợi, và những gì thực sự xảy ra..."
                 rows={5}
                 maxLength={2000}
-                className="w-full resize-none rounded-lg border border-gray-300 px-4 py-2 font-normal focus:border-blue-500 focus:outline-none"
+                className="resize-none"
               />
-              <p className="mt-1 text-xs text-gray-500">{formData.description.length}/2000</p>
+              <p className="mt-1 text-xs text-muted-foreground">{formData.description.length}/2000</p>
             </label>
           </div>
         </Card>
 
         {formData.category === "bug" && (
-          <Card className="border-0 shadow-md">
-            <div className="space-y-4 p-6">
+          <Card className="quiet-card p-6">
+            <div className="space-y-4">
               <label className="block">
-                <p className="mb-2 font-semibold text-gray-900">Các bước để tái hiện</p>
-                <textarea
+                <p className="mb-2 font-semibold text-foreground">Các bước để tái hiện</p>
+                <Textarea
                   value={formData.steps}
                   onChange={(e) => setFormData({ ...formData, steps: e.target.value })}
                   placeholder={"1. Bước đầu tiên...\n2. Bước thứ hai...\n3. Bước thứ ba..."}
                   rows={4}
-                  className="w-full resize-none rounded-lg border border-gray-300 px-4 py-2 font-normal focus:border-blue-500 focus:outline-none"
+                  className="resize-none"
                 />
               </label>
             </div>
@@ -257,13 +263,13 @@ function ReportForm() {
         </Button>
       </form>
 
-      <Card className="border-0 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-md">
+      <Card className="border border-primary/20 bg-primary/5 shadow-none">
         <div className="space-y-3 p-4">
           <div className="flex gap-3">
-            <AlertCircle className="mt-0.5 size-5 shrink-0 text-blue-600" />
+            <AlertCircle className="mt-0.5 size-5 shrink-0 text-primary" />
             <div>
-              <p className="font-semibold text-gray-900">💡 Mẹo báo cáo hiệu quả</p>
-              <ul className="mt-2 space-y-1 text-sm text-gray-700">
+              <p className="font-semibold text-foreground">💡 Mẹo báo cáo hiệu quả</p>
+              <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
                 <li>• Cung cấp mô tả rõ ràng và cụ thể</li>
                 <li>• Bao gồm các bước tái hiện chính xác</li>
                 <li>• Nêu rõ hành vi mong đợi vs thực tế</li>
@@ -362,15 +368,15 @@ function MyReports() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "open":
-        return <AlertCircle className="size-4 text-orange-600" />;
+        return <AlertCircle className="size-4 text-warning" />;
       case "in_progress":
-        return <Clock className="size-4 text-blue-600" />;
+        return <Clock className="size-4 text-info" />;
       case "resolved":
-        return <CheckCircle2 className="size-4 text-green-600" />;
+        return <CheckCircle2 className="size-4 text-success" />;
       case "wont_fix":
-        return <AlertTriangle className="size-4 text-gray-600" />;
+        return <AlertTriangle className="size-4 text-muted-foreground" />;
       default:
-        return <MessageSquare className="size-4 text-gray-600" />;
+        return <MessageSquare className="size-4 text-muted-foreground" />;
     }
   };
 
@@ -392,15 +398,15 @@ function MyReports() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "low":
-        return "bg-blue-100 text-blue-800";
+        return "bg-info/10 text-info";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-warning/10 text-warning-foreground";
       case "high":
-        return "bg-orange-100 text-orange-800";
+        return "bg-warning/15 text-warning-foreground";
       case "urgent":
-        return "bg-red-100 text-red-800";
+        return "bg-destructive/10 text-destructive";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -422,31 +428,31 @@ function MyReports() {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-4">
-        <StatCard label="Tổng cộng" value={stats.total} color="blue" />
-        <StatCard label="Mở" value={stats.open} color="orange" />
-        <StatCard label="Đang xử lý" value={stats.in_progress} color="purple" />
-        <StatCard label="Đã giải quyết" value={stats.resolved} color="green" />
+        <StatCard label="Tổng cộng" value={stats.total} tone="primary" />
+        <StatCard label="Mở" value={stats.open} tone="warning" />
+        <StatCard label="Đang xử lý" value={stats.in_progress} tone="info" />
+        <StatCard label="Đã giải quyết" value={stats.resolved} tone="success" />
       </div>
 
       <div className="space-y-4">
         {reports.length === 0 ? (
-          <Card className="border-0 shadow-sm">
+          <Card className="quiet-card">
             <div className="flex flex-col items-center justify-center py-12">
-              <MessageSquare className="mb-2 size-12 text-gray-300" />
-              <p className="text-gray-600">Bạn chưa gửi báo cáo nào</p>
+              <MessageSquare className="mb-2 size-12 text-muted-foreground/40" />
+              <p className="text-muted-foreground">Bạn chưa gửi báo cáo nào</p>
             </div>
           </Card>
         ) : (
           reports.map((report) => (
-            <Card key={report.id} className="overflow-hidden border-0 shadow-md transition hover:shadow-lg">
+            <Card key={report.id} className="lift-card overflow-hidden">
               <div className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="mb-1 flex items-center gap-2">
                       <span className="text-lg">{getCategoryIcon(report.category)}</span>
-                      <h3 className="font-semibold text-gray-900">{report.title}</h3>
+                      <h3 className="font-semibold text-foreground">{report.title}</h3>
                     </div>
-                    <p className="line-clamp-2 text-sm text-gray-600">{report.description}</p>
+                    <p className="line-clamp-2 text-sm text-muted-foreground">{report.description}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">{getStatusIcon(report.status)}</div>
                 </div>
@@ -459,7 +465,7 @@ function MyReports() {
                   <Badge variant="secondary">{getStatusLabel(report.status)}</Badge>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs text-gray-500">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <CalendarDays className="size-3" />
                     {new Date(report.created_at).toLocaleDateString("vi-VN")}
@@ -480,24 +486,24 @@ function MyReports() {
 function StatCard({
   label,
   value,
-  color,
+  tone,
 }: {
   label: string;
   value: number;
-  color: "blue" | "orange" | "purple" | "green";
+  tone: "primary" | "warning" | "info" | "success";
 }) {
-  const colorClasses = {
-    blue: "from-blue-50 to-blue-100 text-blue-600",
-    orange: "from-orange-50 to-orange-100 text-orange-600",
-    purple: "from-purple-50 to-purple-100 text-purple-600",
-    green: "from-green-50 to-green-100 text-green-600",
+  const textTone: Record<string, string> = {
+    primary: "text-primary",
+    warning: "text-warning",
+    info: "text-info",
+    success: "text-success",
   };
 
   return (
-    <Card className={`overflow-hidden border-0 bg-gradient-to-br ${colorClasses[color]} shadow-md`}>
-      <div className="space-y-2 p-4">
-        <p className="text-sm font-medium text-gray-700">{label}</p>
-        <p className="text-3xl font-bold">{value}</p>
+    <Card className="surface-card p-4">
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <p className={`text-3xl font-bold ${textTone[tone]}`}>{value}</p>
       </div>
     </Card>
   );

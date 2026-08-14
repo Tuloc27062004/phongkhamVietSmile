@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Users,
   Search,
@@ -15,13 +15,18 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
+import { EmployeeProfilePanel } from "@/components/employee-profile-panel";
 import { PageHeader, ErrorState, LoadingState } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuthSession, useSessionProfile } from "@/hooks/use-session";
+import { hasAnyRole } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_authenticated/$clinicSlug/staff/profiles")({
   head: () => ({
@@ -50,13 +55,22 @@ interface StaffMember {
 }
 
 function StaffProfilesPage() {
+  const { org } = Route.useRouteContext();
+  const { session } = useAuthSession();
+  const profileQuery = useSessionProfile(session?.user.id);
+  const canEdit = hasAnyRole(profileQuery.data?.roles ?? [], ["administrator", "manager"]);
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const staffQuery = useQuery({
     queryKey: ["staff-profiles", searchTerm],
     queryFn: async () => {
-      let query = supabase.from("employees").select(`
+      let query = supabase
+        .from("employees")
+        .select(
+          `
         id,
         full_name,
         email,
@@ -76,7 +90,9 @@ function StaffProfilesPage() {
           id,
           name
         )
-      `);
+      `,
+        )
+        .is("deleted_at", null);
 
       if (searchTerm) {
         query = query.or(
@@ -119,16 +135,23 @@ function StaffProfilesPage() {
   });
 
   const handleDelete = async (id: string) => {
-    if (confirm("Bạn chắc chắn muốn xóa nhân viên này?")) {
-      try {
-        const { error } = await supabase.from("employees").delete().eq("id", id);
-        if (error) throw error;
-        staffQuery.refetch();
-        setSelectedStaff(null);
-      } catch (error) {
-        console.error("Delete error:", error);
-        alert("Lỗi khi xóa nhân viên");
-      }
+    if (
+      !confirm(
+        "Bạn chắc chắn muốn xóa nhân viên này? Hồ sơ sẽ được ẩn (xóa mềm) để giữ lại lịch sử chấm công/lương, có thể khôi phục sau.",
+      )
+    )
+      return;
+    try {
+      const { error } = await supabase
+        .from("employees")
+        .update({ deleted_at: new Date().toISOString(), employment_status: "terminated" })
+        .eq("id", id);
+      if (error) throw error;
+      toast.success("Đã xóa nhân viên");
+      void queryClient.invalidateQueries({ queryKey: ["staff-profiles"] });
+      setSelectedStaff(null);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Lỗi khi xóa nhân viên");
     }
   };
 
@@ -184,7 +207,7 @@ function StaffProfilesPage() {
                     className={`p-3 rounded-lg border-2 cursor-pointer transition ${
                       selectedStaff?.id === staff.id
                         ? "border-primary bg-primary/5"
-                        : "border-gray-200 hover:border-gray-300"
+                        : "border-border hover:border-primary/40"
                     }`}
                   >
                     <div className="flex items-start gap-3">
@@ -195,8 +218,8 @@ function StaffProfilesPage() {
                           className="w-10 h-10 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-blue-600" />
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Users className="w-5 h-5 text-primary" />
                         </div>
                       )}
                       <div className="min-w-0">
@@ -232,8 +255,8 @@ function StaffProfilesPage() {
                         className="w-20 h-20 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center">
-                        <Users className="w-10 h-10 text-blue-600" />
+                      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Users className="w-10 h-10 text-primary" />
                       </div>
                     )}
                     <div>
@@ -247,7 +270,7 @@ function StaffProfilesPage() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
                       <Edit className="w-4 h-4" />
                     </Button>
                     <Button
@@ -324,39 +347,45 @@ function StaffProfilesPage() {
 
               {/* Performance Stats */}
               <div className="grid grid-cols-3 gap-4">
-                <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100">
+                <Card className="surface-card p-4">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground font-medium">Tổng cuộc hẹn</p>
-                      <p className="text-3xl font-bold text-blue-600 mt-1">
+                      <p className="text-3xl font-bold text-primary mt-1">
                         {stats[selectedStaff.id]?.total || 0}
                       </p>
                     </div>
-                    <Calendar className="w-8 h-8 text-blue-200" />
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Calendar className="size-5" />
+                    </div>
                   </div>
                 </Card>
 
-                <Card className="p-4 bg-gradient-to-br from-green-50 to-green-100">
+                <Card className="surface-card p-4">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground font-medium">Hoàn thành</p>
-                      <p className="text-3xl font-bold text-green-600 mt-1">
+                      <p className="text-3xl font-bold text-success mt-1">
                         {stats[selectedStaff.id]?.completed || 0}
                       </p>
                     </div>
-                    <TrendingUp className="w-8 h-8 text-green-200" />
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-success/10 text-success">
+                      <TrendingUp className="size-5" />
+                    </div>
                   </div>
                 </Card>
 
-                <Card className="p-4 bg-gradient-to-br from-purple-50 to-purple-100">
+                <Card className="surface-card p-4">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground font-medium">Thời gian công</p>
-                      <p className="text-2xl font-bold text-purple-600 mt-1">
+                      <p className="text-2xl font-bold text-info mt-1">
                         {getDaysInPosition(selectedStaff.hire_date)}
                       </p>
                     </div>
-                    <Clock className="w-8 h-8 text-purple-200" />
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-info/10 text-info">
+                      <Clock className="size-5" />
+                    </div>
                   </div>
                 </Card>
               </div>
@@ -369,6 +398,17 @@ function StaffProfilesPage() {
           )}
         </div>
       </div>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Chỉnh sửa hồ sơ nhân viên</DialogTitle>
+          </DialogHeader>
+          {selectedStaff && (
+            <EmployeeProfilePanel employeeId={selectedStaff.id} organizationId={org.id} editable={canEdit} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

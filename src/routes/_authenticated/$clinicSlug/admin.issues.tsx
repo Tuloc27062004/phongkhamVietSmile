@@ -16,6 +16,14 @@ import { ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/$clinicSlug/admin/issues")({
@@ -113,13 +121,13 @@ function AdminIssues() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "open":
-        return <AlertCircle className="size-4 text-orange-600" />;
+        return <AlertCircle className="size-4 text-warning" />;
       case "in_progress":
-        return <Clock className="size-4 text-blue-600" />;
+        return <Clock className="size-4 text-info" />;
       case "resolved":
-        return <CheckCircle2 className="size-4 text-green-600" />;
+        return <CheckCircle2 className="size-4 text-success" />;
       case "wont_fix":
-        return <AlertTriangle className="size-4 text-gray-600" />;
+        return <AlertTriangle className="size-4 text-muted-foreground" />;
       default:
         return null;
     }
@@ -128,15 +136,15 @@ function AdminIssues() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "low":
-        return "bg-blue-100 text-blue-800";
+        return "bg-info/10 text-info";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-warning/10 text-warning-foreground";
       case "high":
-        return "bg-orange-100 text-orange-800";
+        return "bg-warning/15 text-warning-foreground";
       case "urgent":
-        return "bg-red-100 text-red-800";
+        return "bg-destructive/10 text-destructive";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -149,54 +157,61 @@ function AdminIssues() {
 
       {/* Statistics */}
       <div className="grid gap-4 md:grid-cols-5">
-        <KPICard label="Tổng báo cáo" value={stats.total} color="blue" />
-        <KPICard label="Mở" value={stats.open} color="orange" />
-        <KPICard label="Đang xử lý" value={stats.in_progress} color="purple" />
-        <KPICard label="Đã giải quyết" value={stats.resolved} color="green" />
-        <KPICard label="Khẩn cấp" value={stats.urgent} color="red" icon={<Zap className="size-4" />} />
+        <KPICard label="Tổng báo cáo" value={stats.total} tone="primary" />
+        <KPICard label="Mở" value={stats.open} tone="warning" />
+        <KPICard label="Đang xử lý" value={stats.in_progress} tone="info" />
+        <KPICard label="Đã giải quyết" value={stats.resolved} tone="success" />
+        <KPICard label="Khẩn cấp" value={stats.urgent} tone="destructive" icon={<Zap className="size-4" />} />
       </div>
 
       {/* Search & Filter */}
-      <Card className="border-0 shadow-md">
-        <div className="space-y-4 p-6">
+      <Card className="quiet-card p-6">
+        <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="relative md:col-span-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-              <input
-                type="text"
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
                 placeholder="Tìm kiếm tiêu đề hoặc email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 focus:border-blue-500 focus:outline-none"
+                className="pl-9"
               />
             </div>
 
-            <select
-              value={filterStatus || ""}
-              onChange={(e) => setFilterStatus(e.target.value || null)}
-              className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+            <Select
+              value={filterStatus ?? "all"}
+              onValueChange={(v) => setFilterStatus(v === "all" ? null : v)}
             >
-              <option value="">Tất cả trạng thái</option>
-              <option value="open">Mở</option>
-              <option value="in_progress">Đang xử lý</option>
-              <option value="resolved">Đã giải quyết</option>
-              <option value="wont_fix">Không sửa</option>
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="Tất cả trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                <SelectItem value="open">Mở</SelectItem>
+                <SelectItem value="in_progress">Đang xử lý</SelectItem>
+                <SelectItem value="resolved">Đã giải quyết</SelectItem>
+                <SelectItem value="wont_fix">Không sửa</SelectItem>
+              </SelectContent>
+            </Select>
 
-            <select
-              value={filterPriority || ""}
-              onChange={(e) => setFilterPriority(e.target.value || null)}
-              className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+            <Select
+              value={filterPriority ?? "all"}
+              onValueChange={(v) => setFilterPriority(v === "all" ? null : v)}
             >
-              <option value="">Tất cả mức độ</option>
-              <option value="low">Thấp</option>
-              <option value="medium">Trung bình</option>
-              <option value="high">Cao</option>
-              <option value="urgent">Khẩn cấp</option>
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="Tất cả mức độ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả mức độ</SelectItem>
+                <SelectItem value="low">Thấp</SelectItem>
+                <SelectItem value="medium">Trung bình</SelectItem>
+                <SelectItem value="high">Cao</SelectItem>
+                <SelectItem value="urgent">Khẩn cấp</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Tìm thấy {filtered.length} báo cáo
           </p>
         </div>
@@ -205,25 +220,25 @@ function AdminIssues() {
       {/* Reports Table */}
       <div className="space-y-3">
         {filtered.length === 0 ? (
-          <Card className="border-0 shadow-sm">
+          <Card className="quiet-card">
             <div className="flex flex-col items-center justify-center py-12">
-              <Filter className="mb-2 size-12 text-gray-300" />
-              <p className="text-gray-600">Không tìm thấy báo cáo nào</p>
+              <Filter className="mb-2 size-12 text-muted-foreground/40" />
+              <p className="text-muted-foreground">Không tìm thấy báo cáo nào</p>
             </div>
           </Card>
         ) : (
           filtered.map((report) => (
-            <Card key={report.id} className="overflow-hidden border-0 shadow-md hover:shadow-lg transition">
+            <Card key={report.id} className="lift-card overflow-hidden">
               <div className="space-y-4 p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-start gap-3">
                       <div className="mt-1">{getStatusIcon(report.status)}</div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{report.title}</h3>
-                        <p className="text-sm text-gray-600">{report.description.substring(0, 100)}...</p>
-                        <p className="mt-1 text-xs text-gray-500">
-                          Từ: <span className="font-medium text-gray-700">{report.user_email}</span>
+                        <h3 className="font-semibold text-foreground">{report.title}</h3>
+                        <p className="text-sm text-muted-foreground">{report.description.substring(0, 100)}...</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Từ: <span className="font-medium text-foreground">{report.user_email}</span>
                         </p>
                       </div>
                     </div>
@@ -274,7 +289,7 @@ function AdminIssues() {
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Gửi: {new Date(report.created_at).toLocaleString("vi-VN")}
                 </p>
               </div>
@@ -289,30 +304,39 @@ function AdminIssues() {
 function KPICard({
   label,
   value,
-  color,
+  tone,
   icon,
 }: {
   label: string;
   value: number;
-  color: string;
+  tone: "primary" | "warning" | "info" | "success" | "destructive";
   icon?: React.ReactNode;
 }) {
-  const colorClasses: Record<string, string> = {
-    blue: "from-blue-50 to-blue-100 text-blue-600",
-    orange: "from-orange-50 to-orange-100 text-orange-600",
-    purple: "from-purple-50 to-purple-100 text-purple-600",
-    green: "from-green-50 to-green-100 text-green-600",
-    red: "from-red-50 to-red-100 text-red-600",
+  const textTone: Record<string, string> = {
+    primary: "text-primary",
+    warning: "text-warning",
+    info: "text-info",
+    success: "text-success",
+    destructive: "text-destructive",
+  };
+  const boxTone: Record<string, string> = {
+    primary: "bg-primary/10 text-primary",
+    warning: "bg-warning/10 text-warning",
+    info: "bg-info/10 text-info",
+    success: "bg-success/10 text-success",
+    destructive: "bg-destructive/10 text-destructive",
   };
 
   return (
-    <Card className={`overflow-hidden border-0 bg-gradient-to-br ${colorClasses[color]} shadow-md`}>
-      <div className="space-y-2 p-4">
+    <Card className="surface-card p-4">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-gray-700">{label}</p>
-          {icon}
+          <p className="text-sm font-medium text-muted-foreground">{label}</p>
+          {icon && (
+            <div className={`flex size-7 items-center justify-center rounded-md ${boxTone[tone]}`}>{icon}</div>
+          )}
         </div>
-        <p className="text-3xl font-bold">{value}</p>
+        <p className={`text-3xl font-bold ${textTone[tone]}`}>{value}</p>
       </div>
     </Card>
   );

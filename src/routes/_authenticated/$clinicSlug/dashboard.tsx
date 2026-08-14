@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 
 import { ErrorState, LoadingState, PageHeader } from "@/components/page-state";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useClinicPath } from "@/hooks/use-clinic-path";
 import { supabase } from "@/integrations/supabase/client";
@@ -99,9 +98,11 @@ function DashboardPage() {
                 Tạo lịch hẹn
               </Link>
             </Button>
-            <Button disabled title="Chưa có form thêm nhân viên trên UI">
-              <UserPlus className="mr-2 size-4" />
-              Thêm nhân viên
+            <Button variant="outline" asChild>
+              <Link to={buildPath("/employees")}>
+                <UserPlus className="mr-2 size-4" />
+                Thêm nhân viên
+              </Link>
             </Button>
           </>
         }
@@ -142,43 +143,34 @@ function DashboardPage() {
 
           <section className="mt-6 grid gap-4 lg:grid-cols-3">
             <div className="surface-card p-6 lg:col-span-2">
-              <h2 className="text-base font-semibold">Lộ trình triển khai</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Cập nhật trạng thái thật của từng giai đoạn — không phóng đại.
-              </p>
-              <ol className="mt-4 space-y-3 text-sm">
-                {(
-                  [
-                    ["Giai đoạn 1", "Nền tảng, đăng nhập, phân quyền, hồ sơ phòng khám", "done"],
-                    [
-                      "Giai đoạn 2",
-                      "Nhân viên, phòng ban, chức danh, ca làm việc — xem được đầy đủ; chưa có form thêm/sửa trên UI",
-                      "partial",
-                    ],
-                    [
-                      "Giai đoạn 3",
-                      "Chấm công, bảng công tháng, điều chỉnh công, tính & in lương — hoạt động đầy đủ; xuất CSV thật, Excel/PDF chưa có",
-                      "partial",
-                    ],
-                    ["Giai đoạn 4", "Agent đồng bộ máy chấm công trên Windows", "pending"],
-                    [
-                      "Giai đoạn 5-7",
-                      "Lịch hẹn & đặt lịch đã hoạt động; nhắc lịch tự động và báo cáo nâng cao chưa hoàn thiện",
-                      "partial",
-                    ],
-                  ] as const
-                ).map(([phase, text, status]) => (
-                  <li key={phase} className="flex items-start gap-3">
-                    <Badge variant={status === "done" ? "default" : status === "partial" ? "secondary" : "outline"}>
-                      {status === "done" ? "Hoàn tất" : status === "partial" ? "Một phần" : "Chưa bắt đầu"}
-                    </Badge>
-                    <span className="text-muted-foreground">
-                      <span className="font-medium text-foreground">{phase}: </span>
-                      {text}
-                    </span>
-                  </li>
-                ))}
-              </ol>
+              <h2 className="text-base font-semibold">Truy cập nhanh</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Các tác vụ thường dùng hằng ngày.</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <Button variant="outline" className="justify-start" asChild>
+                  <Link to={buildPath("/appointments/calendar")}>
+                    <CalendarClock className="mr-2 size-4" />
+                    Lịch khám hôm nay
+                  </Link>
+                </Button>
+                <Button variant="outline" className="justify-start" asChild>
+                  <Link to={buildPath("/patients")}>
+                    <Users className="mr-2 size-4" />
+                    Quản lý bệnh nhân
+                  </Link>
+                </Button>
+                <Button variant="outline" className="justify-start" asChild>
+                  <Link to={buildPath("/employees")}>
+                    <Building2 className="mr-2 size-4" />
+                    Danh bạ nhân viên
+                  </Link>
+                </Button>
+                <Button variant="outline" className="justify-start" asChild>
+                  <Link to={buildPath("/hr/payroll")}>
+                    <Clock className="mr-2 size-4" />
+                    Tính lương
+                  </Link>
+                </Button>
+              </div>
             </div>
 
             <div className="surface-card p-6">

@@ -450,9 +450,11 @@ function BiometricDevicesPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() =>
-                              deleteDeviceMutation.mutate(device.id)
-                            }
+                            onClick={() => {
+                              if (confirm(`Xóa thiết bị "${device.device_name}"? Không thể hoàn tác.`)) {
+                                deleteDeviceMutation.mutate(device.id);
+                              }
+                            }}
                             disabled={deleteDeviceMutation.isPending}
                           >
                             <Trash2 className="size-4" />
@@ -518,7 +520,11 @@ function BiometricDevicesPage() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => deleteDeviceMutation.mutate(device.id)}
+                    onClick={() => {
+                      if (confirm(`Xóa thiết bị "${device.device_name}"? Không thể hoàn tác.`)) {
+                        deleteDeviceMutation.mutate(device.id);
+                      }
+                    }}
                   >
                     <Trash2 className="size-4" />
                   </Button>

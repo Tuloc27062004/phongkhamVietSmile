@@ -1,12 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Calendar, Check, Edit2, Plus, Search, Trash2, X } from "lucide-react";
+import { Check, Plus, Search, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -32,6 +41,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuthSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/_authenticated/$clinicSlug/attendance/adjustments")({
   head: () => ({
@@ -78,12 +88,66 @@ const ADJUSTMENT_TYPE_LABELS: Record<string, string> = {
   status_change: "Thay đổi trạng thái",
 };
 
+type NewAdjustmentForm = {
+  employee_id: string;
+  adjustment_type: Adjustment["adjustment_type"];
+  reason: string;
+  adjusted_value: string;
+};
+
+const EMPTY_NEW_ADJUSTMENT: NewAdjustmentForm = {
+  employee_id: "",
+  adjustment_type: "time_correction",
+  reason: "",
+  adjusted_value: "",
+};
+
 function AttendanceAdjustmentsPage() {
+  const { org } = Route.useRouteContext();
+  const { session } = useAuthSession();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [newAdjustment, setNewAdjustment] = useState<NewAdjustmentForm>(EMPTY_NEW_ADJUSTMENT);
   const queryClient = useQueryClient();
+
+  const employeesQuery = useQuery({
+    queryKey: ["employees-for-adjustment"],
+    enabled: showForm,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("id, full_name, employee_code")
+        .is("deleted_at", null)
+        .order("full_name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const createAdjustment = useMutation({
+    mutationFn: async (values: NewAdjustmentForm) => {
+      if (!values.employee_id) throw new Error("Vui lòng chọn nhân viên");
+      if (!values.reason.trim()) throw new Error("Vui lòng nhập lý do điều chỉnh");
+      const { error } = await supabase.from("attendance_adjustments").insert({
+        organization_id: org.id,
+        employee_id: values.employee_id,
+        adjustment_type: values.adjustment_type,
+        reason: values.reason.trim(),
+        adjusted_value: values.adjusted_value.trim() || null,
+        requested_by: session?.user.id ?? null,
+        status: "pending",
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Đã tạo yêu cầu điều chỉnh");
+      setShowForm(false);
+      setNewAdjustment(EMPTY_NEW_ADJUSTMENT);
+      void queryClient.invalidateQueries({ queryKey: ["attendance-adjustments"] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const adjustments = useQuery({
     queryKey: ["attendance-adjustments", statusFilter],
@@ -114,8 +178,10 @@ function AttendanceAdjustmentsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
+      toast.success("Đã xóa yêu cầu điều chỉnh");
       void queryClient.invalidateQueries({ queryKey: ["attendance-adjustments"] });
     },
+    onError: (error: Error) => toast.error(error.message),
   });
 
   const approveAdjustment = useMutation({
@@ -127,8 +193,10 @@ function AttendanceAdjustmentsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
+      toast.success("Đã phê duyệt điều chỉnh");
       void queryClient.invalidateQueries({ queryKey: ["attendance-adjustments"] });
     },
+    onError: (error: Error) => toast.error(error.message),
   });
 
   const rejectAdjustment = useMutation({
@@ -140,8 +208,10 @@ function AttendanceAdjustmentsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
+      toast.success("Đã từ chối yêu cầu điều chỉnh");
       void queryClient.invalidateQueries({ queryKey: ["attendance-adjustments"] });
     },
+    onError: (error: Error) => toast.error(error.message),
   });
 
   const filtered = (adjustments.data ?? []).filter((record) => {
@@ -305,6 +375,78 @@ function AttendanceAdjustmentsPage() {
           </Table>
         </div>
       )}
+
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Tạo yêu cầu điều chỉnh công</DialogTitle>
+            <DialogDescription>Yêu cầu sẽ ở trạng thái "Chờ xử lý" cho tới khi được phê duyệt.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>Nhân viên *</Label>
+              <Select
+                value={newAdjustment.employee_id}
+                onValueChange={(value) => setNewAdjustment({ ...newAdjustment, employee_id: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn nhân viên" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(employeesQuery.data ?? []).map((emp) => (
+                    <SelectItem key={emp.id} value={emp.id}>
+                      {emp.full_name} ({emp.employee_code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Loại điều chỉnh</Label>
+              <Select
+                value={newAdjustment.adjustment_type}
+                onValueChange={(value) =>
+                  setNewAdjustment({ ...newAdjustment, adjustment_type: value as Adjustment["adjustment_type"] })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(ADJUSTMENT_TYPE_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Giá trị điều chỉnh (tùy chọn)</Label>
+              <Input
+                placeholder="VD: 08:00-17:00, hoặc ngày 2026-08-14..."
+                value={newAdjustment.adjusted_value}
+                onChange={(e) => setNewAdjustment({ ...newAdjustment, adjusted_value: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Lý do *</Label>
+              <Input
+                placeholder="VD: Quên chấm công buổi sáng do lỗi máy"
+                value={newAdjustment.reason}
+                onChange={(e) => setNewAdjustment({ ...newAdjustment, reason: e.target.value })}
+              />
+            </div>
+          </div>
+          <Button
+            className="w-full"
+            onClick={() => createAdjustment.mutate(newAdjustment)}
+            disabled={createAdjustment.isPending}
+          >
+            {createAdjustment.isPending ? "Đang tạo..." : "Tạo yêu cầu"}
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

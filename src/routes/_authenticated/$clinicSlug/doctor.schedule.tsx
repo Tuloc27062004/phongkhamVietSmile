@@ -5,17 +5,20 @@ import {
   Clock,
   User,
   Phone,
-  Stethoscope,
-  Check,
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  Mail,
+  Wallet,
+  CalendarClock,
+  FileText,
 } from "lucide-react";
 
 import { ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthSession, useCurrentEmployee } from "@/hooks/use-session";
 import { useState } from "react";
@@ -34,18 +37,41 @@ interface Appointment {
   id: string;
   appointment_date: string;
   start_time: string;
+  end_time: string | null;
   patient_name: string;
   patient_phone: string;
+  patient_email: string;
   service: string;
   status: string;
   notes: string;
+  payment_status: string;
+  payment_method: string | null;
+  total_amount: number;
+  paid_amount: number;
+  follow_up_date: string | null;
 }
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  cash: "Tiền mặt",
+  bank_transfer: "Chuyển khoản",
+  card: "Quẹt thẻ",
+  momo: "MoMo",
+  zalopay: "ZaloPay",
+  other: "Khác",
+};
+
+const PAYMENT_STATUS_BADGE: Record<string, { label: string; className: string }> = {
+  paid: { label: "Đã thanh toán", className: "bg-success/10 text-success" },
+  partial: { label: "Đã đặt cọc", className: "bg-warning/10 text-warning-foreground" },
+  unpaid: { label: "Chưa thanh toán", className: "bg-destructive/10 text-destructive" },
+};
 
 function DoctorSchedule() {
   const { session } = useAuthSession();
   const employeeQuery = useCurrentEmployee(session?.user.id);
   const employeeId = employeeQuery.data?.id;
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0] ?? "");
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
   const appointmentsQuery = useQuery({
     queryKey: ["doctor-appointments", employeeId, selectedDate],
@@ -59,10 +85,16 @@ function DoctorSchedule() {
           id,
           appointment_date,
           start_time,
-          patient:patients(full_name, phone),
+          end_time,
+          patient:patients(full_name, phone, email),
           service:services(name),
           status,
-          notes
+          notes,
+          payment_status,
+          payment_method,
+          total_amount,
+          paid_amount,
+          follow_up_date
         `
         )
         .eq("assigned_dentist_id", employeeId)
@@ -70,16 +102,25 @@ function DoctorSchedule() {
         .order("start_time", { ascending: true });
 
       if (error) throw error;
-      return (data || []).map((apt) => ({
-        id: apt.id,
-        appointment_date: apt.appointment_date,
-        start_time: apt.start_time,
-        patient_name: apt.patient?.full_name || "N/A",
-        patient_phone: apt.patient?.phone || "N/A",
-        service: apt.service?.name || "N/A",
-        status: apt.status,
-        notes: apt.notes || "",
-      }));
+      return (data || []).map(
+        (apt): Appointment => ({
+          id: apt.id,
+          appointment_date: apt.appointment_date,
+          start_time: apt.start_time,
+          end_time: apt.end_time,
+          patient_name: apt.patient?.full_name || "N/A",
+          patient_phone: apt.patient?.phone || "N/A",
+          patient_email: apt.patient?.email || "",
+          service: apt.service?.name || "N/A",
+          status: apt.status,
+          notes: apt.notes || "",
+          payment_status: apt.payment_status ?? "unpaid",
+          payment_method: apt.payment_method,
+          total_amount: apt.total_amount ?? 0,
+          paid_amount: apt.paid_amount ?? 0,
+          follow_up_date: apt.follow_up_date,
+        }),
+      );
     },
   });
 
@@ -130,14 +171,14 @@ function DoctorSchedule() {
       />
 
       {/* Date Navigation */}
-      <Card className="border-0 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-md">
+      <Card className="surface-card">
         <div className="flex items-center justify-between p-6">
           <Button variant="ghost" size="sm" onClick={handlePrevDay}>
             <ChevronLeft className="size-4" />
           </Button>
           <div className="text-center">
-            <p className="text-sm text-gray-600">Ngày khám</p>
-            <p className="text-2xl font-bold text-blue-600 capitalize">{dateStr}</p>
+            <p className="text-sm text-muted-foreground">Ngày khám</p>
+            <p className="text-2xl font-bold text-primary capitalize">{dateStr}</p>
           </div>
           <div className="space-x-2">
             <Button variant="outline" size="sm" onClick={handleToday}>
@@ -172,18 +213,86 @@ function DoctorSchedule() {
       {/* Appointments List */}
       <div className="space-y-4">
         {appointments.length === 0 ? (
-          <Card className="border-0 shadow-sm">
+          <Card className="quiet-card">
             <div className="flex flex-col items-center justify-center py-12">
-              <Calendar className="mb-2 size-12 text-gray-300" />
-              <p className="text-gray-600">Không có lịch hẹn hôm nay</p>
+              <Calendar className="mb-2 size-12 text-muted-foreground/40" />
+              <p className="text-muted-foreground">Không có lịch hẹn hôm nay</p>
             </div>
           </Card>
         ) : (
           appointments.map((appointment) => (
-            <AppointmentCard key={appointment.id} appointment={appointment} />
+            <AppointmentCard
+              key={appointment.id}
+              appointment={appointment}
+              onViewDetail={() => setSelectedAppointment(appointment)}
+            />
           ))
         )}
       </div>
+
+      <Dialog open={Boolean(selectedAppointment)} onOpenChange={(open) => !open && setSelectedAppointment(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Chi tiết lịch hẹn</DialogTitle>
+          </DialogHeader>
+          {selectedAppointment && (
+            <div className="space-y-4 text-sm">
+              <div>
+                <p className="text-lg font-semibold text-foreground">{selectedAppointment.patient_name}</p>
+                <p className="text-muted-foreground">{selectedAppointment.service}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center gap-2 text-foreground">
+                  <Clock className="size-4 text-muted-foreground" />
+                  {selectedAppointment.start_time?.slice(0, 5)}
+                  {selectedAppointment.end_time && `–${selectedAppointment.end_time.slice(0, 5)}`}
+                </div>
+                <div className="flex items-center gap-2 text-foreground">
+                  <Phone className="size-4 text-muted-foreground" />
+                  {selectedAppointment.patient_phone}
+                </div>
+                {selectedAppointment.patient_email && (
+                  <div className="col-span-2 flex items-center gap-2 text-foreground">
+                    <Mail className="size-4 text-muted-foreground" />
+                    {selectedAppointment.patient_email}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-border/70 p-3">
+                <div className="flex items-center gap-2">
+                  <Wallet className="size-4 text-muted-foreground" />
+                  <span>
+                    {selectedAppointment.paid_amount.toLocaleString("vi-VN")}đ /{" "}
+                    {selectedAppointment.total_amount.toLocaleString("vi-VN")}đ
+                    {selectedAppointment.payment_method &&
+                      ` · ${PAYMENT_METHOD_LABELS[selectedAppointment.payment_method] ?? selectedAppointment.payment_method}`}
+                  </span>
+                </div>
+                <Badge
+                  className={`${
+                    PAYMENT_STATUS_BADGE[selectedAppointment.payment_status]?.className ??
+                    PAYMENT_STATUS_BADGE["unpaid"]!.className
+                  } border-0`}
+                >
+                  {PAYMENT_STATUS_BADGE[selectedAppointment.payment_status]?.label ?? selectedAppointment.payment_status}
+                </Badge>
+              </div>
+              {selectedAppointment.follow_up_date && (
+                <div className="flex items-center gap-2 text-warning-foreground">
+                  <CalendarClock className="size-4" />
+                  Tái khám: {new Date(selectedAppointment.follow_up_date).toLocaleDateString("vi-VN")}
+                </div>
+              )}
+              {selectedAppointment.notes && (
+                <div className="flex items-start gap-2 text-foreground">
+                  <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                  <p>{selectedAppointment.notes}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -197,65 +306,69 @@ function StatBox({
   value: number;
   color: "blue" | "green" | "orange";
 }) {
-  const colorClasses = {
-    blue: "bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600",
-    green: "bg-gradient-to-br from-green-50 to-green-100 text-green-600",
-    orange: "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600",
+  const textTone = {
+    blue: "text-primary",
+    green: "text-success",
+    orange: "text-warning",
   };
 
   return (
-    <Card className={`border-0 shadow-sm ${colorClasses[color]}`}>
-      <div className="p-4">
-        <p className="text-sm font-medium text-gray-700">{label}</p>
-        <p className="text-3xl font-bold">{value}</p>
-      </div>
+    <Card className="quiet-card p-4">
+      <p className="text-sm font-medium text-muted-foreground">{label}</p>
+      <p className={`text-3xl font-bold ${textTone[color]}`}>{value}</p>
     </Card>
   );
 }
 
-function AppointmentCard({ appointment }: { appointment: Appointment }) {
+function AppointmentCard({
+  appointment,
+  onViewDetail,
+}: {
+  appointment: Appointment;
+  onViewDetail: () => void;
+}) {
   const statusColors = {
-    confirmed: { bg: "bg-green-100", text: "text-green-800", label: "Xác nhận" },
-    pending: { bg: "bg-orange-100", text: "text-orange-800", label: "Chờ xác nhận" },
-    completed: { bg: "bg-blue-100", text: "text-blue-800", label: "Hoàn thành" },
-    cancelled: { bg: "bg-red-100", text: "text-red-800", label: "Hủy" },
+    confirmed: { className: "bg-success/10 text-success", label: "Xác nhận" },
+    pending: { className: "bg-warning/10 text-warning-foreground", label: "Chờ xác nhận" },
+    completed: { className: "bg-primary/10 text-primary", label: "Hoàn thành" },
+    cancelled: { className: "bg-destructive/10 text-destructive", label: "Hủy" },
   };
 
   const status = statusColors[appointment.status as keyof typeof statusColors] || statusColors.pending;
 
   return (
-    <Card className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow">
+    <Card className="lift-card overflow-hidden">
       <div className="flex items-start gap-4 p-6">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-100 to-pink-100">
-          <User className="size-6 text-purple-600" />
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+          <User className="size-6 text-primary" />
         </div>
         <div className="flex-1">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">{appointment.patient_name}</h3>
-              <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
+              <h3 className="text-lg font-semibold text-foreground">{appointment.patient_name}</h3>
+              <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="size-4" />
                 {appointment.start_time?.slice(0, 5)} • {appointment.service}
               </div>
             </div>
-            <Badge className={`${status.bg} ${status.text} border-0`}>
+            <Badge className={`${status.className} border-0`}>
               {status.label}
             </Badge>
           </div>
           <div className="mt-3 flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-1 text-gray-600">
+            <div className="flex items-center gap-1 text-muted-foreground">
               <Phone className="size-4" />
               {appointment.patient_phone}
             </div>
             {appointment.notes && (
-              <div className="flex items-center gap-1 text-gray-600">
+              <div className="flex items-center gap-1 text-muted-foreground">
                 <AlertCircle className="size-4" />
                 {appointment.notes.substring(0, 50)}...
               </div>
             )}
           </div>
         </div>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={onViewDetail}>
           Chi tiết
         </Button>
       </div>

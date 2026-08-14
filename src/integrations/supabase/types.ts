@@ -774,6 +774,41 @@ export type Database = {
           },
         ]
       }
+      clinic_zalo_configs: {
+        Row: {
+          app_id: string | null
+          app_secret_ciphertext: string | null
+          is_enabled: boolean
+          organization_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          app_id?: string | null
+          app_secret_ciphertext?: string | null
+          is_enabled?: boolean
+          organization_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          app_id?: string | null
+          app_secret_ciphertext?: string | null
+          is_enabled?: boolean
+          organization_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_zalo_configs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           code: string | null
@@ -1154,6 +1189,7 @@ export type Database = {
           employment_type: Database["public"]["Enums"]["employment_type"]
           full_name: string
           gender: string | null
+          hire_date: string | null
           id: string
           internal_notes: string | null
           license_expiry_date: string | null
@@ -1166,9 +1202,11 @@ export type Database = {
           preferred_name: string | null
           probation_end_date: string | null
           professional_title: string | null
+          profile_photo_url: string | null
           qualifications: string | null
           specialization: string | null
           start_date: string | null
+          status: string | null
           treatment_room: string | null
           updated_at: string
           user_id: string | null
@@ -1197,6 +1235,7 @@ export type Database = {
           employment_type?: Database["public"]["Enums"]["employment_type"]
           full_name: string
           gender?: string | null
+          hire_date?: string | null
           id?: string
           internal_notes?: string | null
           license_expiry_date?: string | null
@@ -1209,9 +1248,11 @@ export type Database = {
           preferred_name?: string | null
           probation_end_date?: string | null
           professional_title?: string | null
+          profile_photo_url?: string | null
           qualifications?: string | null
           specialization?: string | null
           start_date?: string | null
+          status?: string | null
           treatment_room?: string | null
           updated_at?: string
           user_id?: string | null
@@ -1240,6 +1281,7 @@ export type Database = {
           employment_type?: Database["public"]["Enums"]["employment_type"]
           full_name?: string
           gender?: string | null
+          hire_date?: string | null
           id?: string
           internal_notes?: string | null
           license_expiry_date?: string | null
@@ -1252,9 +1294,11 @@ export type Database = {
           preferred_name?: string | null
           probation_end_date?: string | null
           professional_title?: string | null
+          profile_photo_url?: string | null
           qualifications?: string | null
           specialization?: string | null
           start_date?: string | null
+          status?: string | null
           treatment_room?: string | null
           updated_at?: string
           user_id?: string | null
@@ -1688,6 +1732,44 @@ export type Database = {
           },
         ]
       }
+      organization_invites: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          invited_by: string | null
+          organization_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string | null
+          organization_id: string
+          role?: Database["public"]["Enums"]["app_role"]
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+          organization_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_invites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           clinic_category: string
@@ -1828,6 +1910,8 @@ export type Database = {
           date_of_birth: string | null
           deleted_at: string | null
           email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
           first_visit_date: string | null
           full_name: string
           gender: string | null
@@ -1850,6 +1934,8 @@ export type Database = {
           date_of_birth?: string | null
           deleted_at?: string | null
           email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           first_visit_date?: string | null
           full_name: string
           gender?: string | null
@@ -1872,6 +1958,8 @@ export type Database = {
           date_of_birth?: string | null
           deleted_at?: string | null
           email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           first_visit_date?: string | null
           full_name?: string
           gender?: string | null
@@ -1900,54 +1988,81 @@ export type Database = {
         Row: {
           absence_deduction: number
           absent_days: number
+          allowance: number
           approved_at: string | null
           base_salary: number
+          bonus: number
+          commission_pay: number
+          commission_revenue: number
           created_at: string
           employee_id: string
+          gross_salary: number
           id: string
           insurance: number
           late_days: number
           late_deduction: number
+          late_minutes: number
           month: number
           net_salary: number
           organization_id: string
+          overtime_minutes: number
+          overtime_pay: number
           status: string
+          tax: number
           worked_days: number
           year: number
         }
         Insert: {
           absence_deduction?: number
           absent_days?: number
+          allowance?: number
           approved_at?: string | null
           base_salary?: number
+          bonus?: number
+          commission_pay?: number
+          commission_revenue?: number
           created_at?: string
           employee_id: string
+          gross_salary?: number
           id?: string
           insurance?: number
           late_days?: number
           late_deduction?: number
+          late_minutes?: number
           month: number
           net_salary?: number
           organization_id?: string
+          overtime_minutes?: number
+          overtime_pay?: number
           status?: string
+          tax?: number
           worked_days?: number
           year: number
         }
         Update: {
           absence_deduction?: number
           absent_days?: number
+          allowance?: number
           approved_at?: string | null
           base_salary?: number
+          bonus?: number
+          commission_pay?: number
+          commission_revenue?: number
           created_at?: string
           employee_id?: string
+          gross_salary?: number
           id?: string
           insurance?: number
           late_days?: number
           late_deduction?: number
+          late_minutes?: number
           month?: number
           net_salary?: number
           organization_id?: string
+          overtime_minutes?: number
+          overtime_pay?: number
           status?: string
+          tax?: number
           worked_days?: number
           year?: number
         }
@@ -2750,8 +2865,13 @@ export type Database = {
           p_slug: string
           p_code?: string | null
           p_clinic_category?: string
+          p_admin_email?: string | null
         }
         Returns: { id: string; slug: string }[]
+      }
+      seed_clinic_baseline: {
+        Args: { p_org_id: string; p_category: string }
+        Returns: undefined
       }
       super_admin_list_clinics: {
         Args: never

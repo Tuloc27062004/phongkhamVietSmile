@@ -710,7 +710,11 @@ function ManualAttendanceTab() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => deleteCheckInMutation.mutate(record.id)}
+                      onClick={() => {
+                        if (confirm("Xóa bản ghi chấm công này? Không thể hoàn tác.")) {
+                          deleteCheckInMutation.mutate(record.id);
+                        }
+                      }}
                       disabled={deleteCheckInMutation.isPending}
                     >
                       <Trash2 className="size-4" />

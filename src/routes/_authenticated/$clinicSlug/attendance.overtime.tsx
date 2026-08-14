@@ -62,8 +62,22 @@ type OvertimeRecord = {
   employee: {
     full_name: string;
     employee_code: string;
+    salary_config: { base_salary: number } | null;
   };
 };
+
+// Quy đổi giờ công chuẩn/tháng để tính lương giờ thực tế theo lương cơ bản từng nhân viên
+// (26 ngày công x 8 giờ — khớp mặc định công thức lương ở /hr/payroll).
+const STANDARD_HOURS_PER_MONTH = 26 * 8;
+
+function hourlyRateOf(record: OvertimeRecord) {
+  const baseSalary = record.employee.salary_config?.base_salary ?? 0;
+  return baseSalary / STANDARD_HOURS_PER_MONTH;
+}
+
+function overtimeCostOf(record: OvertimeRecord) {
+  return record.duration_hours * hourlyRateOf(record) * record.rate_multiplier;
+}
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending: { label: "Chờ xử lý", color: "bg-yellow-100 text-yellow-800" },
@@ -89,7 +103,7 @@ function AttendanceOvertimePage() {
       const { data, error } = await supabase
         .from("overtime_records")
         .select(
-          "id, employee_id, overtime_date, duration_hours, rate_multiplier, status, reason, notes, employee:employees(full_name, employee_code)",
+          "id, employee_id, overtime_date, duration_hours, rate_multiplier, status, reason, notes, employee:employees(full_name, employee_code, salary_config(base_salary))",
         )
         .gte("overtime_date", startDate)
         .lte("overtime_date", endDate)
@@ -143,10 +157,7 @@ function AttendanceOvertimePage() {
   });
 
   const totalHours = filtered.reduce((sum, r) => sum + r.duration_hours, 0);
-  const estimatedCost = filtered.reduce(
-    (sum, r) => sum + (r.duration_hours * 150000 * r.rate_multiplier),
-    0,
-  );
+  const estimatedCost = filtered.reduce((sum, r) => sum + overtimeCostOf(r), 0);
 
   return (
     <div>
@@ -279,7 +290,11 @@ function AttendanceOvertimePage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {(record.duration_hours * 150000 * record.rate_multiplier / 1000000).toFixed(2)}M
+                      {hourlyRateOf(record) > 0 ? (
+                        `${(overtimeCostOf(record) / 1000000).toFixed(2)}M`
+                      ) : (
+                        <span className="text-muted-foreground">Chưa có lương CB</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {record.notes || "—"}

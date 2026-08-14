@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { CalendarDays, DoorOpen, List, Plus, Save, Trash2 } from "lucide-react";
+import { CalendarClock, CalendarDays, Clock, DoorOpen, List, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/page-state";
@@ -46,6 +46,11 @@ const WEEKDAYS = [
   { value: 6, label: "T7" },
   { value: 0, label: "CN" },
 ];
+
+function minutesOf(value: string) {
+  const [h = "0", m = "0"] = value.split(":");
+  return Number(h) * 60 + Number(m);
+}
 
 function RoomsPage() {
   const { session } = useAuthSession();
@@ -184,6 +189,13 @@ function RoomsPage() {
 
   const rooms = roomsQuery.data ?? [];
 
+  const handleSelectRoom = (roomId: string) => {
+    setView("list");
+    requestAnimationFrame(() => {
+      document.getElementById(`room-${roomId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  };
+
   return (
     <div className="min-w-0 space-y-6">
       <PageHeader
@@ -258,11 +270,11 @@ function RoomsPage() {
       {rooms.length === 0 ? (
         <EmptyState title="Chưa có phòng" description="Thêm phòng điều trị đầu tiên để bắt đầu." />
       ) : view === "timeline" ? (
-        <TimelineView rooms={rooms} slots={slotsQuery.data ?? []} />
+        <TimelineView rooms={rooms} slots={slotsQuery.data ?? []} onSelectRoom={handleSelectRoom} />
       ) : (
         <div className="space-y-4">
           {rooms.map((room) => (
-            <Card key={room.id} className="quiet-card min-w-0 p-4">
+            <Card key={room.id} id={`room-${room.id}`} className="quiet-card min-w-0 scroll-mt-24 p-4">
               <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 font-semibold">
@@ -338,75 +350,182 @@ function RoomsPage() {
   );
 }
 
+type TimelineRoom = {
+  id: string;
+  name: string;
+  code: string | null;
+  is_active: boolean | null;
+};
+
+type TimelineSlot = {
+  room_id: string;
+  weekday: number;
+  start_time: string;
+  end_time: string;
+  slot_minutes: number;
+  is_active: boolean | null;
+};
+
 function TimelineView({
   rooms,
   slots,
+  onSelectRoom,
 }: {
-  rooms: { id: string; name: string; code: string | null; is_active: boolean | null }[];
-  slots: { room_id: string; weekday: number; start_time: string; end_time: string; is_active: boolean | null }[];
+  rooms: TimelineRoom[];
+  slots: TimelineSlot[];
+  onSelectRoom: (roomId: string) => void;
 }) {
+  const activeRooms = rooms.filter((room) => room.is_active !== false).length;
+  const openSlots = slots.filter((slot) => slot.is_active !== false).length;
+  const weeklyHours = slots.reduce((sum, slot) => {
+    if (slot.is_active === false) return sum;
+    return sum + Math.max(0, minutesOf(slot.end_time) - minutesOf(slot.start_time)) / 60;
+  }, 0);
+  const avgHoursPerRoom = rooms.length > 0 ? weeklyHours / rooms.length : 0;
+
   return (
-    <Card className="quiet-card min-w-0 overflow-x-auto p-4">
-      <table className="w-full min-w-[720px] border-collapse text-sm">
-        <thead>
-          <tr>
-            <th className="w-40 border-b border-border/70 p-2 text-left text-xs font-semibold text-muted-foreground">
-              Phòng
-            </th>
+    <div className="min-w-0 space-y-4">
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <TimelineStat
+          icon={<DoorOpen className="size-4" />}
+          label="Phòng hoạt động"
+          value={`${activeRooms}/${rooms.length}`}
+        />
+        <TimelineStat icon={<Clock className="size-4" />} label="Khung giờ đang mở" value={openSlots} />
+        <TimelineStat
+          icon={<CalendarClock className="size-4" />}
+          label="Tổng giờ tiếp nhận/tuần"
+          value={`${weeklyHours.toFixed(0)}h`}
+        />
+        <TimelineStat
+          icon={<CalendarDays className="size-4" />}
+          label="TB giờ/phòng/tuần"
+          value={`${avgHoursPerRoom.toFixed(1)}h`}
+        />
+      </section>
+
+      <Card className="quiet-card min-w-0 overflow-hidden p-0">
+        <div className="w-full overflow-x-auto">
+          <div
+            className="min-w-[860px]"
+            style={{ display: "grid", gridTemplateColumns: `180px repeat(7, minmax(96px, 1fr))` }}
+          >
+            <div className="sticky left-0 z-10 border-b border-border bg-muted/40 px-3 py-3 text-xs font-medium text-muted-foreground">
+              Phòng điều trị
+            </div>
             {WEEKDAYS.map((day) => (
-              <th
+              <div
                 key={day.value}
-                className="border-b border-border/70 p-2 text-center text-xs font-semibold text-muted-foreground"
+                className="border-b border-l border-border bg-muted/40 px-2 py-3 text-center text-xs font-semibold text-muted-foreground"
               >
                 {day.label}
-              </th>
+              </div>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rooms.map((room) => (
-            <tr key={room.id} className="border-b border-border/50 last:border-0">
-              <td className="p-2 align-top">
-                <p className="flex items-center gap-1.5 truncate font-medium">
-                  <DoorOpen className="size-3.5 shrink-0 text-primary" />
-                  <span className="truncate">{room.name}</span>
-                </p>
-                {room.code && (
-                  <Badge variant="secondary" className="mt-1 text-[10px]">
-                    {room.code}
-                  </Badge>
-                )}
-                {!room.is_active && (
-                  <Badge variant="outline" className="mt-1 ml-1 text-[10px] text-muted-foreground">
-                    Tạm ngưng
-                  </Badge>
-                )}
-              </td>
-              {WEEKDAYS.map((day) => {
-                const slot = slots.find((item) => item.room_id === room.id && item.weekday === day.value);
-                return (
-                  <td key={day.value} className="p-1.5 text-center align-top">
-                    {slot ? (
-                      <span
-                        className={`inline-block w-full rounded-md px-1.5 py-1 text-[11px] font-medium ${
-                          slot.is_active && room.is_active
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-slate-100 text-slate-500"
-                        }`}
-                      >
-                        {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+            {rooms.map((room) => (
+              <TimelineRoomRow key={room.id} room={room} slots={slots} onClick={() => onSelectRoom(room.id)} />
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-full bg-emerald-500" /> Đang mở nhận hẹn
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-full bg-slate-400" /> Tạm khóa / phòng ngưng hoạt động
+        </span>
+        <span className="text-muted-foreground/70">Nhấn vào một ô để chỉnh sửa ở Danh sách</span>
+      </div>
+    </div>
+  );
+}
+
+function TimelineStat({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <Card className="quiet-card min-w-0 p-4">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate text-xs text-muted-foreground">{label}</p>
+          <p className="mt-1 text-2xl font-semibold">{value}</p>
+        </div>
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          {icon}
+        </span>
+      </div>
     </Card>
+  );
+}
+
+function TimelineRoomRow({
+  room,
+  slots,
+  onClick,
+}: {
+  room: TimelineRoom;
+  slots: TimelineSlot[];
+  onClick: () => void;
+}) {
+  const roomActive = room.is_active !== false;
+  return (
+    <>
+      <div className="sticky left-0 z-10 border-b border-border bg-background px-3 py-3">
+        <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
+          <DoorOpen className={`size-3.5 shrink-0 ${roomActive ? "text-primary" : "text-muted-foreground"}`} />
+          <span className="truncate">{room.name}</span>
+        </p>
+        <div className="mt-1 flex flex-wrap items-center gap-1">
+          {room.code && (
+            <Badge variant="secondary" className="text-[10px]">
+              {room.code}
+            </Badge>
+          )}
+          {!roomActive && (
+            <Badge variant="outline" className="text-[10px] text-muted-foreground">
+              Tạm ngưng
+            </Badge>
+          )}
+        </div>
+      </div>
+      {WEEKDAYS.map((day) => {
+        const slot = slots.find((item) => item.room_id === room.id && item.weekday === day.value);
+        const slotActive = Boolean(slot) && slot?.is_active !== false && roomActive;
+        return (
+          <button
+            type="button"
+            key={day.value}
+            onClick={onClick}
+            className="group flex min-h-16 items-center justify-center border-b border-l border-border p-1.5 transition-colors hover:bg-primary/5"
+          >
+            {slot ? (
+              <div
+                className={`w-full rounded-lg px-2 py-1.5 text-center transition-transform group-hover:scale-[1.04] ${
+                  slotActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
+                }`}
+              >
+                <p className="text-[11px] font-semibold">
+                  {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}
+                </p>
+                <p className="text-[10px] opacity-70">{slot.slot_minutes}p/slot</p>
+              </div>
+            ) : (
+              <span className="text-xs text-muted-foreground/50 opacity-0 transition-opacity group-hover:opacity-100">
+                + Mở khung giờ
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </>
   );
 }
 

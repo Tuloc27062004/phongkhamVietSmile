@@ -11,6 +11,7 @@ export type ClinicProfile = {
   name: string;
   short_name: string | null;
   logo_url: string | null;
+  favicon_url: string | null;
 };
 
 export type SessionProfile = {
@@ -125,6 +126,7 @@ export function useClinicProfile(organizationId: string | undefined) {
         name: org?.name ?? "GZV Platform",
         short_name: org?.name ?? "GZV Platform",
         logo_url: null,
+        favicon_url: null,
       };
     },
   });
