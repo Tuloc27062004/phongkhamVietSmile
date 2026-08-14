@@ -12,46 +12,47 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedAppointmentsRouteImport } from './routes/_authenticated/appointments'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedDepartmentsRouteImport } from './routes/_authenticated/departments'
-import { Route as AuthenticatedEmployeesRouteImport } from './routes/_authenticated/employees'
-import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticated/patients'
-import { Route as AuthenticatedPositionsRouteImport } from './routes/_authenticated/positions'
-import { Route as AuthenticatedRoomsRouteImport } from './routes/_authenticated/rooms'
-import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
-import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
-import { Route as AuthenticatedAdminIssuesRouteImport } from './routes/_authenticated/admin.issues'
-import { Route as AuthenticatedAppointmentsBookingRouteImport } from './routes/_authenticated/appointments.booking'
-import { Route as AuthenticatedAppointmentsCalendarRouteImport } from './routes/_authenticated/appointments.calendar'
-import { Route as AuthenticatedAttendanceAdjustmentsRouteImport } from './routes/_authenticated/attendance.adjustments'
-import { Route as AuthenticatedAttendanceCheckinRouteImport } from './routes/_authenticated/attendance.checkin'
-import { Route as AuthenticatedAttendanceDailyRouteImport } from './routes/_authenticated/attendance.daily'
-import { Route as AuthenticatedAttendanceLogsRouteImport } from './routes/_authenticated/attendance.logs'
-import { Route as AuthenticatedAttendanceManualRouteImport } from './routes/_authenticated/attendance.manual'
-import { Route as AuthenticatedAttendanceMonthlyRouteImport } from './routes/_authenticated/attendance.monthly'
-import { Route as AuthenticatedAttendanceOvertimeRouteImport } from './routes/_authenticated/attendance.overtime'
-import { Route as AuthenticatedBiometricDevicesRouteImport } from './routes/_authenticated/biometric.devices'
-import { Route as AuthenticatedDoctorDashboardRouteImport } from './routes/_authenticated/doctor.dashboard'
-import { Route as AuthenticatedDoctorProfileRouteImport } from './routes/_authenticated/doctor.profile'
-import { Route as AuthenticatedDoctorScheduleRouteImport } from './routes/_authenticated/doctor.schedule'
-import { Route as AuthenticatedHrAssignmentsRouteImport } from './routes/_authenticated/hr.assignments'
-import { Route as AuthenticatedHrPayrollRouteImport } from './routes/_authenticated/hr.payroll'
-import { Route as AuthenticatedHrSalaryRouteImport } from './routes/_authenticated/hr.salary'
-import { Route as AuthenticatedIssuesMyReportsRouteImport } from './routes/_authenticated/issues.my-reports'
-import { Route as AuthenticatedIssuesReportRouteImport } from './routes/_authenticated/issues.report'
-import { Route as AuthenticatedPatientProfileRouteImport } from './routes/_authenticated/patient.profile'
-import { Route as AuthenticatedReportsAppointmentsRouteImport } from './routes/_authenticated/reports.appointments'
-import { Route as AuthenticatedReportsAttendanceRouteImport } from './routes/_authenticated/reports.attendance'
-import { Route as AuthenticatedReportsExportRouteImport } from './routes/_authenticated/reports.export'
-import { Route as AuthenticatedStaffProfilesRouteImport } from './routes/_authenticated/staff.profiles'
-import { Route as AuthenticatedSystemAgentRouteImport } from './routes/_authenticated/system.agent'
-import { Route as AuthenticatedSystemAuditLogsRouteImport } from './routes/_authenticated/system.audit-logs'
-import { Route as AuthenticatedSystemClinicProfileRouteImport } from './routes/_authenticated/system.clinic-profile'
-import { Route as AuthenticatedSystemDevicesRouteImport } from './routes/_authenticated/system.devices'
-import { Route as AuthenticatedSystemSettingsRouteImport } from './routes/_authenticated/system.settings'
-import { Route as AuthenticatedSystemSyncRouteImport } from './routes/_authenticated/system.sync'
-import { Route as AuthenticatedSystemUsersRouteImport } from './routes/_authenticated/system.users'
+import { Route as AuthenticatedClinicSlugRouteRouteImport } from './routes/_authenticated/$clinicSlug/route'
+import { Route as AuthenticatedClinicSlugAppointmentsRouteImport } from './routes/_authenticated/$clinicSlug/appointments'
+import { Route as AuthenticatedClinicSlugDashboardRouteImport } from './routes/_authenticated/$clinicSlug/dashboard'
+import { Route as AuthenticatedClinicSlugDepartmentsRouteImport } from './routes/_authenticated/$clinicSlug/departments'
+import { Route as AuthenticatedClinicSlugEmployeesRouteImport } from './routes/_authenticated/$clinicSlug/employees'
+import { Route as AuthenticatedClinicSlugPatientsRouteImport } from './routes/_authenticated/$clinicSlug/patients'
+import { Route as AuthenticatedClinicSlugPositionsRouteImport } from './routes/_authenticated/$clinicSlug/positions'
+import { Route as AuthenticatedClinicSlugRoomsRouteImport } from './routes/_authenticated/$clinicSlug/rooms'
+import { Route as AuthenticatedClinicSlugShiftsRouteImport } from './routes/_authenticated/$clinicSlug/shifts'
+import { Route as AuthenticatedClinicSlugAdminDashboardRouteImport } from './routes/_authenticated/$clinicSlug/admin.dashboard'
+import { Route as AuthenticatedClinicSlugAdminIssuesRouteImport } from './routes/_authenticated/$clinicSlug/admin.issues'
+import { Route as AuthenticatedClinicSlugAppointmentsBookingRouteImport } from './routes/_authenticated/$clinicSlug/appointments.booking'
+import { Route as AuthenticatedClinicSlugAppointmentsCalendarRouteImport } from './routes/_authenticated/$clinicSlug/appointments.calendar'
+import { Route as AuthenticatedClinicSlugAttendanceAdjustmentsRouteImport } from './routes/_authenticated/$clinicSlug/attendance.adjustments'
+import { Route as AuthenticatedClinicSlugAttendanceCheckinRouteImport } from './routes/_authenticated/$clinicSlug/attendance.checkin'
+import { Route as AuthenticatedClinicSlugAttendanceDailyRouteImport } from './routes/_authenticated/$clinicSlug/attendance.daily'
+import { Route as AuthenticatedClinicSlugAttendanceLogsRouteImport } from './routes/_authenticated/$clinicSlug/attendance.logs'
+import { Route as AuthenticatedClinicSlugAttendanceManualRouteImport } from './routes/_authenticated/$clinicSlug/attendance.manual'
+import { Route as AuthenticatedClinicSlugAttendanceMonthlyRouteImport } from './routes/_authenticated/$clinicSlug/attendance.monthly'
+import { Route as AuthenticatedClinicSlugAttendanceOvertimeRouteImport } from './routes/_authenticated/$clinicSlug/attendance.overtime'
+import { Route as AuthenticatedClinicSlugBiometricDevicesRouteImport } from './routes/_authenticated/$clinicSlug/biometric.devices'
+import { Route as AuthenticatedClinicSlugDoctorDashboardRouteImport } from './routes/_authenticated/$clinicSlug/doctor.dashboard'
+import { Route as AuthenticatedClinicSlugDoctorProfileRouteImport } from './routes/_authenticated/$clinicSlug/doctor.profile'
+import { Route as AuthenticatedClinicSlugDoctorScheduleRouteImport } from './routes/_authenticated/$clinicSlug/doctor.schedule'
+import { Route as AuthenticatedClinicSlugHrAssignmentsRouteImport } from './routes/_authenticated/$clinicSlug/hr.assignments'
+import { Route as AuthenticatedClinicSlugHrPayrollRouteImport } from './routes/_authenticated/$clinicSlug/hr.payroll'
+import { Route as AuthenticatedClinicSlugHrSalaryRouteImport } from './routes/_authenticated/$clinicSlug/hr.salary'
+import { Route as AuthenticatedClinicSlugIssuesMyReportsRouteImport } from './routes/_authenticated/$clinicSlug/issues.my-reports'
+import { Route as AuthenticatedClinicSlugIssuesReportRouteImport } from './routes/_authenticated/$clinicSlug/issues.report'
+import { Route as AuthenticatedClinicSlugPatientProfileRouteImport } from './routes/_authenticated/$clinicSlug/patient.profile'
+import { Route as AuthenticatedClinicSlugReportsAppointmentsRouteImport } from './routes/_authenticated/$clinicSlug/reports.appointments'
+import { Route as AuthenticatedClinicSlugReportsAttendanceRouteImport } from './routes/_authenticated/$clinicSlug/reports.attendance'
+import { Route as AuthenticatedClinicSlugReportsExportRouteImport } from './routes/_authenticated/$clinicSlug/reports.export'
+import { Route as AuthenticatedClinicSlugStaffProfilesRouteImport } from './routes/_authenticated/$clinicSlug/staff.profiles'
+import { Route as AuthenticatedClinicSlugSystemAgentRouteImport } from './routes/_authenticated/$clinicSlug/system.agent'
+import { Route as AuthenticatedClinicSlugSystemAuditLogsRouteImport } from './routes/_authenticated/$clinicSlug/system.audit-logs'
+import { Route as AuthenticatedClinicSlugSystemClinicProfileRouteImport } from './routes/_authenticated/$clinicSlug/system.clinic-profile'
+import { Route as AuthenticatedClinicSlugSystemDevicesRouteImport } from './routes/_authenticated/$clinicSlug/system.devices'
+import { Route as AuthenticatedClinicSlugSystemSettingsRouteImport } from './routes/_authenticated/$clinicSlug/system.settings'
+import { Route as AuthenticatedClinicSlugSystemSyncRouteImport } from './routes/_authenticated/$clinicSlug/system.sync'
+import { Route as AuthenticatedClinicSlugSystemUsersRouteImport } from './routes/_authenticated/$clinicSlug/system.users'
 import { Route as ApiPublicDeviceEventsRouteImport } from './routes/api/public/device/events'
 
 const IndexRoute = IndexRouteImport.update({
@@ -68,236 +69,251 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAppointmentsRoute =
-  AuthenticatedAppointmentsRouteImport.update({
+const AuthenticatedClinicSlugRouteRoute =
+  AuthenticatedClinicSlugRouteRouteImport.update({
+    id: '/$clinicSlug',
+    path: '/$clinicSlug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClinicSlugAppointmentsRoute =
+  AuthenticatedClinicSlugAppointmentsRouteImport.update({
     id: '/appointments',
     path: '/appointments',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDepartmentsRoute =
-  AuthenticatedDepartmentsRouteImport.update({
+const AuthenticatedClinicSlugDashboardRoute =
+  AuthenticatedClinicSlugDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
+  } as any)
+const AuthenticatedClinicSlugDepartmentsRoute =
+  AuthenticatedClinicSlugDepartmentsRouteImport.update({
     id: '/departments',
     path: '/departments',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedEmployeesRoute = AuthenticatedEmployeesRouteImport.update({
-  id: '/employees',
-  path: '/employees',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedPatientsRoute = AuthenticatedPatientsRouteImport.update({
-  id: '/patients',
-  path: '/patients',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedPositionsRoute = AuthenticatedPositionsRouteImport.update({
-  id: '/positions',
-  path: '/positions',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedRoomsRoute = AuthenticatedRoomsRouteImport.update({
-  id: '/rooms',
-  path: '/rooms',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
-  id: '/shifts',
-  path: '/shifts',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAdminDashboardRoute =
-  AuthenticatedAdminDashboardRouteImport.update({
+const AuthenticatedClinicSlugEmployeesRoute =
+  AuthenticatedClinicSlugEmployeesRouteImport.update({
+    id: '/employees',
+    path: '/employees',
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
+  } as any)
+const AuthenticatedClinicSlugPatientsRoute =
+  AuthenticatedClinicSlugPatientsRouteImport.update({
+    id: '/patients',
+    path: '/patients',
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
+  } as any)
+const AuthenticatedClinicSlugPositionsRoute =
+  AuthenticatedClinicSlugPositionsRouteImport.update({
+    id: '/positions',
+    path: '/positions',
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
+  } as any)
+const AuthenticatedClinicSlugRoomsRoute =
+  AuthenticatedClinicSlugRoomsRouteImport.update({
+    id: '/rooms',
+    path: '/rooms',
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
+  } as any)
+const AuthenticatedClinicSlugShiftsRoute =
+  AuthenticatedClinicSlugShiftsRouteImport.update({
+    id: '/shifts',
+    path: '/shifts',
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
+  } as any)
+const AuthenticatedClinicSlugAdminDashboardRoute =
+  AuthenticatedClinicSlugAdminDashboardRouteImport.update({
     id: '/admin/dashboard',
     path: '/admin/dashboard',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedAdminIssuesRoute =
-  AuthenticatedAdminIssuesRouteImport.update({
+const AuthenticatedClinicSlugAdminIssuesRoute =
+  AuthenticatedClinicSlugAdminIssuesRouteImport.update({
     id: '/admin/issues',
     path: '/admin/issues',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedAppointmentsBookingRoute =
-  AuthenticatedAppointmentsBookingRouteImport.update({
+const AuthenticatedClinicSlugAppointmentsBookingRoute =
+  AuthenticatedClinicSlugAppointmentsBookingRouteImport.update({
     id: '/booking',
     path: '/booking',
-    getParentRoute: () => AuthenticatedAppointmentsRoute,
+    getParentRoute: () => AuthenticatedClinicSlugAppointmentsRoute,
   } as any)
-const AuthenticatedAppointmentsCalendarRoute =
-  AuthenticatedAppointmentsCalendarRouteImport.update({
+const AuthenticatedClinicSlugAppointmentsCalendarRoute =
+  AuthenticatedClinicSlugAppointmentsCalendarRouteImport.update({
     id: '/calendar',
     path: '/calendar',
-    getParentRoute: () => AuthenticatedAppointmentsRoute,
+    getParentRoute: () => AuthenticatedClinicSlugAppointmentsRoute,
   } as any)
-const AuthenticatedAttendanceAdjustmentsRoute =
-  AuthenticatedAttendanceAdjustmentsRouteImport.update({
+const AuthenticatedClinicSlugAttendanceAdjustmentsRoute =
+  AuthenticatedClinicSlugAttendanceAdjustmentsRouteImport.update({
     id: '/attendance/adjustments',
     path: '/attendance/adjustments',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedAttendanceCheckinRoute =
-  AuthenticatedAttendanceCheckinRouteImport.update({
+const AuthenticatedClinicSlugAttendanceCheckinRoute =
+  AuthenticatedClinicSlugAttendanceCheckinRouteImport.update({
     id: '/attendance/checkin',
     path: '/attendance/checkin',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedAttendanceDailyRoute =
-  AuthenticatedAttendanceDailyRouteImport.update({
+const AuthenticatedClinicSlugAttendanceDailyRoute =
+  AuthenticatedClinicSlugAttendanceDailyRouteImport.update({
     id: '/attendance/daily',
     path: '/attendance/daily',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedAttendanceLogsRoute =
-  AuthenticatedAttendanceLogsRouteImport.update({
+const AuthenticatedClinicSlugAttendanceLogsRoute =
+  AuthenticatedClinicSlugAttendanceLogsRouteImport.update({
     id: '/attendance/logs',
     path: '/attendance/logs',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedAttendanceManualRoute =
-  AuthenticatedAttendanceManualRouteImport.update({
+const AuthenticatedClinicSlugAttendanceManualRoute =
+  AuthenticatedClinicSlugAttendanceManualRouteImport.update({
     id: '/attendance/manual',
     path: '/attendance/manual',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedAttendanceMonthlyRoute =
-  AuthenticatedAttendanceMonthlyRouteImport.update({
+const AuthenticatedClinicSlugAttendanceMonthlyRoute =
+  AuthenticatedClinicSlugAttendanceMonthlyRouteImport.update({
     id: '/attendance/monthly',
     path: '/attendance/monthly',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedAttendanceOvertimeRoute =
-  AuthenticatedAttendanceOvertimeRouteImport.update({
+const AuthenticatedClinicSlugAttendanceOvertimeRoute =
+  AuthenticatedClinicSlugAttendanceOvertimeRouteImport.update({
     id: '/attendance/overtime',
     path: '/attendance/overtime',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedBiometricDevicesRoute =
-  AuthenticatedBiometricDevicesRouteImport.update({
+const AuthenticatedClinicSlugBiometricDevicesRoute =
+  AuthenticatedClinicSlugBiometricDevicesRouteImport.update({
     id: '/biometric/devices',
     path: '/biometric/devices',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedDoctorDashboardRoute =
-  AuthenticatedDoctorDashboardRouteImport.update({
+const AuthenticatedClinicSlugDoctorDashboardRoute =
+  AuthenticatedClinicSlugDoctorDashboardRouteImport.update({
     id: '/doctor/dashboard',
     path: '/doctor/dashboard',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedDoctorProfileRoute =
-  AuthenticatedDoctorProfileRouteImport.update({
+const AuthenticatedClinicSlugDoctorProfileRoute =
+  AuthenticatedClinicSlugDoctorProfileRouteImport.update({
     id: '/doctor/profile',
     path: '/doctor/profile',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedDoctorScheduleRoute =
-  AuthenticatedDoctorScheduleRouteImport.update({
+const AuthenticatedClinicSlugDoctorScheduleRoute =
+  AuthenticatedClinicSlugDoctorScheduleRouteImport.update({
     id: '/doctor/schedule',
     path: '/doctor/schedule',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedHrAssignmentsRoute =
-  AuthenticatedHrAssignmentsRouteImport.update({
+const AuthenticatedClinicSlugHrAssignmentsRoute =
+  AuthenticatedClinicSlugHrAssignmentsRouteImport.update({
     id: '/hr/assignments',
     path: '/hr/assignments',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedHrPayrollRoute = AuthenticatedHrPayrollRouteImport.update({
-  id: '/hr/payroll',
-  path: '/hr/payroll',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedHrSalaryRoute = AuthenticatedHrSalaryRouteImport.update({
-  id: '/hr/salary',
-  path: '/hr/salary',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedIssuesMyReportsRoute =
-  AuthenticatedIssuesMyReportsRouteImport.update({
+const AuthenticatedClinicSlugHrPayrollRoute =
+  AuthenticatedClinicSlugHrPayrollRouteImport.update({
+    id: '/hr/payroll',
+    path: '/hr/payroll',
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
+  } as any)
+const AuthenticatedClinicSlugHrSalaryRoute =
+  AuthenticatedClinicSlugHrSalaryRouteImport.update({
+    id: '/hr/salary',
+    path: '/hr/salary',
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
+  } as any)
+const AuthenticatedClinicSlugIssuesMyReportsRoute =
+  AuthenticatedClinicSlugIssuesMyReportsRouteImport.update({
     id: '/issues/my-reports',
     path: '/issues/my-reports',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedIssuesReportRoute =
-  AuthenticatedIssuesReportRouteImport.update({
+const AuthenticatedClinicSlugIssuesReportRoute =
+  AuthenticatedClinicSlugIssuesReportRouteImport.update({
     id: '/issues/report',
     path: '/issues/report',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedPatientProfileRoute =
-  AuthenticatedPatientProfileRouteImport.update({
+const AuthenticatedClinicSlugPatientProfileRoute =
+  AuthenticatedClinicSlugPatientProfileRouteImport.update({
     id: '/patient/profile',
     path: '/patient/profile',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedReportsAppointmentsRoute =
-  AuthenticatedReportsAppointmentsRouteImport.update({
+const AuthenticatedClinicSlugReportsAppointmentsRoute =
+  AuthenticatedClinicSlugReportsAppointmentsRouteImport.update({
     id: '/reports/appointments',
     path: '/reports/appointments',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedReportsAttendanceRoute =
-  AuthenticatedReportsAttendanceRouteImport.update({
+const AuthenticatedClinicSlugReportsAttendanceRoute =
+  AuthenticatedClinicSlugReportsAttendanceRouteImport.update({
     id: '/reports/attendance',
     path: '/reports/attendance',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedReportsExportRoute =
-  AuthenticatedReportsExportRouteImport.update({
+const AuthenticatedClinicSlugReportsExportRoute =
+  AuthenticatedClinicSlugReportsExportRouteImport.update({
     id: '/reports/export',
     path: '/reports/export',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedStaffProfilesRoute =
-  AuthenticatedStaffProfilesRouteImport.update({
+const AuthenticatedClinicSlugStaffProfilesRoute =
+  AuthenticatedClinicSlugStaffProfilesRouteImport.update({
     id: '/staff/profiles',
     path: '/staff/profiles',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedSystemAgentRoute =
-  AuthenticatedSystemAgentRouteImport.update({
+const AuthenticatedClinicSlugSystemAgentRoute =
+  AuthenticatedClinicSlugSystemAgentRouteImport.update({
     id: '/system/agent',
     path: '/system/agent',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedSystemAuditLogsRoute =
-  AuthenticatedSystemAuditLogsRouteImport.update({
+const AuthenticatedClinicSlugSystemAuditLogsRoute =
+  AuthenticatedClinicSlugSystemAuditLogsRouteImport.update({
     id: '/system/audit-logs',
     path: '/system/audit-logs',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedSystemClinicProfileRoute =
-  AuthenticatedSystemClinicProfileRouteImport.update({
+const AuthenticatedClinicSlugSystemClinicProfileRoute =
+  AuthenticatedClinicSlugSystemClinicProfileRouteImport.update({
     id: '/system/clinic-profile',
     path: '/system/clinic-profile',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedSystemDevicesRoute =
-  AuthenticatedSystemDevicesRouteImport.update({
+const AuthenticatedClinicSlugSystemDevicesRoute =
+  AuthenticatedClinicSlugSystemDevicesRouteImport.update({
     id: '/system/devices',
     path: '/system/devices',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedSystemSettingsRoute =
-  AuthenticatedSystemSettingsRouteImport.update({
+const AuthenticatedClinicSlugSystemSettingsRoute =
+  AuthenticatedClinicSlugSystemSettingsRouteImport.update({
     id: '/system/settings',
     path: '/system/settings',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedSystemSyncRoute = AuthenticatedSystemSyncRouteImport.update({
-  id: '/system/sync',
-  path: '/system/sync',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedSystemUsersRoute =
-  AuthenticatedSystemUsersRouteImport.update({
+const AuthenticatedClinicSlugSystemSyncRoute =
+  AuthenticatedClinicSlugSystemSyncRouteImport.update({
+    id: '/system/sync',
+    path: '/system/sync',
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
+  } as any)
+const AuthenticatedClinicSlugSystemUsersRoute =
+  AuthenticatedClinicSlugSystemUsersRouteImport.update({
     id: '/system/users',
     path: '/system/users',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
 const ApiPublicDeviceEventsRoute = ApiPublicDeviceEventsRouteImport.update({
   id: '/api/public/device/events',
@@ -308,91 +324,93 @@ const ApiPublicDeviceEventsRoute = ApiPublicDeviceEventsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/appointments': typeof AuthenticatedAppointmentsRouteWithChildren
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/departments': typeof AuthenticatedDepartmentsRoute
-  '/employees': typeof AuthenticatedEmployeesRoute
-  '/patients': typeof AuthenticatedPatientsRoute
-  '/positions': typeof AuthenticatedPositionsRoute
-  '/rooms': typeof AuthenticatedRoomsRoute
-  '/shifts': typeof AuthenticatedShiftsRoute
-  '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
-  '/admin/issues': typeof AuthenticatedAdminIssuesRoute
-  '/appointments/booking': typeof AuthenticatedAppointmentsBookingRoute
-  '/appointments/calendar': typeof AuthenticatedAppointmentsCalendarRoute
-  '/attendance/adjustments': typeof AuthenticatedAttendanceAdjustmentsRoute
-  '/attendance/checkin': typeof AuthenticatedAttendanceCheckinRoute
-  '/attendance/daily': typeof AuthenticatedAttendanceDailyRoute
-  '/attendance/logs': typeof AuthenticatedAttendanceLogsRoute
-  '/attendance/manual': typeof AuthenticatedAttendanceManualRoute
-  '/attendance/monthly': typeof AuthenticatedAttendanceMonthlyRoute
-  '/attendance/overtime': typeof AuthenticatedAttendanceOvertimeRoute
-  '/biometric/devices': typeof AuthenticatedBiometricDevicesRoute
-  '/doctor/dashboard': typeof AuthenticatedDoctorDashboardRoute
-  '/doctor/profile': typeof AuthenticatedDoctorProfileRoute
-  '/doctor/schedule': typeof AuthenticatedDoctorScheduleRoute
-  '/hr/assignments': typeof AuthenticatedHrAssignmentsRoute
-  '/hr/payroll': typeof AuthenticatedHrPayrollRoute
-  '/hr/salary': typeof AuthenticatedHrSalaryRoute
-  '/issues/my-reports': typeof AuthenticatedIssuesMyReportsRoute
-  '/issues/report': typeof AuthenticatedIssuesReportRoute
-  '/patient/profile': typeof AuthenticatedPatientProfileRoute
-  '/reports/appointments': typeof AuthenticatedReportsAppointmentsRoute
-  '/reports/attendance': typeof AuthenticatedReportsAttendanceRoute
-  '/reports/export': typeof AuthenticatedReportsExportRoute
-  '/staff/profiles': typeof AuthenticatedStaffProfilesRoute
-  '/system/agent': typeof AuthenticatedSystemAgentRoute
-  '/system/audit-logs': typeof AuthenticatedSystemAuditLogsRoute
-  '/system/clinic-profile': typeof AuthenticatedSystemClinicProfileRoute
-  '/system/devices': typeof AuthenticatedSystemDevicesRoute
-  '/system/settings': typeof AuthenticatedSystemSettingsRoute
-  '/system/sync': typeof AuthenticatedSystemSyncRoute
-  '/system/users': typeof AuthenticatedSystemUsersRoute
+  '/$clinicSlug': typeof AuthenticatedClinicSlugRouteRouteWithChildren
+  '/$clinicSlug/appointments': typeof AuthenticatedClinicSlugAppointmentsRouteWithChildren
+  '/$clinicSlug/dashboard': typeof AuthenticatedClinicSlugDashboardRoute
+  '/$clinicSlug/departments': typeof AuthenticatedClinicSlugDepartmentsRoute
+  '/$clinicSlug/employees': typeof AuthenticatedClinicSlugEmployeesRoute
+  '/$clinicSlug/patients': typeof AuthenticatedClinicSlugPatientsRoute
+  '/$clinicSlug/positions': typeof AuthenticatedClinicSlugPositionsRoute
+  '/$clinicSlug/rooms': typeof AuthenticatedClinicSlugRoomsRoute
+  '/$clinicSlug/shifts': typeof AuthenticatedClinicSlugShiftsRoute
+  '/$clinicSlug/admin/dashboard': typeof AuthenticatedClinicSlugAdminDashboardRoute
+  '/$clinicSlug/admin/issues': typeof AuthenticatedClinicSlugAdminIssuesRoute
+  '/$clinicSlug/appointments/booking': typeof AuthenticatedClinicSlugAppointmentsBookingRoute
+  '/$clinicSlug/appointments/calendar': typeof AuthenticatedClinicSlugAppointmentsCalendarRoute
+  '/$clinicSlug/attendance/adjustments': typeof AuthenticatedClinicSlugAttendanceAdjustmentsRoute
+  '/$clinicSlug/attendance/checkin': typeof AuthenticatedClinicSlugAttendanceCheckinRoute
+  '/$clinicSlug/attendance/daily': typeof AuthenticatedClinicSlugAttendanceDailyRoute
+  '/$clinicSlug/attendance/logs': typeof AuthenticatedClinicSlugAttendanceLogsRoute
+  '/$clinicSlug/attendance/manual': typeof AuthenticatedClinicSlugAttendanceManualRoute
+  '/$clinicSlug/attendance/monthly': typeof AuthenticatedClinicSlugAttendanceMonthlyRoute
+  '/$clinicSlug/attendance/overtime': typeof AuthenticatedClinicSlugAttendanceOvertimeRoute
+  '/$clinicSlug/biometric/devices': typeof AuthenticatedClinicSlugBiometricDevicesRoute
+  '/$clinicSlug/doctor/dashboard': typeof AuthenticatedClinicSlugDoctorDashboardRoute
+  '/$clinicSlug/doctor/profile': typeof AuthenticatedClinicSlugDoctorProfileRoute
+  '/$clinicSlug/doctor/schedule': typeof AuthenticatedClinicSlugDoctorScheduleRoute
+  '/$clinicSlug/hr/assignments': typeof AuthenticatedClinicSlugHrAssignmentsRoute
+  '/$clinicSlug/hr/payroll': typeof AuthenticatedClinicSlugHrPayrollRoute
+  '/$clinicSlug/hr/salary': typeof AuthenticatedClinicSlugHrSalaryRoute
+  '/$clinicSlug/issues/my-reports': typeof AuthenticatedClinicSlugIssuesMyReportsRoute
+  '/$clinicSlug/issues/report': typeof AuthenticatedClinicSlugIssuesReportRoute
+  '/$clinicSlug/patient/profile': typeof AuthenticatedClinicSlugPatientProfileRoute
+  '/$clinicSlug/reports/appointments': typeof AuthenticatedClinicSlugReportsAppointmentsRoute
+  '/$clinicSlug/reports/attendance': typeof AuthenticatedClinicSlugReportsAttendanceRoute
+  '/$clinicSlug/reports/export': typeof AuthenticatedClinicSlugReportsExportRoute
+  '/$clinicSlug/staff/profiles': typeof AuthenticatedClinicSlugStaffProfilesRoute
+  '/$clinicSlug/system/agent': typeof AuthenticatedClinicSlugSystemAgentRoute
+  '/$clinicSlug/system/audit-logs': typeof AuthenticatedClinicSlugSystemAuditLogsRoute
+  '/$clinicSlug/system/clinic-profile': typeof AuthenticatedClinicSlugSystemClinicProfileRoute
+  '/$clinicSlug/system/devices': typeof AuthenticatedClinicSlugSystemDevicesRoute
+  '/$clinicSlug/system/settings': typeof AuthenticatedClinicSlugSystemSettingsRoute
+  '/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
+  '/$clinicSlug/system/users': typeof AuthenticatedClinicSlugSystemUsersRoute
   '/api/public/device/events': typeof ApiPublicDeviceEventsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/appointments': typeof AuthenticatedAppointmentsRouteWithChildren
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/departments': typeof AuthenticatedDepartmentsRoute
-  '/employees': typeof AuthenticatedEmployeesRoute
-  '/patients': typeof AuthenticatedPatientsRoute
-  '/positions': typeof AuthenticatedPositionsRoute
-  '/rooms': typeof AuthenticatedRoomsRoute
-  '/shifts': typeof AuthenticatedShiftsRoute
-  '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
-  '/admin/issues': typeof AuthenticatedAdminIssuesRoute
-  '/appointments/booking': typeof AuthenticatedAppointmentsBookingRoute
-  '/appointments/calendar': typeof AuthenticatedAppointmentsCalendarRoute
-  '/attendance/adjustments': typeof AuthenticatedAttendanceAdjustmentsRoute
-  '/attendance/checkin': typeof AuthenticatedAttendanceCheckinRoute
-  '/attendance/daily': typeof AuthenticatedAttendanceDailyRoute
-  '/attendance/logs': typeof AuthenticatedAttendanceLogsRoute
-  '/attendance/manual': typeof AuthenticatedAttendanceManualRoute
-  '/attendance/monthly': typeof AuthenticatedAttendanceMonthlyRoute
-  '/attendance/overtime': typeof AuthenticatedAttendanceOvertimeRoute
-  '/biometric/devices': typeof AuthenticatedBiometricDevicesRoute
-  '/doctor/dashboard': typeof AuthenticatedDoctorDashboardRoute
-  '/doctor/profile': typeof AuthenticatedDoctorProfileRoute
-  '/doctor/schedule': typeof AuthenticatedDoctorScheduleRoute
-  '/hr/assignments': typeof AuthenticatedHrAssignmentsRoute
-  '/hr/payroll': typeof AuthenticatedHrPayrollRoute
-  '/hr/salary': typeof AuthenticatedHrSalaryRoute
-  '/issues/my-reports': typeof AuthenticatedIssuesMyReportsRoute
-  '/issues/report': typeof AuthenticatedIssuesReportRoute
-  '/patient/profile': typeof AuthenticatedPatientProfileRoute
-  '/reports/appointments': typeof AuthenticatedReportsAppointmentsRoute
-  '/reports/attendance': typeof AuthenticatedReportsAttendanceRoute
-  '/reports/export': typeof AuthenticatedReportsExportRoute
-  '/staff/profiles': typeof AuthenticatedStaffProfilesRoute
-  '/system/agent': typeof AuthenticatedSystemAgentRoute
-  '/system/audit-logs': typeof AuthenticatedSystemAuditLogsRoute
-  '/system/clinic-profile': typeof AuthenticatedSystemClinicProfileRoute
-  '/system/devices': typeof AuthenticatedSystemDevicesRoute
-  '/system/settings': typeof AuthenticatedSystemSettingsRoute
-  '/system/sync': typeof AuthenticatedSystemSyncRoute
-  '/system/users': typeof AuthenticatedSystemUsersRoute
+  '/$clinicSlug': typeof AuthenticatedClinicSlugRouteRouteWithChildren
+  '/$clinicSlug/appointments': typeof AuthenticatedClinicSlugAppointmentsRouteWithChildren
+  '/$clinicSlug/dashboard': typeof AuthenticatedClinicSlugDashboardRoute
+  '/$clinicSlug/departments': typeof AuthenticatedClinicSlugDepartmentsRoute
+  '/$clinicSlug/employees': typeof AuthenticatedClinicSlugEmployeesRoute
+  '/$clinicSlug/patients': typeof AuthenticatedClinicSlugPatientsRoute
+  '/$clinicSlug/positions': typeof AuthenticatedClinicSlugPositionsRoute
+  '/$clinicSlug/rooms': typeof AuthenticatedClinicSlugRoomsRoute
+  '/$clinicSlug/shifts': typeof AuthenticatedClinicSlugShiftsRoute
+  '/$clinicSlug/admin/dashboard': typeof AuthenticatedClinicSlugAdminDashboardRoute
+  '/$clinicSlug/admin/issues': typeof AuthenticatedClinicSlugAdminIssuesRoute
+  '/$clinicSlug/appointments/booking': typeof AuthenticatedClinicSlugAppointmentsBookingRoute
+  '/$clinicSlug/appointments/calendar': typeof AuthenticatedClinicSlugAppointmentsCalendarRoute
+  '/$clinicSlug/attendance/adjustments': typeof AuthenticatedClinicSlugAttendanceAdjustmentsRoute
+  '/$clinicSlug/attendance/checkin': typeof AuthenticatedClinicSlugAttendanceCheckinRoute
+  '/$clinicSlug/attendance/daily': typeof AuthenticatedClinicSlugAttendanceDailyRoute
+  '/$clinicSlug/attendance/logs': typeof AuthenticatedClinicSlugAttendanceLogsRoute
+  '/$clinicSlug/attendance/manual': typeof AuthenticatedClinicSlugAttendanceManualRoute
+  '/$clinicSlug/attendance/monthly': typeof AuthenticatedClinicSlugAttendanceMonthlyRoute
+  '/$clinicSlug/attendance/overtime': typeof AuthenticatedClinicSlugAttendanceOvertimeRoute
+  '/$clinicSlug/biometric/devices': typeof AuthenticatedClinicSlugBiometricDevicesRoute
+  '/$clinicSlug/doctor/dashboard': typeof AuthenticatedClinicSlugDoctorDashboardRoute
+  '/$clinicSlug/doctor/profile': typeof AuthenticatedClinicSlugDoctorProfileRoute
+  '/$clinicSlug/doctor/schedule': typeof AuthenticatedClinicSlugDoctorScheduleRoute
+  '/$clinicSlug/hr/assignments': typeof AuthenticatedClinicSlugHrAssignmentsRoute
+  '/$clinicSlug/hr/payroll': typeof AuthenticatedClinicSlugHrPayrollRoute
+  '/$clinicSlug/hr/salary': typeof AuthenticatedClinicSlugHrSalaryRoute
+  '/$clinicSlug/issues/my-reports': typeof AuthenticatedClinicSlugIssuesMyReportsRoute
+  '/$clinicSlug/issues/report': typeof AuthenticatedClinicSlugIssuesReportRoute
+  '/$clinicSlug/patient/profile': typeof AuthenticatedClinicSlugPatientProfileRoute
+  '/$clinicSlug/reports/appointments': typeof AuthenticatedClinicSlugReportsAppointmentsRoute
+  '/$clinicSlug/reports/attendance': typeof AuthenticatedClinicSlugReportsAttendanceRoute
+  '/$clinicSlug/reports/export': typeof AuthenticatedClinicSlugReportsExportRoute
+  '/$clinicSlug/staff/profiles': typeof AuthenticatedClinicSlugStaffProfilesRoute
+  '/$clinicSlug/system/agent': typeof AuthenticatedClinicSlugSystemAgentRoute
+  '/$clinicSlug/system/audit-logs': typeof AuthenticatedClinicSlugSystemAuditLogsRoute
+  '/$clinicSlug/system/clinic-profile': typeof AuthenticatedClinicSlugSystemClinicProfileRoute
+  '/$clinicSlug/system/devices': typeof AuthenticatedClinicSlugSystemDevicesRoute
+  '/$clinicSlug/system/settings': typeof AuthenticatedClinicSlugSystemSettingsRoute
+  '/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
+  '/$clinicSlug/system/users': typeof AuthenticatedClinicSlugSystemUsersRoute
   '/api/public/device/events': typeof ApiPublicDeviceEventsRoute
 }
 export interface FileRoutesById {
@@ -400,46 +418,47 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/appointments': typeof AuthenticatedAppointmentsRouteWithChildren
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/departments': typeof AuthenticatedDepartmentsRoute
-  '/_authenticated/employees': typeof AuthenticatedEmployeesRoute
-  '/_authenticated/patients': typeof AuthenticatedPatientsRoute
-  '/_authenticated/positions': typeof AuthenticatedPositionsRoute
-  '/_authenticated/rooms': typeof AuthenticatedRoomsRoute
-  '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
-  '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
-  '/_authenticated/admin/issues': typeof AuthenticatedAdminIssuesRoute
-  '/_authenticated/appointments/booking': typeof AuthenticatedAppointmentsBookingRoute
-  '/_authenticated/appointments/calendar': typeof AuthenticatedAppointmentsCalendarRoute
-  '/_authenticated/attendance/adjustments': typeof AuthenticatedAttendanceAdjustmentsRoute
-  '/_authenticated/attendance/checkin': typeof AuthenticatedAttendanceCheckinRoute
-  '/_authenticated/attendance/daily': typeof AuthenticatedAttendanceDailyRoute
-  '/_authenticated/attendance/logs': typeof AuthenticatedAttendanceLogsRoute
-  '/_authenticated/attendance/manual': typeof AuthenticatedAttendanceManualRoute
-  '/_authenticated/attendance/monthly': typeof AuthenticatedAttendanceMonthlyRoute
-  '/_authenticated/attendance/overtime': typeof AuthenticatedAttendanceOvertimeRoute
-  '/_authenticated/biometric/devices': typeof AuthenticatedBiometricDevicesRoute
-  '/_authenticated/doctor/dashboard': typeof AuthenticatedDoctorDashboardRoute
-  '/_authenticated/doctor/profile': typeof AuthenticatedDoctorProfileRoute
-  '/_authenticated/doctor/schedule': typeof AuthenticatedDoctorScheduleRoute
-  '/_authenticated/hr/assignments': typeof AuthenticatedHrAssignmentsRoute
-  '/_authenticated/hr/payroll': typeof AuthenticatedHrPayrollRoute
-  '/_authenticated/hr/salary': typeof AuthenticatedHrSalaryRoute
-  '/_authenticated/issues/my-reports': typeof AuthenticatedIssuesMyReportsRoute
-  '/_authenticated/issues/report': typeof AuthenticatedIssuesReportRoute
-  '/_authenticated/patient/profile': typeof AuthenticatedPatientProfileRoute
-  '/_authenticated/reports/appointments': typeof AuthenticatedReportsAppointmentsRoute
-  '/_authenticated/reports/attendance': typeof AuthenticatedReportsAttendanceRoute
-  '/_authenticated/reports/export': typeof AuthenticatedReportsExportRoute
-  '/_authenticated/staff/profiles': typeof AuthenticatedStaffProfilesRoute
-  '/_authenticated/system/agent': typeof AuthenticatedSystemAgentRoute
-  '/_authenticated/system/audit-logs': typeof AuthenticatedSystemAuditLogsRoute
-  '/_authenticated/system/clinic-profile': typeof AuthenticatedSystemClinicProfileRoute
-  '/_authenticated/system/devices': typeof AuthenticatedSystemDevicesRoute
-  '/_authenticated/system/settings': typeof AuthenticatedSystemSettingsRoute
-  '/_authenticated/system/sync': typeof AuthenticatedSystemSyncRoute
-  '/_authenticated/system/users': typeof AuthenticatedSystemUsersRoute
+  '/_authenticated/$clinicSlug': typeof AuthenticatedClinicSlugRouteRouteWithChildren
+  '/_authenticated/$clinicSlug/appointments': typeof AuthenticatedClinicSlugAppointmentsRouteWithChildren
+  '/_authenticated/$clinicSlug/dashboard': typeof AuthenticatedClinicSlugDashboardRoute
+  '/_authenticated/$clinicSlug/departments': typeof AuthenticatedClinicSlugDepartmentsRoute
+  '/_authenticated/$clinicSlug/employees': typeof AuthenticatedClinicSlugEmployeesRoute
+  '/_authenticated/$clinicSlug/patients': typeof AuthenticatedClinicSlugPatientsRoute
+  '/_authenticated/$clinicSlug/positions': typeof AuthenticatedClinicSlugPositionsRoute
+  '/_authenticated/$clinicSlug/rooms': typeof AuthenticatedClinicSlugRoomsRoute
+  '/_authenticated/$clinicSlug/shifts': typeof AuthenticatedClinicSlugShiftsRoute
+  '/_authenticated/$clinicSlug/admin/dashboard': typeof AuthenticatedClinicSlugAdminDashboardRoute
+  '/_authenticated/$clinicSlug/admin/issues': typeof AuthenticatedClinicSlugAdminIssuesRoute
+  '/_authenticated/$clinicSlug/appointments/booking': typeof AuthenticatedClinicSlugAppointmentsBookingRoute
+  '/_authenticated/$clinicSlug/appointments/calendar': typeof AuthenticatedClinicSlugAppointmentsCalendarRoute
+  '/_authenticated/$clinicSlug/attendance/adjustments': typeof AuthenticatedClinicSlugAttendanceAdjustmentsRoute
+  '/_authenticated/$clinicSlug/attendance/checkin': typeof AuthenticatedClinicSlugAttendanceCheckinRoute
+  '/_authenticated/$clinicSlug/attendance/daily': typeof AuthenticatedClinicSlugAttendanceDailyRoute
+  '/_authenticated/$clinicSlug/attendance/logs': typeof AuthenticatedClinicSlugAttendanceLogsRoute
+  '/_authenticated/$clinicSlug/attendance/manual': typeof AuthenticatedClinicSlugAttendanceManualRoute
+  '/_authenticated/$clinicSlug/attendance/monthly': typeof AuthenticatedClinicSlugAttendanceMonthlyRoute
+  '/_authenticated/$clinicSlug/attendance/overtime': typeof AuthenticatedClinicSlugAttendanceOvertimeRoute
+  '/_authenticated/$clinicSlug/biometric/devices': typeof AuthenticatedClinicSlugBiometricDevicesRoute
+  '/_authenticated/$clinicSlug/doctor/dashboard': typeof AuthenticatedClinicSlugDoctorDashboardRoute
+  '/_authenticated/$clinicSlug/doctor/profile': typeof AuthenticatedClinicSlugDoctorProfileRoute
+  '/_authenticated/$clinicSlug/doctor/schedule': typeof AuthenticatedClinicSlugDoctorScheduleRoute
+  '/_authenticated/$clinicSlug/hr/assignments': typeof AuthenticatedClinicSlugHrAssignmentsRoute
+  '/_authenticated/$clinicSlug/hr/payroll': typeof AuthenticatedClinicSlugHrPayrollRoute
+  '/_authenticated/$clinicSlug/hr/salary': typeof AuthenticatedClinicSlugHrSalaryRoute
+  '/_authenticated/$clinicSlug/issues/my-reports': typeof AuthenticatedClinicSlugIssuesMyReportsRoute
+  '/_authenticated/$clinicSlug/issues/report': typeof AuthenticatedClinicSlugIssuesReportRoute
+  '/_authenticated/$clinicSlug/patient/profile': typeof AuthenticatedClinicSlugPatientProfileRoute
+  '/_authenticated/$clinicSlug/reports/appointments': typeof AuthenticatedClinicSlugReportsAppointmentsRoute
+  '/_authenticated/$clinicSlug/reports/attendance': typeof AuthenticatedClinicSlugReportsAttendanceRoute
+  '/_authenticated/$clinicSlug/reports/export': typeof AuthenticatedClinicSlugReportsExportRoute
+  '/_authenticated/$clinicSlug/staff/profiles': typeof AuthenticatedClinicSlugStaffProfilesRoute
+  '/_authenticated/$clinicSlug/system/agent': typeof AuthenticatedClinicSlugSystemAgentRoute
+  '/_authenticated/$clinicSlug/system/audit-logs': typeof AuthenticatedClinicSlugSystemAuditLogsRoute
+  '/_authenticated/$clinicSlug/system/clinic-profile': typeof AuthenticatedClinicSlugSystemClinicProfileRoute
+  '/_authenticated/$clinicSlug/system/devices': typeof AuthenticatedClinicSlugSystemDevicesRoute
+  '/_authenticated/$clinicSlug/system/settings': typeof AuthenticatedClinicSlugSystemSettingsRoute
+  '/_authenticated/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
+  '/_authenticated/$clinicSlug/system/users': typeof AuthenticatedClinicSlugSystemUsersRoute
   '/api/public/device/events': typeof ApiPublicDeviceEventsRoute
 }
 export interface FileRouteTypes {
@@ -447,137 +466,140 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
-    | '/appointments'
-    | '/dashboard'
-    | '/departments'
-    | '/employees'
-    | '/patients'
-    | '/positions'
-    | '/rooms'
-    | '/shifts'
-    | '/admin/dashboard'
-    | '/admin/issues'
-    | '/appointments/booking'
-    | '/appointments/calendar'
-    | '/attendance/adjustments'
-    | '/attendance/checkin'
-    | '/attendance/daily'
-    | '/attendance/logs'
-    | '/attendance/manual'
-    | '/attendance/monthly'
-    | '/attendance/overtime'
-    | '/biometric/devices'
-    | '/doctor/dashboard'
-    | '/doctor/profile'
-    | '/doctor/schedule'
-    | '/hr/assignments'
-    | '/hr/payroll'
-    | '/hr/salary'
-    | '/issues/my-reports'
-    | '/issues/report'
-    | '/patient/profile'
-    | '/reports/appointments'
-    | '/reports/attendance'
-    | '/reports/export'
-    | '/staff/profiles'
-    | '/system/agent'
-    | '/system/audit-logs'
-    | '/system/clinic-profile'
-    | '/system/devices'
-    | '/system/settings'
-    | '/system/sync'
-    | '/system/users'
+    | '/$clinicSlug'
+    | '/$clinicSlug/appointments'
+    | '/$clinicSlug/dashboard'
+    | '/$clinicSlug/departments'
+    | '/$clinicSlug/employees'
+    | '/$clinicSlug/patients'
+    | '/$clinicSlug/positions'
+    | '/$clinicSlug/rooms'
+    | '/$clinicSlug/shifts'
+    | '/$clinicSlug/admin/dashboard'
+    | '/$clinicSlug/admin/issues'
+    | '/$clinicSlug/appointments/booking'
+    | '/$clinicSlug/appointments/calendar'
+    | '/$clinicSlug/attendance/adjustments'
+    | '/$clinicSlug/attendance/checkin'
+    | '/$clinicSlug/attendance/daily'
+    | '/$clinicSlug/attendance/logs'
+    | '/$clinicSlug/attendance/manual'
+    | '/$clinicSlug/attendance/monthly'
+    | '/$clinicSlug/attendance/overtime'
+    | '/$clinicSlug/biometric/devices'
+    | '/$clinicSlug/doctor/dashboard'
+    | '/$clinicSlug/doctor/profile'
+    | '/$clinicSlug/doctor/schedule'
+    | '/$clinicSlug/hr/assignments'
+    | '/$clinicSlug/hr/payroll'
+    | '/$clinicSlug/hr/salary'
+    | '/$clinicSlug/issues/my-reports'
+    | '/$clinicSlug/issues/report'
+    | '/$clinicSlug/patient/profile'
+    | '/$clinicSlug/reports/appointments'
+    | '/$clinicSlug/reports/attendance'
+    | '/$clinicSlug/reports/export'
+    | '/$clinicSlug/staff/profiles'
+    | '/$clinicSlug/system/agent'
+    | '/$clinicSlug/system/audit-logs'
+    | '/$clinicSlug/system/clinic-profile'
+    | '/$clinicSlug/system/devices'
+    | '/$clinicSlug/system/settings'
+    | '/$clinicSlug/system/sync'
+    | '/$clinicSlug/system/users'
     | '/api/public/device/events'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/appointments'
-    | '/dashboard'
-    | '/departments'
-    | '/employees'
-    | '/patients'
-    | '/positions'
-    | '/rooms'
-    | '/shifts'
-    | '/admin/dashboard'
-    | '/admin/issues'
-    | '/appointments/booking'
-    | '/appointments/calendar'
-    | '/attendance/adjustments'
-    | '/attendance/checkin'
-    | '/attendance/daily'
-    | '/attendance/logs'
-    | '/attendance/manual'
-    | '/attendance/monthly'
-    | '/attendance/overtime'
-    | '/biometric/devices'
-    | '/doctor/dashboard'
-    | '/doctor/profile'
-    | '/doctor/schedule'
-    | '/hr/assignments'
-    | '/hr/payroll'
-    | '/hr/salary'
-    | '/issues/my-reports'
-    | '/issues/report'
-    | '/patient/profile'
-    | '/reports/appointments'
-    | '/reports/attendance'
-    | '/reports/export'
-    | '/staff/profiles'
-    | '/system/agent'
-    | '/system/audit-logs'
-    | '/system/clinic-profile'
-    | '/system/devices'
-    | '/system/settings'
-    | '/system/sync'
-    | '/system/users'
+    | '/$clinicSlug'
+    | '/$clinicSlug/appointments'
+    | '/$clinicSlug/dashboard'
+    | '/$clinicSlug/departments'
+    | '/$clinicSlug/employees'
+    | '/$clinicSlug/patients'
+    | '/$clinicSlug/positions'
+    | '/$clinicSlug/rooms'
+    | '/$clinicSlug/shifts'
+    | '/$clinicSlug/admin/dashboard'
+    | '/$clinicSlug/admin/issues'
+    | '/$clinicSlug/appointments/booking'
+    | '/$clinicSlug/appointments/calendar'
+    | '/$clinicSlug/attendance/adjustments'
+    | '/$clinicSlug/attendance/checkin'
+    | '/$clinicSlug/attendance/daily'
+    | '/$clinicSlug/attendance/logs'
+    | '/$clinicSlug/attendance/manual'
+    | '/$clinicSlug/attendance/monthly'
+    | '/$clinicSlug/attendance/overtime'
+    | '/$clinicSlug/biometric/devices'
+    | '/$clinicSlug/doctor/dashboard'
+    | '/$clinicSlug/doctor/profile'
+    | '/$clinicSlug/doctor/schedule'
+    | '/$clinicSlug/hr/assignments'
+    | '/$clinicSlug/hr/payroll'
+    | '/$clinicSlug/hr/salary'
+    | '/$clinicSlug/issues/my-reports'
+    | '/$clinicSlug/issues/report'
+    | '/$clinicSlug/patient/profile'
+    | '/$clinicSlug/reports/appointments'
+    | '/$clinicSlug/reports/attendance'
+    | '/$clinicSlug/reports/export'
+    | '/$clinicSlug/staff/profiles'
+    | '/$clinicSlug/system/agent'
+    | '/$clinicSlug/system/audit-logs'
+    | '/$clinicSlug/system/clinic-profile'
+    | '/$clinicSlug/system/devices'
+    | '/$clinicSlug/system/settings'
+    | '/$clinicSlug/system/sync'
+    | '/$clinicSlug/system/users'
     | '/api/public/device/events'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
-    | '/_authenticated/appointments'
-    | '/_authenticated/dashboard'
-    | '/_authenticated/departments'
-    | '/_authenticated/employees'
-    | '/_authenticated/patients'
-    | '/_authenticated/positions'
-    | '/_authenticated/rooms'
-    | '/_authenticated/shifts'
-    | '/_authenticated/admin/dashboard'
-    | '/_authenticated/admin/issues'
-    | '/_authenticated/appointments/booking'
-    | '/_authenticated/appointments/calendar'
-    | '/_authenticated/attendance/adjustments'
-    | '/_authenticated/attendance/checkin'
-    | '/_authenticated/attendance/daily'
-    | '/_authenticated/attendance/logs'
-    | '/_authenticated/attendance/manual'
-    | '/_authenticated/attendance/monthly'
-    | '/_authenticated/attendance/overtime'
-    | '/_authenticated/biometric/devices'
-    | '/_authenticated/doctor/dashboard'
-    | '/_authenticated/doctor/profile'
-    | '/_authenticated/doctor/schedule'
-    | '/_authenticated/hr/assignments'
-    | '/_authenticated/hr/payroll'
-    | '/_authenticated/hr/salary'
-    | '/_authenticated/issues/my-reports'
-    | '/_authenticated/issues/report'
-    | '/_authenticated/patient/profile'
-    | '/_authenticated/reports/appointments'
-    | '/_authenticated/reports/attendance'
-    | '/_authenticated/reports/export'
-    | '/_authenticated/staff/profiles'
-    | '/_authenticated/system/agent'
-    | '/_authenticated/system/audit-logs'
-    | '/_authenticated/system/clinic-profile'
-    | '/_authenticated/system/devices'
-    | '/_authenticated/system/settings'
-    | '/_authenticated/system/sync'
-    | '/_authenticated/system/users'
+    | '/_authenticated/$clinicSlug'
+    | '/_authenticated/$clinicSlug/appointments'
+    | '/_authenticated/$clinicSlug/dashboard'
+    | '/_authenticated/$clinicSlug/departments'
+    | '/_authenticated/$clinicSlug/employees'
+    | '/_authenticated/$clinicSlug/patients'
+    | '/_authenticated/$clinicSlug/positions'
+    | '/_authenticated/$clinicSlug/rooms'
+    | '/_authenticated/$clinicSlug/shifts'
+    | '/_authenticated/$clinicSlug/admin/dashboard'
+    | '/_authenticated/$clinicSlug/admin/issues'
+    | '/_authenticated/$clinicSlug/appointments/booking'
+    | '/_authenticated/$clinicSlug/appointments/calendar'
+    | '/_authenticated/$clinicSlug/attendance/adjustments'
+    | '/_authenticated/$clinicSlug/attendance/checkin'
+    | '/_authenticated/$clinicSlug/attendance/daily'
+    | '/_authenticated/$clinicSlug/attendance/logs'
+    | '/_authenticated/$clinicSlug/attendance/manual'
+    | '/_authenticated/$clinicSlug/attendance/monthly'
+    | '/_authenticated/$clinicSlug/attendance/overtime'
+    | '/_authenticated/$clinicSlug/biometric/devices'
+    | '/_authenticated/$clinicSlug/doctor/dashboard'
+    | '/_authenticated/$clinicSlug/doctor/profile'
+    | '/_authenticated/$clinicSlug/doctor/schedule'
+    | '/_authenticated/$clinicSlug/hr/assignments'
+    | '/_authenticated/$clinicSlug/hr/payroll'
+    | '/_authenticated/$clinicSlug/hr/salary'
+    | '/_authenticated/$clinicSlug/issues/my-reports'
+    | '/_authenticated/$clinicSlug/issues/report'
+    | '/_authenticated/$clinicSlug/patient/profile'
+    | '/_authenticated/$clinicSlug/reports/appointments'
+    | '/_authenticated/$clinicSlug/reports/attendance'
+    | '/_authenticated/$clinicSlug/reports/export'
+    | '/_authenticated/$clinicSlug/staff/profiles'
+    | '/_authenticated/$clinicSlug/system/agent'
+    | '/_authenticated/$clinicSlug/system/audit-logs'
+    | '/_authenticated/$clinicSlug/system/clinic-profile'
+    | '/_authenticated/$clinicSlug/system/devices'
+    | '/_authenticated/$clinicSlug/system/settings'
+    | '/_authenticated/$clinicSlug/system/sync'
+    | '/_authenticated/$clinicSlug/system/users'
     | '/api/public/device/events'
   fileRoutesById: FileRoutesById
 }
@@ -611,285 +633,292 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/appointments': {
-      id: '/_authenticated/appointments'
+    '/_authenticated/$clinicSlug': {
+      id: '/_authenticated/$clinicSlug'
+      path: '/$clinicSlug'
+      fullPath: '/$clinicSlug'
+      preLoaderRoute: typeof AuthenticatedClinicSlugRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/$clinicSlug/appointments': {
+      id: '/_authenticated/$clinicSlug/appointments'
       path: '/appointments'
-      fullPath: '/appointments'
-      preLoaderRoute: typeof AuthenticatedAppointmentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/appointments'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAppointmentsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
+    '/_authenticated/$clinicSlug/dashboard': {
+      id: '/_authenticated/$clinicSlug/dashboard'
       path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/dashboard'
+      preLoaderRoute: typeof AuthenticatedClinicSlugDashboardRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/departments': {
-      id: '/_authenticated/departments'
+    '/_authenticated/$clinicSlug/departments': {
+      id: '/_authenticated/$clinicSlug/departments'
       path: '/departments'
-      fullPath: '/departments'
-      preLoaderRoute: typeof AuthenticatedDepartmentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/departments'
+      preLoaderRoute: typeof AuthenticatedClinicSlugDepartmentsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/employees': {
-      id: '/_authenticated/employees'
+    '/_authenticated/$clinicSlug/employees': {
+      id: '/_authenticated/$clinicSlug/employees'
       path: '/employees'
-      fullPath: '/employees'
-      preLoaderRoute: typeof AuthenticatedEmployeesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/employees'
+      preLoaderRoute: typeof AuthenticatedClinicSlugEmployeesRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/patients': {
-      id: '/_authenticated/patients'
+    '/_authenticated/$clinicSlug/patients': {
+      id: '/_authenticated/$clinicSlug/patients'
       path: '/patients'
-      fullPath: '/patients'
-      preLoaderRoute: typeof AuthenticatedPatientsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/patients'
+      preLoaderRoute: typeof AuthenticatedClinicSlugPatientsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/positions': {
-      id: '/_authenticated/positions'
+    '/_authenticated/$clinicSlug/positions': {
+      id: '/_authenticated/$clinicSlug/positions'
       path: '/positions'
-      fullPath: '/positions'
-      preLoaderRoute: typeof AuthenticatedPositionsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/positions'
+      preLoaderRoute: typeof AuthenticatedClinicSlugPositionsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/rooms': {
-      id: '/_authenticated/rooms'
+    '/_authenticated/$clinicSlug/rooms': {
+      id: '/_authenticated/$clinicSlug/rooms'
       path: '/rooms'
-      fullPath: '/rooms'
-      preLoaderRoute: typeof AuthenticatedRoomsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/rooms'
+      preLoaderRoute: typeof AuthenticatedClinicSlugRoomsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/shifts': {
-      id: '/_authenticated/shifts'
+    '/_authenticated/$clinicSlug/shifts': {
+      id: '/_authenticated/$clinicSlug/shifts'
       path: '/shifts'
-      fullPath: '/shifts'
-      preLoaderRoute: typeof AuthenticatedShiftsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/shifts'
+      preLoaderRoute: typeof AuthenticatedClinicSlugShiftsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/admin/dashboard': {
-      id: '/_authenticated/admin/dashboard'
+    '/_authenticated/$clinicSlug/admin/dashboard': {
+      id: '/_authenticated/$clinicSlug/admin/dashboard'
       path: '/admin/dashboard'
-      fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/admin/dashboard'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAdminDashboardRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/admin/issues': {
-      id: '/_authenticated/admin/issues'
+    '/_authenticated/$clinicSlug/admin/issues': {
+      id: '/_authenticated/$clinicSlug/admin/issues'
       path: '/admin/issues'
-      fullPath: '/admin/issues'
-      preLoaderRoute: typeof AuthenticatedAdminIssuesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/admin/issues'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAdminIssuesRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/appointments/booking': {
-      id: '/_authenticated/appointments/booking'
+    '/_authenticated/$clinicSlug/appointments/booking': {
+      id: '/_authenticated/$clinicSlug/appointments/booking'
       path: '/booking'
-      fullPath: '/appointments/booking'
-      preLoaderRoute: typeof AuthenticatedAppointmentsBookingRouteImport
-      parentRoute: typeof AuthenticatedAppointmentsRoute
+      fullPath: '/$clinicSlug/appointments/booking'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAppointmentsBookingRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugAppointmentsRoute
     }
-    '/_authenticated/appointments/calendar': {
-      id: '/_authenticated/appointments/calendar'
+    '/_authenticated/$clinicSlug/appointments/calendar': {
+      id: '/_authenticated/$clinicSlug/appointments/calendar'
       path: '/calendar'
-      fullPath: '/appointments/calendar'
-      preLoaderRoute: typeof AuthenticatedAppointmentsCalendarRouteImport
-      parentRoute: typeof AuthenticatedAppointmentsRoute
+      fullPath: '/$clinicSlug/appointments/calendar'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAppointmentsCalendarRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugAppointmentsRoute
     }
-    '/_authenticated/attendance/adjustments': {
-      id: '/_authenticated/attendance/adjustments'
+    '/_authenticated/$clinicSlug/attendance/adjustments': {
+      id: '/_authenticated/$clinicSlug/attendance/adjustments'
       path: '/attendance/adjustments'
-      fullPath: '/attendance/adjustments'
-      preLoaderRoute: typeof AuthenticatedAttendanceAdjustmentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/attendance/adjustments'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAttendanceAdjustmentsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/attendance/checkin': {
-      id: '/_authenticated/attendance/checkin'
+    '/_authenticated/$clinicSlug/attendance/checkin': {
+      id: '/_authenticated/$clinicSlug/attendance/checkin'
       path: '/attendance/checkin'
-      fullPath: '/attendance/checkin'
-      preLoaderRoute: typeof AuthenticatedAttendanceCheckinRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/attendance/checkin'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAttendanceCheckinRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/attendance/daily': {
-      id: '/_authenticated/attendance/daily'
+    '/_authenticated/$clinicSlug/attendance/daily': {
+      id: '/_authenticated/$clinicSlug/attendance/daily'
       path: '/attendance/daily'
-      fullPath: '/attendance/daily'
-      preLoaderRoute: typeof AuthenticatedAttendanceDailyRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/attendance/daily'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAttendanceDailyRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/attendance/logs': {
-      id: '/_authenticated/attendance/logs'
+    '/_authenticated/$clinicSlug/attendance/logs': {
+      id: '/_authenticated/$clinicSlug/attendance/logs'
       path: '/attendance/logs'
-      fullPath: '/attendance/logs'
-      preLoaderRoute: typeof AuthenticatedAttendanceLogsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/attendance/logs'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAttendanceLogsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/attendance/manual': {
-      id: '/_authenticated/attendance/manual'
+    '/_authenticated/$clinicSlug/attendance/manual': {
+      id: '/_authenticated/$clinicSlug/attendance/manual'
       path: '/attendance/manual'
-      fullPath: '/attendance/manual'
-      preLoaderRoute: typeof AuthenticatedAttendanceManualRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/attendance/manual'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAttendanceManualRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/attendance/monthly': {
-      id: '/_authenticated/attendance/monthly'
+    '/_authenticated/$clinicSlug/attendance/monthly': {
+      id: '/_authenticated/$clinicSlug/attendance/monthly'
       path: '/attendance/monthly'
-      fullPath: '/attendance/monthly'
-      preLoaderRoute: typeof AuthenticatedAttendanceMonthlyRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/attendance/monthly'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAttendanceMonthlyRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/attendance/overtime': {
-      id: '/_authenticated/attendance/overtime'
+    '/_authenticated/$clinicSlug/attendance/overtime': {
+      id: '/_authenticated/$clinicSlug/attendance/overtime'
       path: '/attendance/overtime'
-      fullPath: '/attendance/overtime'
-      preLoaderRoute: typeof AuthenticatedAttendanceOvertimeRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/attendance/overtime'
+      preLoaderRoute: typeof AuthenticatedClinicSlugAttendanceOvertimeRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/biometric/devices': {
-      id: '/_authenticated/biometric/devices'
+    '/_authenticated/$clinicSlug/biometric/devices': {
+      id: '/_authenticated/$clinicSlug/biometric/devices'
       path: '/biometric/devices'
-      fullPath: '/biometric/devices'
-      preLoaderRoute: typeof AuthenticatedBiometricDevicesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/biometric/devices'
+      preLoaderRoute: typeof AuthenticatedClinicSlugBiometricDevicesRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/doctor/dashboard': {
-      id: '/_authenticated/doctor/dashboard'
+    '/_authenticated/$clinicSlug/doctor/dashboard': {
+      id: '/_authenticated/$clinicSlug/doctor/dashboard'
       path: '/doctor/dashboard'
-      fullPath: '/doctor/dashboard'
-      preLoaderRoute: typeof AuthenticatedDoctorDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/doctor/dashboard'
+      preLoaderRoute: typeof AuthenticatedClinicSlugDoctorDashboardRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/doctor/profile': {
-      id: '/_authenticated/doctor/profile'
+    '/_authenticated/$clinicSlug/doctor/profile': {
+      id: '/_authenticated/$clinicSlug/doctor/profile'
       path: '/doctor/profile'
-      fullPath: '/doctor/profile'
-      preLoaderRoute: typeof AuthenticatedDoctorProfileRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/doctor/profile'
+      preLoaderRoute: typeof AuthenticatedClinicSlugDoctorProfileRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/doctor/schedule': {
-      id: '/_authenticated/doctor/schedule'
+    '/_authenticated/$clinicSlug/doctor/schedule': {
+      id: '/_authenticated/$clinicSlug/doctor/schedule'
       path: '/doctor/schedule'
-      fullPath: '/doctor/schedule'
-      preLoaderRoute: typeof AuthenticatedDoctorScheduleRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/doctor/schedule'
+      preLoaderRoute: typeof AuthenticatedClinicSlugDoctorScheduleRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/hr/assignments': {
-      id: '/_authenticated/hr/assignments'
+    '/_authenticated/$clinicSlug/hr/assignments': {
+      id: '/_authenticated/$clinicSlug/hr/assignments'
       path: '/hr/assignments'
-      fullPath: '/hr/assignments'
-      preLoaderRoute: typeof AuthenticatedHrAssignmentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/hr/assignments'
+      preLoaderRoute: typeof AuthenticatedClinicSlugHrAssignmentsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/hr/payroll': {
-      id: '/_authenticated/hr/payroll'
+    '/_authenticated/$clinicSlug/hr/payroll': {
+      id: '/_authenticated/$clinicSlug/hr/payroll'
       path: '/hr/payroll'
-      fullPath: '/hr/payroll'
-      preLoaderRoute: typeof AuthenticatedHrPayrollRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/hr/payroll'
+      preLoaderRoute: typeof AuthenticatedClinicSlugHrPayrollRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/hr/salary': {
-      id: '/_authenticated/hr/salary'
+    '/_authenticated/$clinicSlug/hr/salary': {
+      id: '/_authenticated/$clinicSlug/hr/salary'
       path: '/hr/salary'
-      fullPath: '/hr/salary'
-      preLoaderRoute: typeof AuthenticatedHrSalaryRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/hr/salary'
+      preLoaderRoute: typeof AuthenticatedClinicSlugHrSalaryRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/issues/my-reports': {
-      id: '/_authenticated/issues/my-reports'
+    '/_authenticated/$clinicSlug/issues/my-reports': {
+      id: '/_authenticated/$clinicSlug/issues/my-reports'
       path: '/issues/my-reports'
-      fullPath: '/issues/my-reports'
-      preLoaderRoute: typeof AuthenticatedIssuesMyReportsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/issues/my-reports'
+      preLoaderRoute: typeof AuthenticatedClinicSlugIssuesMyReportsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/issues/report': {
-      id: '/_authenticated/issues/report'
+    '/_authenticated/$clinicSlug/issues/report': {
+      id: '/_authenticated/$clinicSlug/issues/report'
       path: '/issues/report'
-      fullPath: '/issues/report'
-      preLoaderRoute: typeof AuthenticatedIssuesReportRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/issues/report'
+      preLoaderRoute: typeof AuthenticatedClinicSlugIssuesReportRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/patient/profile': {
-      id: '/_authenticated/patient/profile'
+    '/_authenticated/$clinicSlug/patient/profile': {
+      id: '/_authenticated/$clinicSlug/patient/profile'
       path: '/patient/profile'
-      fullPath: '/patient/profile'
-      preLoaderRoute: typeof AuthenticatedPatientProfileRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/patient/profile'
+      preLoaderRoute: typeof AuthenticatedClinicSlugPatientProfileRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/reports/appointments': {
-      id: '/_authenticated/reports/appointments'
+    '/_authenticated/$clinicSlug/reports/appointments': {
+      id: '/_authenticated/$clinicSlug/reports/appointments'
       path: '/reports/appointments'
-      fullPath: '/reports/appointments'
-      preLoaderRoute: typeof AuthenticatedReportsAppointmentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/reports/appointments'
+      preLoaderRoute: typeof AuthenticatedClinicSlugReportsAppointmentsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/reports/attendance': {
-      id: '/_authenticated/reports/attendance'
+    '/_authenticated/$clinicSlug/reports/attendance': {
+      id: '/_authenticated/$clinicSlug/reports/attendance'
       path: '/reports/attendance'
-      fullPath: '/reports/attendance'
-      preLoaderRoute: typeof AuthenticatedReportsAttendanceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/reports/attendance'
+      preLoaderRoute: typeof AuthenticatedClinicSlugReportsAttendanceRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/reports/export': {
-      id: '/_authenticated/reports/export'
+    '/_authenticated/$clinicSlug/reports/export': {
+      id: '/_authenticated/$clinicSlug/reports/export'
       path: '/reports/export'
-      fullPath: '/reports/export'
-      preLoaderRoute: typeof AuthenticatedReportsExportRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/reports/export'
+      preLoaderRoute: typeof AuthenticatedClinicSlugReportsExportRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/staff/profiles': {
-      id: '/_authenticated/staff/profiles'
+    '/_authenticated/$clinicSlug/staff/profiles': {
+      id: '/_authenticated/$clinicSlug/staff/profiles'
       path: '/staff/profiles'
-      fullPath: '/staff/profiles'
-      preLoaderRoute: typeof AuthenticatedStaffProfilesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/staff/profiles'
+      preLoaderRoute: typeof AuthenticatedClinicSlugStaffProfilesRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/system/agent': {
-      id: '/_authenticated/system/agent'
+    '/_authenticated/$clinicSlug/system/agent': {
+      id: '/_authenticated/$clinicSlug/system/agent'
       path: '/system/agent'
-      fullPath: '/system/agent'
-      preLoaderRoute: typeof AuthenticatedSystemAgentRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/system/agent'
+      preLoaderRoute: typeof AuthenticatedClinicSlugSystemAgentRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/system/audit-logs': {
-      id: '/_authenticated/system/audit-logs'
+    '/_authenticated/$clinicSlug/system/audit-logs': {
+      id: '/_authenticated/$clinicSlug/system/audit-logs'
       path: '/system/audit-logs'
-      fullPath: '/system/audit-logs'
-      preLoaderRoute: typeof AuthenticatedSystemAuditLogsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/system/audit-logs'
+      preLoaderRoute: typeof AuthenticatedClinicSlugSystemAuditLogsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/system/clinic-profile': {
-      id: '/_authenticated/system/clinic-profile'
+    '/_authenticated/$clinicSlug/system/clinic-profile': {
+      id: '/_authenticated/$clinicSlug/system/clinic-profile'
       path: '/system/clinic-profile'
-      fullPath: '/system/clinic-profile'
-      preLoaderRoute: typeof AuthenticatedSystemClinicProfileRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/system/clinic-profile'
+      preLoaderRoute: typeof AuthenticatedClinicSlugSystemClinicProfileRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/system/devices': {
-      id: '/_authenticated/system/devices'
+    '/_authenticated/$clinicSlug/system/devices': {
+      id: '/_authenticated/$clinicSlug/system/devices'
       path: '/system/devices'
-      fullPath: '/system/devices'
-      preLoaderRoute: typeof AuthenticatedSystemDevicesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/system/devices'
+      preLoaderRoute: typeof AuthenticatedClinicSlugSystemDevicesRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/system/settings': {
-      id: '/_authenticated/system/settings'
+    '/_authenticated/$clinicSlug/system/settings': {
+      id: '/_authenticated/$clinicSlug/system/settings'
       path: '/system/settings'
-      fullPath: '/system/settings'
-      preLoaderRoute: typeof AuthenticatedSystemSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/system/settings'
+      preLoaderRoute: typeof AuthenticatedClinicSlugSystemSettingsRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/system/sync': {
-      id: '/_authenticated/system/sync'
+    '/_authenticated/$clinicSlug/system/sync': {
+      id: '/_authenticated/$clinicSlug/system/sync'
       path: '/system/sync'
-      fullPath: '/system/sync'
-      preLoaderRoute: typeof AuthenticatedSystemSyncRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/system/sync'
+      preLoaderRoute: typeof AuthenticatedClinicSlugSystemSyncRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/system/users': {
-      id: '/_authenticated/system/users'
+    '/_authenticated/$clinicSlug/system/users': {
+      id: '/_authenticated/$clinicSlug/system/users'
       path: '/system/users'
-      fullPath: '/system/users'
-      preLoaderRoute: typeof AuthenticatedSystemUsersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/$clinicSlug/system/users'
+      preLoaderRoute: typeof AuthenticatedClinicSlugSystemUsersRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
     '/api/public/device/events': {
       id: '/api/public/device/events'
@@ -901,105 +930,153 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedAppointmentsRouteChildren {
-  AuthenticatedAppointmentsBookingRoute: typeof AuthenticatedAppointmentsBookingRoute
-  AuthenticatedAppointmentsCalendarRoute: typeof AuthenticatedAppointmentsCalendarRoute
+interface AuthenticatedClinicSlugAppointmentsRouteChildren {
+  AuthenticatedClinicSlugAppointmentsBookingRoute: typeof AuthenticatedClinicSlugAppointmentsBookingRoute
+  AuthenticatedClinicSlugAppointmentsCalendarRoute: typeof AuthenticatedClinicSlugAppointmentsCalendarRoute
 }
 
-const AuthenticatedAppointmentsRouteChildren: AuthenticatedAppointmentsRouteChildren =
+const AuthenticatedClinicSlugAppointmentsRouteChildren: AuthenticatedClinicSlugAppointmentsRouteChildren =
   {
-    AuthenticatedAppointmentsBookingRoute:
-      AuthenticatedAppointmentsBookingRoute,
-    AuthenticatedAppointmentsCalendarRoute:
-      AuthenticatedAppointmentsCalendarRoute,
+    AuthenticatedClinicSlugAppointmentsBookingRoute:
+      AuthenticatedClinicSlugAppointmentsBookingRoute,
+    AuthenticatedClinicSlugAppointmentsCalendarRoute:
+      AuthenticatedClinicSlugAppointmentsCalendarRoute,
   }
 
-const AuthenticatedAppointmentsRouteWithChildren =
-  AuthenticatedAppointmentsRoute._addFileChildren(
-    AuthenticatedAppointmentsRouteChildren,
+const AuthenticatedClinicSlugAppointmentsRouteWithChildren =
+  AuthenticatedClinicSlugAppointmentsRoute._addFileChildren(
+    AuthenticatedClinicSlugAppointmentsRouteChildren,
+  )
+
+interface AuthenticatedClinicSlugRouteRouteChildren {
+  AuthenticatedClinicSlugAppointmentsRoute: typeof AuthenticatedClinicSlugAppointmentsRouteWithChildren
+  AuthenticatedClinicSlugDashboardRoute: typeof AuthenticatedClinicSlugDashboardRoute
+  AuthenticatedClinicSlugDepartmentsRoute: typeof AuthenticatedClinicSlugDepartmentsRoute
+  AuthenticatedClinicSlugEmployeesRoute: typeof AuthenticatedClinicSlugEmployeesRoute
+  AuthenticatedClinicSlugPatientsRoute: typeof AuthenticatedClinicSlugPatientsRoute
+  AuthenticatedClinicSlugPositionsRoute: typeof AuthenticatedClinicSlugPositionsRoute
+  AuthenticatedClinicSlugRoomsRoute: typeof AuthenticatedClinicSlugRoomsRoute
+  AuthenticatedClinicSlugShiftsRoute: typeof AuthenticatedClinicSlugShiftsRoute
+  AuthenticatedClinicSlugAdminDashboardRoute: typeof AuthenticatedClinicSlugAdminDashboardRoute
+  AuthenticatedClinicSlugAdminIssuesRoute: typeof AuthenticatedClinicSlugAdminIssuesRoute
+  AuthenticatedClinicSlugAttendanceAdjustmentsRoute: typeof AuthenticatedClinicSlugAttendanceAdjustmentsRoute
+  AuthenticatedClinicSlugAttendanceCheckinRoute: typeof AuthenticatedClinicSlugAttendanceCheckinRoute
+  AuthenticatedClinicSlugAttendanceDailyRoute: typeof AuthenticatedClinicSlugAttendanceDailyRoute
+  AuthenticatedClinicSlugAttendanceLogsRoute: typeof AuthenticatedClinicSlugAttendanceLogsRoute
+  AuthenticatedClinicSlugAttendanceManualRoute: typeof AuthenticatedClinicSlugAttendanceManualRoute
+  AuthenticatedClinicSlugAttendanceMonthlyRoute: typeof AuthenticatedClinicSlugAttendanceMonthlyRoute
+  AuthenticatedClinicSlugAttendanceOvertimeRoute: typeof AuthenticatedClinicSlugAttendanceOvertimeRoute
+  AuthenticatedClinicSlugBiometricDevicesRoute: typeof AuthenticatedClinicSlugBiometricDevicesRoute
+  AuthenticatedClinicSlugDoctorDashboardRoute: typeof AuthenticatedClinicSlugDoctorDashboardRoute
+  AuthenticatedClinicSlugDoctorProfileRoute: typeof AuthenticatedClinicSlugDoctorProfileRoute
+  AuthenticatedClinicSlugDoctorScheduleRoute: typeof AuthenticatedClinicSlugDoctorScheduleRoute
+  AuthenticatedClinicSlugHrAssignmentsRoute: typeof AuthenticatedClinicSlugHrAssignmentsRoute
+  AuthenticatedClinicSlugHrPayrollRoute: typeof AuthenticatedClinicSlugHrPayrollRoute
+  AuthenticatedClinicSlugHrSalaryRoute: typeof AuthenticatedClinicSlugHrSalaryRoute
+  AuthenticatedClinicSlugIssuesMyReportsRoute: typeof AuthenticatedClinicSlugIssuesMyReportsRoute
+  AuthenticatedClinicSlugIssuesReportRoute: typeof AuthenticatedClinicSlugIssuesReportRoute
+  AuthenticatedClinicSlugPatientProfileRoute: typeof AuthenticatedClinicSlugPatientProfileRoute
+  AuthenticatedClinicSlugReportsAppointmentsRoute: typeof AuthenticatedClinicSlugReportsAppointmentsRoute
+  AuthenticatedClinicSlugReportsAttendanceRoute: typeof AuthenticatedClinicSlugReportsAttendanceRoute
+  AuthenticatedClinicSlugReportsExportRoute: typeof AuthenticatedClinicSlugReportsExportRoute
+  AuthenticatedClinicSlugStaffProfilesRoute: typeof AuthenticatedClinicSlugStaffProfilesRoute
+  AuthenticatedClinicSlugSystemAgentRoute: typeof AuthenticatedClinicSlugSystemAgentRoute
+  AuthenticatedClinicSlugSystemAuditLogsRoute: typeof AuthenticatedClinicSlugSystemAuditLogsRoute
+  AuthenticatedClinicSlugSystemClinicProfileRoute: typeof AuthenticatedClinicSlugSystemClinicProfileRoute
+  AuthenticatedClinicSlugSystemDevicesRoute: typeof AuthenticatedClinicSlugSystemDevicesRoute
+  AuthenticatedClinicSlugSystemSettingsRoute: typeof AuthenticatedClinicSlugSystemSettingsRoute
+  AuthenticatedClinicSlugSystemSyncRoute: typeof AuthenticatedClinicSlugSystemSyncRoute
+  AuthenticatedClinicSlugSystemUsersRoute: typeof AuthenticatedClinicSlugSystemUsersRoute
+}
+
+const AuthenticatedClinicSlugRouteRouteChildren: AuthenticatedClinicSlugRouteRouteChildren =
+  {
+    AuthenticatedClinicSlugAppointmentsRoute:
+      AuthenticatedClinicSlugAppointmentsRouteWithChildren,
+    AuthenticatedClinicSlugDashboardRoute:
+      AuthenticatedClinicSlugDashboardRoute,
+    AuthenticatedClinicSlugDepartmentsRoute:
+      AuthenticatedClinicSlugDepartmentsRoute,
+    AuthenticatedClinicSlugEmployeesRoute:
+      AuthenticatedClinicSlugEmployeesRoute,
+    AuthenticatedClinicSlugPatientsRoute: AuthenticatedClinicSlugPatientsRoute,
+    AuthenticatedClinicSlugPositionsRoute:
+      AuthenticatedClinicSlugPositionsRoute,
+    AuthenticatedClinicSlugRoomsRoute: AuthenticatedClinicSlugRoomsRoute,
+    AuthenticatedClinicSlugShiftsRoute: AuthenticatedClinicSlugShiftsRoute,
+    AuthenticatedClinicSlugAdminDashboardRoute:
+      AuthenticatedClinicSlugAdminDashboardRoute,
+    AuthenticatedClinicSlugAdminIssuesRoute:
+      AuthenticatedClinicSlugAdminIssuesRoute,
+    AuthenticatedClinicSlugAttendanceAdjustmentsRoute:
+      AuthenticatedClinicSlugAttendanceAdjustmentsRoute,
+    AuthenticatedClinicSlugAttendanceCheckinRoute:
+      AuthenticatedClinicSlugAttendanceCheckinRoute,
+    AuthenticatedClinicSlugAttendanceDailyRoute:
+      AuthenticatedClinicSlugAttendanceDailyRoute,
+    AuthenticatedClinicSlugAttendanceLogsRoute:
+      AuthenticatedClinicSlugAttendanceLogsRoute,
+    AuthenticatedClinicSlugAttendanceManualRoute:
+      AuthenticatedClinicSlugAttendanceManualRoute,
+    AuthenticatedClinicSlugAttendanceMonthlyRoute:
+      AuthenticatedClinicSlugAttendanceMonthlyRoute,
+    AuthenticatedClinicSlugAttendanceOvertimeRoute:
+      AuthenticatedClinicSlugAttendanceOvertimeRoute,
+    AuthenticatedClinicSlugBiometricDevicesRoute:
+      AuthenticatedClinicSlugBiometricDevicesRoute,
+    AuthenticatedClinicSlugDoctorDashboardRoute:
+      AuthenticatedClinicSlugDoctorDashboardRoute,
+    AuthenticatedClinicSlugDoctorProfileRoute:
+      AuthenticatedClinicSlugDoctorProfileRoute,
+    AuthenticatedClinicSlugDoctorScheduleRoute:
+      AuthenticatedClinicSlugDoctorScheduleRoute,
+    AuthenticatedClinicSlugHrAssignmentsRoute:
+      AuthenticatedClinicSlugHrAssignmentsRoute,
+    AuthenticatedClinicSlugHrPayrollRoute:
+      AuthenticatedClinicSlugHrPayrollRoute,
+    AuthenticatedClinicSlugHrSalaryRoute: AuthenticatedClinicSlugHrSalaryRoute,
+    AuthenticatedClinicSlugIssuesMyReportsRoute:
+      AuthenticatedClinicSlugIssuesMyReportsRoute,
+    AuthenticatedClinicSlugIssuesReportRoute:
+      AuthenticatedClinicSlugIssuesReportRoute,
+    AuthenticatedClinicSlugPatientProfileRoute:
+      AuthenticatedClinicSlugPatientProfileRoute,
+    AuthenticatedClinicSlugReportsAppointmentsRoute:
+      AuthenticatedClinicSlugReportsAppointmentsRoute,
+    AuthenticatedClinicSlugReportsAttendanceRoute:
+      AuthenticatedClinicSlugReportsAttendanceRoute,
+    AuthenticatedClinicSlugReportsExportRoute:
+      AuthenticatedClinicSlugReportsExportRoute,
+    AuthenticatedClinicSlugStaffProfilesRoute:
+      AuthenticatedClinicSlugStaffProfilesRoute,
+    AuthenticatedClinicSlugSystemAgentRoute:
+      AuthenticatedClinicSlugSystemAgentRoute,
+    AuthenticatedClinicSlugSystemAuditLogsRoute:
+      AuthenticatedClinicSlugSystemAuditLogsRoute,
+    AuthenticatedClinicSlugSystemClinicProfileRoute:
+      AuthenticatedClinicSlugSystemClinicProfileRoute,
+    AuthenticatedClinicSlugSystemDevicesRoute:
+      AuthenticatedClinicSlugSystemDevicesRoute,
+    AuthenticatedClinicSlugSystemSettingsRoute:
+      AuthenticatedClinicSlugSystemSettingsRoute,
+    AuthenticatedClinicSlugSystemSyncRoute:
+      AuthenticatedClinicSlugSystemSyncRoute,
+    AuthenticatedClinicSlugSystemUsersRoute:
+      AuthenticatedClinicSlugSystemUsersRoute,
+  }
+
+const AuthenticatedClinicSlugRouteRouteWithChildren =
+  AuthenticatedClinicSlugRouteRoute._addFileChildren(
+    AuthenticatedClinicSlugRouteRouteChildren,
   )
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAppointmentsRoute: typeof AuthenticatedAppointmentsRouteWithChildren
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedDepartmentsRoute: typeof AuthenticatedDepartmentsRoute
-  AuthenticatedEmployeesRoute: typeof AuthenticatedEmployeesRoute
-  AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRoute
-  AuthenticatedPositionsRoute: typeof AuthenticatedPositionsRoute
-  AuthenticatedRoomsRoute: typeof AuthenticatedRoomsRoute
-  AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
-  AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
-  AuthenticatedAdminIssuesRoute: typeof AuthenticatedAdminIssuesRoute
-  AuthenticatedAttendanceAdjustmentsRoute: typeof AuthenticatedAttendanceAdjustmentsRoute
-  AuthenticatedAttendanceCheckinRoute: typeof AuthenticatedAttendanceCheckinRoute
-  AuthenticatedAttendanceDailyRoute: typeof AuthenticatedAttendanceDailyRoute
-  AuthenticatedAttendanceLogsRoute: typeof AuthenticatedAttendanceLogsRoute
-  AuthenticatedAttendanceManualRoute: typeof AuthenticatedAttendanceManualRoute
-  AuthenticatedAttendanceMonthlyRoute: typeof AuthenticatedAttendanceMonthlyRoute
-  AuthenticatedAttendanceOvertimeRoute: typeof AuthenticatedAttendanceOvertimeRoute
-  AuthenticatedBiometricDevicesRoute: typeof AuthenticatedBiometricDevicesRoute
-  AuthenticatedDoctorDashboardRoute: typeof AuthenticatedDoctorDashboardRoute
-  AuthenticatedDoctorProfileRoute: typeof AuthenticatedDoctorProfileRoute
-  AuthenticatedDoctorScheduleRoute: typeof AuthenticatedDoctorScheduleRoute
-  AuthenticatedHrAssignmentsRoute: typeof AuthenticatedHrAssignmentsRoute
-  AuthenticatedHrPayrollRoute: typeof AuthenticatedHrPayrollRoute
-  AuthenticatedHrSalaryRoute: typeof AuthenticatedHrSalaryRoute
-  AuthenticatedIssuesMyReportsRoute: typeof AuthenticatedIssuesMyReportsRoute
-  AuthenticatedIssuesReportRoute: typeof AuthenticatedIssuesReportRoute
-  AuthenticatedPatientProfileRoute: typeof AuthenticatedPatientProfileRoute
-  AuthenticatedReportsAppointmentsRoute: typeof AuthenticatedReportsAppointmentsRoute
-  AuthenticatedReportsAttendanceRoute: typeof AuthenticatedReportsAttendanceRoute
-  AuthenticatedReportsExportRoute: typeof AuthenticatedReportsExportRoute
-  AuthenticatedStaffProfilesRoute: typeof AuthenticatedStaffProfilesRoute
-  AuthenticatedSystemAgentRoute: typeof AuthenticatedSystemAgentRoute
-  AuthenticatedSystemAuditLogsRoute: typeof AuthenticatedSystemAuditLogsRoute
-  AuthenticatedSystemClinicProfileRoute: typeof AuthenticatedSystemClinicProfileRoute
-  AuthenticatedSystemDevicesRoute: typeof AuthenticatedSystemDevicesRoute
-  AuthenticatedSystemSettingsRoute: typeof AuthenticatedSystemSettingsRoute
-  AuthenticatedSystemSyncRoute: typeof AuthenticatedSystemSyncRoute
-  AuthenticatedSystemUsersRoute: typeof AuthenticatedSystemUsersRoute
+  AuthenticatedClinicSlugRouteRoute: typeof AuthenticatedClinicSlugRouteRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAppointmentsRoute: AuthenticatedAppointmentsRouteWithChildren,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedDepartmentsRoute: AuthenticatedDepartmentsRoute,
-  AuthenticatedEmployeesRoute: AuthenticatedEmployeesRoute,
-  AuthenticatedPatientsRoute: AuthenticatedPatientsRoute,
-  AuthenticatedPositionsRoute: AuthenticatedPositionsRoute,
-  AuthenticatedRoomsRoute: AuthenticatedRoomsRoute,
-  AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
-  AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
-  AuthenticatedAdminIssuesRoute: AuthenticatedAdminIssuesRoute,
-  AuthenticatedAttendanceAdjustmentsRoute:
-    AuthenticatedAttendanceAdjustmentsRoute,
-  AuthenticatedAttendanceCheckinRoute: AuthenticatedAttendanceCheckinRoute,
-  AuthenticatedAttendanceDailyRoute: AuthenticatedAttendanceDailyRoute,
-  AuthenticatedAttendanceLogsRoute: AuthenticatedAttendanceLogsRoute,
-  AuthenticatedAttendanceManualRoute: AuthenticatedAttendanceManualRoute,
-  AuthenticatedAttendanceMonthlyRoute: AuthenticatedAttendanceMonthlyRoute,
-  AuthenticatedAttendanceOvertimeRoute: AuthenticatedAttendanceOvertimeRoute,
-  AuthenticatedBiometricDevicesRoute: AuthenticatedBiometricDevicesRoute,
-  AuthenticatedDoctorDashboardRoute: AuthenticatedDoctorDashboardRoute,
-  AuthenticatedDoctorProfileRoute: AuthenticatedDoctorProfileRoute,
-  AuthenticatedDoctorScheduleRoute: AuthenticatedDoctorScheduleRoute,
-  AuthenticatedHrAssignmentsRoute: AuthenticatedHrAssignmentsRoute,
-  AuthenticatedHrPayrollRoute: AuthenticatedHrPayrollRoute,
-  AuthenticatedHrSalaryRoute: AuthenticatedHrSalaryRoute,
-  AuthenticatedIssuesMyReportsRoute: AuthenticatedIssuesMyReportsRoute,
-  AuthenticatedIssuesReportRoute: AuthenticatedIssuesReportRoute,
-  AuthenticatedPatientProfileRoute: AuthenticatedPatientProfileRoute,
-  AuthenticatedReportsAppointmentsRoute: AuthenticatedReportsAppointmentsRoute,
-  AuthenticatedReportsAttendanceRoute: AuthenticatedReportsAttendanceRoute,
-  AuthenticatedReportsExportRoute: AuthenticatedReportsExportRoute,
-  AuthenticatedStaffProfilesRoute: AuthenticatedStaffProfilesRoute,
-  AuthenticatedSystemAgentRoute: AuthenticatedSystemAgentRoute,
-  AuthenticatedSystemAuditLogsRoute: AuthenticatedSystemAuditLogsRoute,
-  AuthenticatedSystemClinicProfileRoute: AuthenticatedSystemClinicProfileRoute,
-  AuthenticatedSystemDevicesRoute: AuthenticatedSystemDevicesRoute,
-  AuthenticatedSystemSettingsRoute: AuthenticatedSystemSettingsRoute,
-  AuthenticatedSystemSyncRoute: AuthenticatedSystemSyncRoute,
-  AuthenticatedSystemUsersRoute: AuthenticatedSystemUsersRoute,
+  AuthenticatedClinicSlugRouteRoute:
+    AuthenticatedClinicSlugRouteRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =

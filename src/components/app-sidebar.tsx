@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 
 import {
@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useClinicPath, useClinicRelativePath } from "@/hooks/use-clinic-path";
 import { visibleNavGroups, type AppRole } from "@/lib/permissions";
 
 type AppSidebarProps = {
@@ -24,10 +25,11 @@ type AppSidebarProps = {
 export function AppSidebar({ roles, clinicName, logoUrl }: AppSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const pathname = useRouterState({ select: (router) => router.location.pathname });
+  const relativePath = useClinicRelativePath();
+  const buildPath = useClinicPath();
   const groups = visibleNavGroups(roles);
 
-  const isActive = (to: string) => pathname === to || pathname.startsWith(`${to}/`);
+  const isActive = (to: string) => relativePath === to || relativePath.startsWith(`${to}/`);
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -67,7 +69,7 @@ export function AppSidebar({ roles, clinicName, logoUrl }: AppSidebarProps) {
                         tooltip={item.title}
                         className="rounded-lg transition-colors data-[active=true]:font-medium"
                       >
-                        <Link to={item.to} className="flex items-center gap-2.5">
+                        <Link to={buildPath(item.to)} className="flex items-center gap-2.5">
                           <item.icon
                             className={
                               active ? "size-4 text-sidebar-primary" : "size-4 text-muted-foreground"

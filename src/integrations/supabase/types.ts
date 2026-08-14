@@ -1672,30 +1672,77 @@ export type Database = {
       }
       organizations: {
         Row: {
+          clinic_category: string
+          code: string | null
           created_at: string
+          feature_flags: Json
           id: string
+          is_active: boolean
           is_default: boolean
+          max_devices: number
+          max_doctors: number
+          max_employees: number
           name: string
           slug: string
           updated_at: string
         }
         Insert: {
+          clinic_category?: string
+          code?: string | null
           created_at?: string
+          feature_flags?: Json
           id?: string
+          is_active?: boolean
           is_default?: boolean
+          max_devices?: number
+          max_doctors?: number
+          max_employees?: number
           name: string
           slug: string
           updated_at?: string
         }
         Update: {
+          clinic_category?: string
+          code?: string | null
           created_at?: string
+          feature_flags?: Json
           id?: string
+          is_active?: boolean
           is_default?: boolean
+          max_devices?: number
+          max_doctors?: number
+          max_employees?: number
           name?: string
           slug?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      super_admin_sessions: {
+        Row: {
+          active_organization_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_organization_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_organization_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "super_admin_sessions_active_organization_id_fkey"
+            columns: ["active_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       overtime_records: {
         Row: {
@@ -2624,6 +2671,17 @@ export type Database = {
         Returns: undefined
       }
       current_org_id: { Args: never; Returns: string }
+      get_organization_by_slug: {
+        Args: { p_slug: string }
+        Returns: {
+          clinic_category: string
+          code: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+        }[]
+      }
       ensure_user_profile: {
         Args: never
         Returns: {
@@ -2655,6 +2713,47 @@ export type Database = {
         Returns: boolean
       }
       is_staff_manager: { Args: never; Returns: boolean }
+      is_super_admin: { Args: { _user_id?: string }; Returns: boolean }
+      super_admin_list_clinics: {
+        Args: never
+        Returns: {
+          code: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          is_active_workspace: boolean
+          name: string
+          slug: string
+        }[]
+      }
+      super_admin_list_clinics_taxonomy: {
+        Args: never
+        Returns: {
+          clinic_category: string
+          clinic_category_label: string
+          code: string | null
+          created_at: string
+          device_count: number
+          doctor_count: number
+          employee_count: number
+          id: string
+          is_active: boolean
+          is_active_workspace: boolean
+          max_devices: number
+          max_doctors: number
+          max_employees: number
+          name: string
+          slug: string
+        }[]
+      }
+      super_admin_switch_clinic: {
+        Args: { target_org_id: string }
+        Returns: undefined
+      }
+      super_admin_switch_clinic_by_slug: {
+        Args: { p_slug: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role:

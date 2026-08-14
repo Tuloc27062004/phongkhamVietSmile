@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { resolvePostLoginPath } from "@/hooks/use-session";
 
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).optional(),
@@ -50,9 +51,10 @@ function AuthPage() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
+    void supabase.auth.getSession().then(async ({ data }) => {
       if (data.session) {
-        void navigate({ to: "/dashboard", replace: true });
+        const path = await resolvePostLoginPath(data.session.user.id);
+        void navigate({ to: path, replace: true });
       } else {
         setChecking(false);
       }
@@ -84,12 +86,15 @@ function AuthPage() {
           return;
         }
         toast.success("Chào mừng bạn đến với hệ thống!");
-        void navigate({ to: "/dashboard", replace: true });
+        void navigate({ to: await resolvePostLoginPath(data.session.user.id), replace: true });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data: signInData, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
         if (error) throw error;
         toast.success("Đăng nhập thành công");
-        void navigate({ to: "/dashboard", replace: true });
+        void navigate({ to: await resolvePostLoginPath(signInData.user.id), replace: true });
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Không thể xử lý yêu cầu";

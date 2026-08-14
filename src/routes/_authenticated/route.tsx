@@ -1,16 +1,9 @@
-import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { Hourglass, Loader2, ShieldX } from "lucide-react";
 
-import { AppShell } from "@/components/app-shell";
-import { ErrorState, PermissionDenied } from "@/components/page-state";
+import { ErrorState } from "@/components/page-state";
 import { Button } from "@/components/ui/button";
-import {
-  useAuthSession,
-  useClinicProfile,
-  useSessionProfile,
-  useSignOut,
-} from "@/hooks/use-session";
-import { hasAnyRole, routeRoles } from "@/lib/permissions";
+import { useAuthSession, useSessionProfile, useSignOut } from "@/hooks/use-session";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -34,8 +27,6 @@ function FullPageLoader() {
 function AuthenticatedLayout() {
   const { session, ready } = useAuthSession();
   const profileQuery = useSessionProfile(session?.user.id);
-  const clinicQuery = useClinicProfile(profileQuery.data?.organizationId);
-  const pathname = useRouterState({ select: (router) => router.location.pathname });
 
   if (!ready || profileQuery.isLoading) return <FullPageLoader />;
 
@@ -62,18 +53,7 @@ function AuthenticatedLayout() {
     return <AccountPendingScreen status={profile.approvalStatus} active={profile.isActive} />;
   }
 
-  const allowed = routeRoles(pathname);
-  const permitted = allowed === null || hasAnyRole(profile.roles, allowed);
-
-  return (
-    <AppShell
-      profile={profile}
-      clinicName={clinicQuery.data?.short_name ?? clinicQuery.data?.name ?? "Phòng khám"}
-      logoUrl={clinicQuery.data?.logo_url ?? null}
-    >
-      {permitted ? <Outlet /> : <PermissionDenied />}
-    </AppShell>
-  );
+  return <Outlet />;
 }
 
 function AccountPendingScreen({

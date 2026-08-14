@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { Bell, LogOut, User } from "lucide-react";
 
 import { AppSidebar } from "@/components/app-sidebar";
+import { ClinicSwitcher } from "@/components/clinic-switcher";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { useClinicPath, useClinicRelativePath } from "@/hooks/use-clinic-path";
 import { useSignOut, type SessionProfile } from "@/hooks/use-session";
 import { NAV_GROUPS, ROLE_LABELS, primaryRole } from "@/lib/permissions";
 
@@ -36,10 +38,10 @@ function initials(name: string) {
 }
 
 function useBreadcrumbs() {
-  const pathname = useRouterState({ select: (router) => router.location.pathname });
+  const relativePath = useClinicRelativePath();
   for (const group of NAV_GROUPS) {
     for (const item of group.items) {
-      if (pathname === item.to || pathname.startsWith(`${item.to}/`)) {
+      if (relativePath === item.to || relativePath.startsWith(`${item.to}/`)) {
         return { group: group.label, page: item.title };
       }
     }
@@ -51,16 +53,21 @@ export function AppShell({
   profile,
   clinicName,
   logoUrl,
+  isSuperAdmin = false,
   children,
 }: {
   profile: SessionProfile;
   clinicName: string;
   logoUrl: string | null;
+  isSuperAdmin?: boolean;
   children: ReactNode;
 }) {
   const signOut = useSignOut();
   const crumbs = useBreadcrumbs();
   const role = primaryRole(profile.roles);
+  const buildPath = useClinicPath();
+  const relativePath = useClinicRelativePath();
+  const { clinicSlug } = useParams({ from: "/_authenticated/$clinicSlug" });
 
   return (
     <SidebarProvider>
@@ -75,7 +82,7 @@ export function AppShell({
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link to="/dashboard" className="text-muted-foreground">
+                    <Link to={buildPath("/dashboard")} className="text-muted-foreground">
                       {crumbs.group}
                     </Link>
                   </BreadcrumbLink>
@@ -86,6 +93,14 @@ export function AppShell({
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+
+            {isSuperAdmin && (
+              <ClinicSwitcher
+                isSuperAdmin={isSuperAdmin}
+                currentSlug={clinicSlug}
+                currentSubpath={relativePath}
+              />
+            )}
 
             <div className="ml-auto flex items-center gap-1">
               <Button

@@ -44,7 +44,7 @@ export function useAuthSession() {
   return { session, ready };
 }
 
-async function loadProfile(userId: string): Promise<SessionProfile> {
+export async function loadProfile(userId: string): Promise<SessionProfile> {
   const { error: bootstrapError } = await supabase.rpc("ensure_user_profile");
   if (bootstrapError) throw bootstrapError;
 
@@ -128,6 +128,22 @@ export function useClinicProfile(organizationId: string | undefined) {
       };
     },
   });
+}
+
+/** Where to send a user right after login, based on their home organization's slug. */
+export async function resolvePostLoginPath(userId: string): Promise<string> {
+  const profile = await loadProfile(userId);
+
+  const { data: isSuperAdmin } = await supabase.rpc("is_super_admin");
+  if (isSuperAdmin) return "/gzv/admin/dashboard";
+
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("slug")
+    .eq("id", profile.organizationId)
+    .maybeSingle();
+
+  return org?.slug ? `/${org.slug}/dashboard` : "/auth";
 }
 
 export function useSignOut() {
