@@ -218,7 +218,7 @@ function DoctorProfile() {
           </Link>
         </Button>
         <Button className="h-14 text-base" variant="outline" asChild>
-          <Link to={buildPath("/hr/salary")}>
+          <Link to={buildPath("/hr/payroll")}>
             <FileText className="mr-2 size-4" />
             Xem lương
             <ChevronRight className="ml-2 size-4" />

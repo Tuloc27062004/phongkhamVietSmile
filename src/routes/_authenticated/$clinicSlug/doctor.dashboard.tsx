@@ -259,7 +259,7 @@ function DoctorDashboard() {
                 <p>• Phụ cấp: {Math.round(stats.current_salary * 0.15).toLocaleString("vi-VN")} ₫</p>
               </div>
               <Button variant="outline" className="w-full" asChild>
-                <Link to={buildPath("/hr/salary")}>
+                <Link to={buildPath("/hr/payroll")}>
                   Chi tiết lương <ChevronRight className="ml-2 size-4" />
                 </Link>
               </Button>

@@ -2,15 +2,11 @@ import type {
   LucideIcon,
 } from "lucide-react";
 import {
-  Activity,
-  BadgeCheck,
   BookOpen,
   Building2,
   CalendarDays,
   CalendarRange,
-  ClipboardList,
   DoorOpen,
-  Clock,
   DollarSign,
   FileSpreadsheet,
   Fingerprint,
@@ -22,7 +18,6 @@ import {
   Radar,
   Settings,
   ShieldCheck,
-  Stethoscope,
   Timer,
   TrendingUp,
   UserCog,
@@ -87,21 +82,16 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { title: "Danh sách Y Bác sĩ & Nhân sự", to: "/employees", icon: Users, roles: STAFF },
       { title: "Hồ sơ nhân sự chi tiết", to: "/staff/profiles", icon: UsersRound, roles: STAFF },
-      { title: "Phòng ban & Khoa", to: "/departments", icon: Building2, roles: STAFF },
-      { title: "Chức danh & Học vị", to: "/positions", icon: BadgeCheck, roles: STAFF },
-      { title: "Ca làm việc", to: "/shifts", icon: Clock, roles: STAFF },
+      { title: "Cơ cấu tổ chức", to: "/departments", icon: Building2, roles: STAFF },
       { title: "Phân công công việc", to: "/hr/assignments", icon: TrendingUp, roles: STAFF },
-      { title: "Cấu hình lương", to: "/hr/salary", icon: DollarSign, roles: STAFF },
-      { title: "Quản lý Lương & Payroll", to: "/hr/payroll", icon: DollarSign, roles: STAFF },
+      { title: "Lương", to: "/hr/payroll", icon: DollarSign, roles: STAFF },
     ],
   },
   {
     label: "Quản lý Chấm công & Vân tay",
     items: [
-      { title: "Chấm công thực tế", to: "/attendance/checkin", icon: Fingerprint, roles: ALL },
-      { title: "Chấm công thủ công", to: "/attendance/manual", icon: ClipboardList, roles: STAFF },
+      { title: "Chấm công", to: "/attendance/checkin", icon: Fingerprint, roles: ALL },
       { title: "Bảng công tổng hợp tháng", to: "/attendance/monthly", icon: FileSpreadsheet, roles: STAFF },
-      { title: "Nhật ký máy vân tay", to: "/attendance/logs", icon: Fingerprint, roles: STAFF },
       { title: "Điều chỉnh công", to: "/attendance/adjustments", icon: Timer, roles: STAFF },
       { title: "Tăng ca", to: "/attendance/overtime", icon: History, roles: STAFF },
     ],
@@ -109,9 +99,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Báo cáo & Xuất dữ liệu",
     items: [
-      { title: "Báo cáo chấm công", to: "/reports/attendance", icon: Gauge, roles: STAFF },
-      { title: "Báo cáo khám bệnh", to: "/reports/appointments", icon: Activity, roles: FRONT_DESK },
-      { title: "Xuất dữ liệu Excel", to: "/reports/export", icon: FileSpreadsheet, roles: STAFF },
+      { title: "Báo cáo & Xuất dữ liệu", to: "/reports/attendance", icon: Gauge, roles: STAFF },
     ],
   },
   {
