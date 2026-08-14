@@ -44,6 +44,7 @@ import { Route as AuthenticatedClinicSlugSystemSettingsRouteImport } from './rou
 import { Route as AuthenticatedClinicSlugSystemSyncRouteImport } from './routes/_authenticated/$clinicSlug/system.sync'
 import { Route as AuthenticatedClinicSlugSystemUsersRouteImport } from './routes/_authenticated/$clinicSlug/system.users'
 import { Route as ApiPublicDeviceEventsRouteImport } from './routes/api/public/device/events'
+import { Route as ApiPublicNotificationsDispatchRouteImport } from './routes/api/public/notifications/dispatch'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -250,6 +251,12 @@ const ApiPublicDeviceEventsRoute = ApiPublicDeviceEventsRouteImport.update({
   path: '/api/public/device/events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicNotificationsDispatchRoute =
+  ApiPublicNotificationsDispatchRouteImport.update({
+    id: '/api/public/notifications/dispatch',
+    path: '/api/public/notifications/dispatch',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -286,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
   '/$clinicSlug/system/users': typeof AuthenticatedClinicSlugSystemUsersRoute
   '/api/public/device/events': typeof ApiPublicDeviceEventsRoute
+  '/api/public/notifications/dispatch': typeof ApiPublicNotificationsDispatchRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -322,6 +330,7 @@ export interface FileRoutesByTo {
   '/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
   '/$clinicSlug/system/users': typeof AuthenticatedClinicSlugSystemUsersRoute
   '/api/public/device/events': typeof ApiPublicDeviceEventsRoute
+  '/api/public/notifications/dispatch': typeof ApiPublicNotificationsDispatchRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -360,6 +369,7 @@ export interface FileRoutesById {
   '/_authenticated/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
   '/_authenticated/$clinicSlug/system/users': typeof AuthenticatedClinicSlugSystemUsersRoute
   '/api/public/device/events': typeof ApiPublicDeviceEventsRoute
+  '/api/public/notifications/dispatch': typeof ApiPublicNotificationsDispatchRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -398,6 +408,7 @@ export interface FileRouteTypes {
     | '/$clinicSlug/system/sync'
     | '/$clinicSlug/system/users'
     | '/api/public/device/events'
+    | '/api/public/notifications/dispatch'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -434,6 +445,7 @@ export interface FileRouteTypes {
     | '/$clinicSlug/system/sync'
     | '/$clinicSlug/system/users'
     | '/api/public/device/events'
+    | '/api/public/notifications/dispatch'
   id:
     | '__root__'
     | '/'
@@ -471,6 +483,7 @@ export interface FileRouteTypes {
     | '/_authenticated/$clinicSlug/system/sync'
     | '/_authenticated/$clinicSlug/system/users'
     | '/api/public/device/events'
+    | '/api/public/notifications/dispatch'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -478,6 +491,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiPublicDeviceEventsRoute: typeof ApiPublicDeviceEventsRoute
+  ApiPublicNotificationsDispatchRoute: typeof ApiPublicNotificationsDispatchRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -727,6 +741,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicDeviceEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/notifications/dispatch': {
+      id: '/api/public/notifications/dispatch'
+      path: '/api/public/notifications/dispatch'
+      fullPath: '/api/public/notifications/dispatch'
+      preLoaderRoute: typeof ApiPublicNotificationsDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -859,6 +880,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiPublicDeviceEventsRoute: ApiPublicDeviceEventsRoute,
+  ApiPublicNotificationsDispatchRoute: ApiPublicNotificationsDispatchRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

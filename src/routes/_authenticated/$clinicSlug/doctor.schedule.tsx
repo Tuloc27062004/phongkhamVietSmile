@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   Calendar,
   Clock,
@@ -8,11 +9,14 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  Loader2,
   Mail,
+  Send,
   Wallet,
   CalendarClock,
   FileText,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Card } from "@/components/ui/card";
@@ -21,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthSession, useCurrentEmployee } from "@/hooks/use-session";
+import { sendDoctorScheduleEmail } from "@/lib/notifications.functions";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/$clinicSlug/doctor/schedule")({
@@ -72,6 +77,28 @@ function DoctorSchedule() {
   const employeeId = employeeQuery.data?.id;
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0] ?? "");
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const sendScheduleEmail = useServerFn(sendDoctorScheduleEmail);
+
+  const emailScheduleMutation = useMutation({
+    mutationFn: async () => {
+      if (!employeeId) throw new Error("Missing employee id");
+      const result = await sendScheduleEmail({ data: { employeeId, date: selectedDate } });
+      if (!result.ok) {
+        if (result.reason === "not_configured") {
+          throw new Error("Phòng khám chưa cấu hình gửi email. Vào Hồ sơ phòng khám → Tích hợp Email để bật.");
+        }
+        if (result.reason === "no_doctor_email") {
+          throw new Error("Tài khoản của bạn chưa có email trong hồ sơ nhân viên.");
+        }
+        throw new Error(result.error || "Gửi email thất bại");
+      }
+      return result;
+    },
+    onSuccess: (result) => {
+      toast.success(`Đã gửi lịch khám (${result.appointmentCount} cuộc hẹn) qua email!`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const appointmentsQuery = useQuery({
     queryKey: ["doctor-appointments", employeeId, selectedDate],
@@ -168,6 +195,20 @@ function DoctorSchedule() {
       <PageHeader
         title="Lịch khám"
         description="Quản lý lịch khám của bác sĩ"
+        actions={
+          <Button
+            variant="outline"
+            onClick={() => emailScheduleMutation.mutate()}
+            disabled={!employeeId || emailScheduleMutation.isPending}
+          >
+            {emailScheduleMutation.isPending ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <Send className="mr-2 size-4" />
+            )}
+            Gửi lịch ngày này qua email
+          </Button>
+        }
       />
 
       {/* Date Navigation */}

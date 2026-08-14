@@ -9,8 +9,10 @@ import {
   ImageIcon,
   Loader2,
   Lock,
+  Mail,
   MessageCircle,
   Save,
+  Send,
   ShieldCheck,
   Sparkles,
   Upload,
@@ -30,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { getZaloConfigStatus, saveZaloConfig } from "@/lib/zalo-config.functions";
+import { getResendConfigStatus, saveResendConfig, sendResendTestEmail } from "@/lib/resend-config.functions";
 
 export const Route = createFileRoute("/_authenticated/$clinicSlug/system/clinic-profile")({
   head: () => ({
@@ -325,6 +328,7 @@ function ClinicProfilePage() {
               <TabsTrigger value="operations">Vận hành</TabsTrigger>
               <TabsTrigger value="policy">Chính sách</TabsTrigger>
               <TabsTrigger value="zalo">Tích hợp Zalo</TabsTrigger>
+              <TabsTrigger value="email">Tích hợp Email</TabsTrigger>
             </TabsList>
 
             <TabsContent value="identity" className="mt-6 space-y-6">
@@ -445,6 +449,10 @@ function ClinicProfilePage() {
             <TabsContent value="zalo" className="mt-6">
               <ZaloIntegrationTab canEdit={canEdit} />
             </TabsContent>
+
+            <TabsContent value="email" className="mt-6">
+              <ResendIntegrationTab canEdit={canEdit} />
+            </TabsContent>
           </Tabs>
         </form>
 
@@ -518,12 +526,12 @@ function ZaloIntegrationTab({ canEdit }: { canEdit: boolean }) {
 
   return (
     <div className="space-y-4">
-      <Card className="quiet-card min-w-0 border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+      <Card className="quiet-card min-w-0 border-info/25 bg-info/10 p-4 text-sm text-foreground">
         <p className="flex items-center gap-1.5 font-medium">
-          <MessageCircle className="size-4" />
+          <MessageCircle className="size-4 text-info" />
           Giai đoạn 1: lưu trữ an toàn App ID/Secret cho từng phòng khám
         </p>
-        <p className="mt-1 text-xs text-sky-800">
+        <p className="mt-1 text-xs text-muted-foreground">
           App Secret được mã hoá (AES-256-GCM) trước khi lưu, không hiển thị lại sau khi lưu và chỉ đọc được
           từ phía server. Luồng đăng nhập/đặt lịch qua Zalo cho bệnh nhân và gửi thông báo (Zalo ZNS) là một
           hạng mục lớn riêng (cần liên kết danh tính bệnh nhân, route công khai, xác thực OAuth2) — sẽ được
@@ -532,7 +540,7 @@ function ZaloIntegrationTab({ canEdit }: { canEdit: boolean }) {
       </Card>
 
       {!canEdit && (
-        <Card className="quiet-card min-w-0 border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+        <Card className="quiet-card min-w-0 border-warning/25 bg-warning/10 p-3 text-sm text-warning-foreground">
           Chỉ quản trị viên mới có thể cấu hình tích hợp Zalo.
         </Card>
       )}
@@ -548,7 +556,7 @@ function ZaloIntegrationTab({ canEdit }: { canEdit: boolean }) {
             </p>
           </div>
           {statusQuery.data?.hasSecret && (
-            <Badge className="bg-green-100 text-green-800">
+            <Badge className="bg-success/10 text-success">
               <CheckCircle2 className="mr-1 size-3.5" />
               Đã lưu
             </Badge>
@@ -612,6 +620,198 @@ function ZaloIntegrationTab({ canEdit }: { canEdit: boolean }) {
           </Button>
         )}
       </Card>
+    </div>
+  );
+}
+
+function ResendIntegrationTab({ canEdit }: { canEdit: boolean }) {
+  const queryClient = useQueryClient();
+  const getStatus = useServerFn(getResendConfigStatus);
+  const save = useServerFn(saveResendConfig);
+  const sendTest = useServerFn(sendResendTestEmail);
+
+  const [apiKey, setApiKey] = useState("");
+  const [fromEmail, setFromEmail] = useState("");
+  const [fromName, setFromName] = useState("");
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const [testEmailTo, setTestEmailTo] = useState("");
+
+  const statusQuery = useQuery({
+    queryKey: ["resend-config-status"],
+    queryFn: () => getStatus(),
+  });
+
+  useEffect(() => {
+    if (!statusQuery.data || touched) return;
+    setFromEmail(statusQuery.data.fromEmail);
+    setFromName(statusQuery.data.fromName);
+    setIsEnabled(statusQuery.data.isEnabled);
+  }, [statusQuery.data, touched]);
+
+  const saveMutation = useMutation({
+    mutationFn: () => save({ data: { apiKey: apiKey || undefined, fromEmail, fromName, isEnabled } }),
+    onSuccess: () => {
+      toast.success("Đã lưu cấu hình Email");
+      setApiKey("");
+      setTouched(false);
+      void queryClient.invalidateQueries({ queryKey: ["resend-config-status"] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const testMutation = useMutation({
+    mutationFn: () => sendTest({ data: { to: testEmailTo } }),
+    onSuccess: () => toast.success(`Đã gửi email thử tới ${testEmailTo}`),
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  if (statusQuery.isLoading) return <LoadingState rows={3} />;
+  if (statusQuery.isError) return <ErrorState description={(statusQuery.error as Error).message} />;
+
+  return (
+    <div className="space-y-4">
+      <Card className="quiet-card min-w-0 border-info/25 bg-info/10 p-4 text-sm text-foreground">
+        <p className="flex items-center gap-1.5 font-medium">
+          <Mail className="size-4 text-info" />
+          Email xác nhận lịch hẹn, nhắc lịch và lịch khám hằng ngày cho bác sĩ
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Dùng <a href="https://resend.com" target="_blank" rel="noreferrer" className="underline">Resend</a> để
+          gửi email — mỗi phòng khám tự cấu hình API Key riêng. Sau khi lưu và bật, hệ thống tự gửi email xác
+          nhận khi đặt lịch, và nút "Gửi nhắc nhở" / "Gửi lịch qua email" trong ứng dụng sẽ gửi email thật
+          (thay vì chỉ đánh dấu đã gửi). API Key được mã hoá (AES-256-GCM) trước khi lưu, không hiển thị lại.
+        </p>
+      </Card>
+
+      {!canEdit && (
+        <Card className="quiet-card min-w-0 border-warning/25 bg-warning/10 p-3 text-sm text-warning-foreground">
+          Chỉ quản trị viên mới có thể cấu hình tích hợp Email.
+        </Card>
+      )}
+
+      <Card className="quiet-card min-w-0 space-y-4 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold">Trạng thái</h3>
+            <p className="text-xs text-muted-foreground">
+              {statusQuery.data?.hasApiKey ? "Đã cấu hình API Key" : "Chưa cấu hình API Key"}
+              {statusQuery.data?.updatedAt &&
+                ` · Cập nhật lần cuối ${new Date(statusQuery.data.updatedAt).toLocaleString("vi-VN")}`}
+            </p>
+          </div>
+          {statusQuery.data?.hasApiKey && (
+            <Badge className="bg-success/10 text-success">
+              <CheckCircle2 className="mr-1 size-3.5" />
+              Đã lưu
+            </Badge>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-normal">Bật gửi email cho phòng khám này</Label>
+          <Switch
+            disabled={!canEdit}
+            checked={isEnabled}
+            onCheckedChange={(checked) => {
+              setIsEnabled(checked);
+              setTouched(true);
+            }}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>Resend API Key</Label>
+          <Input
+            type="password"
+            disabled={!canEdit}
+            value={apiKey}
+            onChange={(event) => {
+              setApiKey(event.target.value);
+              setTouched(true);
+            }}
+            placeholder={statusQuery.data?.hasApiKey ? "•••••••• (giữ nguyên nếu để trống)" : "re_xxxxxxxxxxxx"}
+          />
+          <p className="text-xs text-muted-foreground">
+            Lấy tại resend.com → API Keys. Vì lý do bảo mật, key đã lưu sẽ không hiển thị lại.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label>Email gửi đi</Label>
+            <Input
+              type="email"
+              disabled={!canEdit}
+              value={fromEmail}
+              onChange={(event) => {
+                setFromEmail(event.target.value);
+                setTouched(true);
+              }}
+              placeholder="lichkham@phongkham.com"
+            />
+            <p className="text-xs text-muted-foreground">Phải thuộc domain đã xác thực trong Resend.</p>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Tên hiển thị người gửi</Label>
+            <Input
+              disabled={!canEdit}
+              value={fromName}
+              onChange={(event) => {
+                setFromName(event.target.value);
+                setTouched(true);
+              }}
+              placeholder="Phòng khám Nha khoa Việt Smile"
+            />
+          </div>
+        </div>
+
+        {canEdit && (
+          <Button
+            type="button"
+            onClick={() => saveMutation.mutate()}
+            disabled={saveMutation.isPending || !fromEmail.trim() || !fromName.trim()}
+          >
+            {saveMutation.isPending ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 size-4" />
+            )}
+            Lưu cấu hình Email
+          </Button>
+        )}
+      </Card>
+
+      {canEdit && statusQuery.data?.hasApiKey && (
+        <Card className="quiet-card min-w-0 space-y-3 p-4">
+          <h3 className="text-sm font-semibold">Gửi email thử</h3>
+          <p className="text-xs text-muted-foreground">
+            Kiểm tra cấu hình bằng cách gửi một email mẫu tới địa chỉ bất kỳ.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Input
+              type="email"
+              value={testEmailTo}
+              onChange={(event) => setTestEmailTo(event.target.value)}
+              placeholder="ban@email.com"
+              className="max-w-xs"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => testMutation.mutate()}
+              disabled={testMutation.isPending || !testEmailTo.trim()}
+            >
+              {testMutation.isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <Send className="mr-2 size-4" />
+              )}
+              Gửi thử
+            </Button>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   Calendar,
   Clock,
@@ -29,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthSession, useSessionProfile } from "@/hooks/use-session";
+import { sendAppointmentConfirmationEmail, sendAppointmentReminderEmail } from "@/lib/notifications.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/$clinicSlug/appointments/booking")({
@@ -79,6 +81,8 @@ function AppointmentBookingPage() {
   const { session } = useAuthSession();
   const profileQuery = useSessionProfile(session?.user.id);
   const searchParams = useSearch({ from: "/_authenticated/$clinicSlug/appointments/booking" });
+  const sendConfirmationEmail = useServerFn(sendAppointmentConfirmationEmail);
+  const sendReminderEmail = useServerFn(sendAppointmentReminderEmail);
   const [selectedDate, setSelectedDate] = useState(
     searchParams.date ?? new Date().toISOString().split("T")[0] ?? "",
   );
@@ -236,8 +240,21 @@ function AppointmentBookingPage() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (created) => {
       toast.success("Đặt hẹn thành công!");
+      const newAppointmentId = created?.[0]?.id;
+      if (newAppointmentId) {
+        sendConfirmationEmail({ data: { appointmentId: newAppointmentId } })
+          .then((result) => {
+            if (!result.ok && result.reason === "not_configured") return;
+            if (!result.ok) {
+              toast.warning("Đã đặt hẹn, nhưng gửi email xác nhận thất bại. Bạn có thể thử lại ở nút 'Gửi nhắc nhở'.");
+            }
+          })
+          .catch(() => {
+            // Không chặn luồng đặt lịch nếu gửi email lỗi.
+          });
+      }
       setSelectedPatient("");
       setSelectedDoctor("");
       setSelectedService("");
@@ -255,24 +272,27 @@ function AppointmentBookingPage() {
     },
   });
 
-  // Send reminder mutation
+  // Send reminder mutation — gửi email nhắc lịch thật qua Resend, đánh dấu reminder_sent khi thành công.
   const sendReminderMutation = useMutation({
     mutationFn: async (appointmentId: string) => {
-      const { data, error } = await supabase
-        .from("appointments")
-        .update({ reminder_sent: true })
-        .eq("id", appointmentId)
-        .select();
-
-      if (error) throw error;
-      return data;
+      const result = await sendReminderEmail({ data: { appointmentId } });
+      if (!result.ok) {
+        if (result.reason === "not_configured") {
+          throw new Error("Phòng khám chưa cấu hình gửi email. Vào Hồ sơ phòng khám → Tích hợp Email để bật.");
+        }
+        if (result.reason === "no_patient_email") {
+          throw new Error("Bệnh nhân này chưa có email trong hồ sơ.");
+        }
+        throw new Error(result.error || "Gửi email thất bại");
+      }
+      return result;
     },
     onSuccess: () => {
-      toast.success("Gửi nhắc nhở thành công!");
+      toast.success("Đã gửi email nhắc lịch cho bệnh nhân!");
       appointmentsQuery.refetch();
     },
-    onError: (error: any) => {
-      toast.error("Lỗi khi gửi nhắc nhở");
+    onError: (error: Error) => {
+      toast.error(error.message || "Lỗi khi gửi nhắc nhở");
     },
   });
 
@@ -573,7 +593,7 @@ function AppointmentBookingPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              title="Đánh dấu đã nhắc lịch (gọi điện/nhắn tin thủ công) — hệ thống chưa gửi SMS/Email/Zalo tự động"
+                              title="Gửi email nhắc lịch cho bệnh nhân qua Resend (cần bật Tích hợp Email và bệnh nhân có email)"
                               onClick={() =>
                                 sendReminderMutation.mutate(appointment.id)
                               }
@@ -585,7 +605,7 @@ function AppointmentBookingPage() {
                             <Badge
                               variant="secondary"
                               className="gap-1"
-                              title="Đã đánh dấu nhắc lịch thủ công"
+                              title="Đã gửi email nhắc lịch"
                             >
                               <CheckCircle2 className="w-3 h-3" />
                               Đã nhắc
@@ -613,13 +633,17 @@ function AppointmentBookingPage() {
             </h3>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between p-3 bg-muted rounded">
-                <span>Nhắc nhở SMS / Email / Zalo tự động</span>
+                <span>Xác nhận & nhắc lịch qua Email</span>
+                <Badge className="bg-success/10 text-success">Đã bật (Resend)</Badge>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-muted rounded">
+                <span>Nhắc nhở qua SMS / Zalo</span>
                 <Badge variant="secondary">Chưa hỗ trợ</Badge>
               </div>
               <p className="text-xs text-muted-foreground">
-                Hệ thống chưa kết nối kênh gửi SMS/Email/Zalo. Nút <Send className="inline size-3" /> ở danh
-                sách hẹn hôm nay chỉ đánh dấu "đã nhắc" sau khi nhân viên tự gọi điện/nhắn tin cho bệnh nhân —
-                không tự động gửi gì cả.
+                Khi đặt hẹn, hệ thống tự gửi email xác nhận cho bệnh nhân (nếu có email). Nút{" "}
+                <Send className="inline size-3" /> ở danh sách hẹn hôm nay gửi email nhắc lịch thật qua Resend.
+                Cần bật &amp; cấu hình tại Hồ sơ phòng khám → Tích hợp Email. SMS/Zalo chưa được kết nối.
               </p>
             </div>
           </Card>

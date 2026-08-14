@@ -774,6 +774,108 @@ export type Database = {
           },
         ]
       }
+      clinic_email_events: {
+        Row: {
+          category: string
+          created_at: string
+          error_message: string | null
+          id: string
+          organization_id: string
+          provider_message_id: string | null
+          related_appointment_id: string | null
+          related_employee_id: string | null
+          status: string
+          subject: string
+          to_email: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          organization_id: string
+          provider_message_id?: string | null
+          related_appointment_id?: string | null
+          related_employee_id?: string | null
+          status: string
+          subject: string
+          to_email: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          organization_id?: string
+          provider_message_id?: string | null
+          related_appointment_id?: string | null
+          related_employee_id?: string | null
+          status?: string
+          subject?: string
+          to_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_email_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_email_events_related_appointment_id_fkey"
+            columns: ["related_appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_email_events_related_employee_id_fkey"
+            columns: ["related_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinic_resend_configs: {
+        Row: {
+          api_key_ciphertext: string | null
+          from_email: string | null
+          from_name: string | null
+          is_enabled: boolean
+          organization_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          api_key_ciphertext?: string | null
+          from_email?: string | null
+          from_name?: string | null
+          is_enabled?: boolean
+          organization_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          api_key_ciphertext?: string | null
+          from_email?: string | null
+          from_name?: string | null
+          is_enabled?: boolean
+          organization_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_resend_configs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinic_zalo_configs: {
         Row: {
           app_id: string | null
