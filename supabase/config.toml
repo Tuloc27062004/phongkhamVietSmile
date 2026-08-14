@@ -1,1 +1,4 @@
 project_id = "kuvuvufzqtvdcyygkaym"
+
+[functions.device-events]
+verify_jwt = false
