@@ -10,6 +10,8 @@
 
 GZV Clinic Platform không phải là một phần mềm đơn lẻ cho 1 phòng khám, mà là một **Nền tảng Cloud SaaS phục vụ hàng trăm phòng khám, chuỗi phòng khám và bệnh viện lớn nhỏ** trên toàn quốc với kiến trúc phân tầng chuyên khoa:
 
+> 📌 Cây danh mục dưới đây là **tầm nhìn/roadmap**, không phải danh sách phòng khám đang chạy thật. Hiện tại chỉ có **2 tổ chức thật** trên hệ thống: `viet-smile` (Nha khoa Việt Smile — tenant vận hành thật) và `gzv` (hub Super Admin, không có dữ liệu khám bệnh). Chi tiết tại [docs/guides/MULTI_TENANT_SETUP_GUIDE.md](docs/guides/MULTI_TENANT_SETUP_GUIDE.md). Super Admin có thể tạo thêm phòng khám mới bất kỳ lúc nào ngay trong ứng dụng.
+
 ```text
 GZV CLINIC PLATFORM (Tầng Quản Trị Tối Cao - Super Admin Central Hub)
 │
@@ -44,9 +46,9 @@ GZV CLINIC PLATFORM (Tầng Quản Trị Tối Cao - Super Admin Central Hub)
 
 Hệ thống điều hướng chuẩn Enterprise SaaS, tất cả người dùng và y bác sĩ truy cập phòng khám thông qua **URL Dynamic Slug**:
 
-- **Nha Khoa CT**: `http://localhost:8080/nha-khoa-ct/dashboard`
-- **Lịch khám Nha Khoa CT**: `http://localhost:8080/nha-khoa-ct/appointments`
-- **Chấm công vân tay Nha Khoa CT**: `http://localhost:8080/nha-khoa-ct/attendance/checkin`
+- **Việt Smile (dashboard)**: `http://localhost:8080/viet-smile/dashboard`
+- **Lịch khám Việt Smile**: `http://localhost:8080/viet-smile/appointments`
+- **Chấm công vân tay Việt Smile**: `http://localhost:8080/viet-smile/attendance/checkin`
 - **Trạm Quản Trị Tối Cao GZV Central**: `http://localhost:8080/gzv/admin/dashboard`
 
 ---
@@ -103,7 +105,19 @@ Hướng dẫn cấu hình chuỗi kết nối Database Postgres và API Keys (k
 
 ---
 
-## 🛠️ 6. LỆNH KHỞI CHẠY HỆ THỐNG
+## 📚 6. TÀI LIỆU
+
+- [Hướng dẫn sử dụng đầy đủ](docs/guides/USER_GUIDE.md) — theo từng vai trò (nhân viên/quản lý/Super Admin)
+- [Kiến trúc hệ thống](docs/architecture/ARCHITECTURE_OVERVIEW.md)
+- [Schema database](docs/architecture/SCHEMA_OVERVIEW.md)
+- [Vai trò & phân quyền](docs/architecture/ROLE_BASED_SYSTEM.md)
+- [Multi-tenant & tạo phòng khám mới](docs/guides/MULTI_TENANT_SETUP_GUIDE.md)
+
+Trong ứng dụng cũng có trang **Hướng dẫn** (`/$slug/system/guide`) tóm tắt các quy trình chính.
+
+---
+
+## 🛠️ 7. LỆNH KHỞI CHẠY HỆ THỐNG
 
 ```bash
 # 1. Cài đặt thư viện dependencies

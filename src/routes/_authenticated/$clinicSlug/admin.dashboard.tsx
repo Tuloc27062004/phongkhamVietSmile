@@ -11,6 +11,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
+import { CreateClinicDialog } from "@/components/create-clinic-dialog";
 import { ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -353,9 +354,7 @@ function AdminDashboard() {
               Super Admin GZV Platform: Theo dõi giới hạn nhân sự, bác sĩ, thiết bị máy chấm công và vai trò các phòng khám khách hàng.
             </p>
           </div>
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-            + Thêm Phòng Khám Chi Nhánh Mới
-          </Button>
+          <CreateClinicDialog />
         </div>
 
         <div className="overflow-x-auto rounded-lg border border-gray-100">

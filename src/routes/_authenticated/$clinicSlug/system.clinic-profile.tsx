@@ -13,9 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuthSession, useSessionProfile } from "@/hooks/use-session";
 import { supabase } from "@/integrations/supabase/client";
-import type { TablesUpdate } from "@/integrations/supabase/types";
+import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/$clinicSlug/system/clinic-profile")({
   head: () => ({
@@ -108,36 +107,26 @@ const TEXT_FIELDS: Record<string, [keyof FormValues, string][]> = {
 
 function ClinicProfilePage() {
   const queryClient = useQueryClient();
-  const { session } = useAuthSession();
-  const profileQuery = useSessionProfile(session?.user.id);
-  const canEdit = profileQuery.data?.roles.includes("administrator") ?? false;
-
-  const orgId = profileQuery.data?.organizationId;
+  const { org, profile } = Route.useRouteContext();
+  const canEdit = profile.roles.includes("administrator");
+  const orgId = org.id;
 
   const clinicQuery = useQuery({
     queryKey: ["clinic-profile-full", orgId],
-    enabled: Boolean(orgId),
     queryFn: async () => {
       const { data } = await supabase
         .from("clinic_profiles")
         .select("*")
-        .eq("organization_id", orgId as string)
+        .eq("organization_id", orgId)
         .maybeSingle();
 
       if (data) return data;
 
-      // Read default name from organization
-      const { data: org } = await supabase
-        .from("organizations")
-        .select("name")
-        .eq("id", orgId as string)
-        .maybeSingle();
-
       return {
         id: null,
         organization_id: orgId,
-        name: org?.name ?? "GZV Platform",
-        short_name: org?.name ?? "GZV Platform",
+        name: org.name,
+        short_name: org.name,
       };
     },
   });
@@ -159,8 +148,6 @@ function ClinicProfilePage() {
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      if (!orgId) throw new Error("Chưa xác định phòng khám");
-
       const payload = Object.fromEntries(
         Object.entries(values).map(([key, value]) => [key, value === undefined ? null : value]),
       ) as TablesUpdate<"clinic_profiles">;
@@ -175,10 +162,12 @@ function ClinicProfilePage() {
         const { error } = await supabase.from("clinic_profiles").update(payload).eq("id", existing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("clinic_profiles").insert({
+        const insertPayload: TablesInsert<"clinic_profiles"> = {
           ...payload,
           organization_id: orgId,
-        });
+          name: values.name,
+        };
+        const { error } = await supabase.from("clinic_profiles").insert(insertPayload);
         if (error) throw error;
       }
     },

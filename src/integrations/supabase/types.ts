@@ -2714,6 +2714,15 @@ export type Database = {
       }
       is_staff_manager: { Args: never; Returns: boolean }
       is_super_admin: { Args: { _user_id?: string }; Returns: boolean }
+      super_admin_create_clinic: {
+        Args: {
+          p_name: string
+          p_slug: string
+          p_code?: string | null
+          p_clinic_category?: string
+        }
+        Returns: { id: string; slug: string }[]
+      }
       super_admin_list_clinics: {
         Args: never
         Returns: {

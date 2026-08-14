@@ -53,12 +53,12 @@ export const Route = createFileRoute("/_authenticated/$clinicSlug/attendance/adj
 type Adjustment = {
   id: string;
   employee_id: string;
-  adjustment_date: string;
+  created_at: string;
   adjustment_type: "add_day" | "remove_day" | "time_correction" | "status_change";
   reason: string;
+  adjusted_value: string | null;
   status: "pending" | "approved" | "rejected";
   approved_by: string | null;
-  notes: string | null;
   employee: {
     full_name: string;
     employee_code: string;
@@ -91,9 +91,9 @@ function AttendanceAdjustmentsPage() {
       let query = supabase
         .from("attendance_adjustments")
         .select(
-          "id, employee_id, adjustment_date, adjustment_type, reason, status, approved_by, notes, employee:employees(full_name, employee_code)",
+          "id, employee_id, created_at, adjustment_type, reason, adjusted_value, status, approved_by, employee:employees(full_name, employee_code)",
         )
-        .order("adjustment_date", { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (statusFilter) {
         query = query.eq("status", statusFilter);
@@ -232,9 +232,14 @@ function AttendanceAdjustmentsPage() {
                     {ADJUSTMENT_TYPE_LABELS[adjustment.adjustment_type] ||
                       adjustment.adjustment_type}
                   </TableCell>
-                  <TableCell className="text-sm">{adjustment.reason}</TableCell>
                   <TableCell className="text-sm">
-                    {new Date(adjustment.adjustment_date).toLocaleDateString("vi-VN")}
+                    {adjustment.reason}
+                    {adjustment.adjusted_value && (
+                      <span className="text-muted-foreground"> ({adjustment.adjusted_value})</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {new Date(adjustment.created_at).toLocaleDateString("vi-VN")}
                   </TableCell>
                   <TableCell>
                     <Badge className={STATUS_LABELS[adjustment.status]?.color}>

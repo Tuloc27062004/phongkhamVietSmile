@@ -1,478 +1,132 @@
-# Complete Database Schema Overview
+# Database Schema — Trạng Thái Thật (đã đối chiếu trực tiếp với DB production)
 
-## All Phases (1-7) Complete Schema
+> Khác với tài liệu cũ, file này chỉ liệt kê những gì đã xác minh trực tiếp qua `psql \d` trên DB thật (14/08/2026), không suy diễn từ tên file migration — vì nhiều migration trong `supabase/migrations/` chưa từng được áp dụng (xem §5).
 
-### PHASE 1: Foundation & Authentication (✓ Complete)
+## Nguyên tắc RLS chung
 
+Hầu hết bảng nghiệp vụ đều có `organization_id uuid NOT NULL REFERENCES organizations(id)` và 2 policy dạng:
+```sql
+CREATE POLICY "<x> read" ON <table> FOR SELECT TO authenticated
+  USING (organization_id = current_org_id());
+CREATE POLICY "<x> write" ON <table> TO authenticated
+  USING (organization_id = current_org_id() AND is_staff_manager())
+  WITH CHECK (organization_id = current_org_id() AND is_staff_manager());
 ```
-organizations
-├── id (UUID, PK)
-├── name
-├── slug (unique)
-├── is_default
-└── timestamps
+`current_org_id()` là điểm cách ly dữ liệu multi-tenant duy nhất — xem [ARCHITECTURE_OVERVIEW.md](./ARCHITECTURE_OVERVIEW.md#2-mô-hình-đa-tenant-multi-tenant).
 
-user_profiles
-├── id (FK: auth.users)
-├── organization_id (FK)
-├── full_name
-├── email, phone
-├── avatar_url
-└── timestamps
+## Bảng đã xác minh đầy đủ (cột thật, ràng buộc thật)
 
-user_roles
-├── id
-├── user_id (FK)
-├── organization_id (FK)
-├── role (enum: administrator, manager, receptionist, employee)
-└── timestamps
-
-clinic_profiles
-├── id
-├── organization_id (unique FK)
-├── name, short_name, legal_name
-├── logo_url, favicon_url, cover_url
-├── address, ward, district, city
-├── phone, hotline, appointment_phone
-├── website, facebook, zalo
-├── working_hours, lunch_break
-├── weekly_days_off, tax_code
-├── timezone, language, date_format
-├── policies (reminder, attendance, overtime)
-└── timestamps
-
-app_settings
-├── id
-├── organization_id (FK)
-├── group_key, setting_key
-├── value (JSONB)
-└── timestamps
-
-audit_logs
-├── id
-├── organization_id (FK)
-├── user_id (FK)
-├── action, entity_type, entity_id
-├── previous_values, new_values (JSONB)
-├── ip_address, user_agent
-└── created_at
+### `organizations`
+```
+id uuid PK, name text NOT NULL, slug text NOT NULL UNIQUE, is_default boolean,
+code text UNIQUE (nullable), is_active boolean DEFAULT true,
+clinic_category text DEFAULT 'general' CHECK (IN dental/general/obgyn/pediatrics/
+  dermatology/ophthalmology/ent/aesthetics/rehab/hospital),
+max_employees int DEFAULT 50, max_doctors int DEFAULT 20, max_devices int DEFAULT 10,
+feature_flags jsonb, created_at, updated_at
 ```
 
----
-
-### PHASE 2: HR Management (✓ Complete)
-
+### `employees`
 ```
-departments
-├── id
-├── organization_id (FK)
-├── name, code, description
-├── display_order
-├── is_active, deleted_at
-└── timestamps
-
-positions
-├── id
-├── organization_id (FK)
-├── department_id (FK)
-├── name, description
-├── can_receive_appointments
-├── display_order
-├── is_active, deleted_at
-└── timestamps
-
-shifts
-├── id
-├── organization_id (FK)
-├── name, code
-├── start_time, end_time
-├── break_start, break_end
-├── paid_break
-├── grace_period_minutes
-├── overtime_threshold_minutes
-├── min_overtime_minutes
-├── crosses_midnight
-├── working_days (int array)
-├── is_active, deleted_at
-├── UNIQUE (organization_id, code)
-└── timestamps
-
-employees
-├── id
-├── organization_id (FK)
-├── user_id (FK: auth.users)
-├── employee_code (unique)
-├── device_user_id
-├── full_name, preferred_name
-├── gender, date_of_birth
-├── phone, email, address
-├── avatar_url
-├── emergency_contact_*
-├── department_id (FK)
-├── position_id (FK)
-├── employment_type (enum)
-├── employment_status (enum)
-├── start_date, probation_end_date
-├── contract_start_date, contract_end_date
-├── default_shift_id (FK)
-├── manager_id (FK: self-reference)
-├── professional_title, license_number
-├── license_expiry_date, specialization
-├── years_of_experience
-├── can_receive_appointments
-├── appointment_display_name
-├── UNIQUE (organization_id, employee_code)
-└── timestamps
+id uuid PK, organization_id uuid NOT NULL, user_id uuid (FK auth.users, nullable),
+employee_code text NOT NULL, UNIQUE(organization_id, employee_code),
+device_user_id text, full_name text NOT NULL, preferred_name, gender, date_of_birth,
+phone, email, address, avatar_url, emergency_contact_{name,relationship,phone},
+department_id uuid (FK departments), position_id uuid (FK positions),
+employment_type employment_type NOT NULL DEFAULT 'full_time'   -- enum: full_time|part_time|contract|intern
+employment_status employment_status NOT NULL DEFAULT 'active'  -- enum: probation|active|on_leave|suspended|terminated
+start_date, probation_end_date, contract_{start,end}_date,
+default_shift_id uuid (FK shifts), work_location, manager_id uuid (self-FK),
+professional_title, license_number, license_{issue,expiry}_date, specialization,
+years_of_experience, qualifications, treatment_room,
+can_receive_appointments boolean NOT NULL DEFAULT false, appointment_display_name,
+hire_date DEFAULT CURRENT_DATE, status text DEFAULT 'active', profile_photo_url,
+created_at, updated_at, deleted_at (soft delete)
 ```
 
----
-
-### PHASE 3: Attendance & Timekeeping (→ To Deploy)
-
+### `attendance_records`
 ```
-attendance_records
-├── id
-├── organization_id (FK)
-├── employee_id (FK)
-├── work_date
-├── shift_id (FK)
-├── check_in_time, check_out_time
-├── device_check_in_time, device_check_out_time
-├── late_minutes, early_leave_minutes
-├── overtime_minutes
-├── paid_break_minutes, unpaid_break_minutes
-├── worked_minutes
-├── attendance_status (enum)
-├── is_approved
-├── approval_notes
-├── UNIQUE (organization_id, employee_id, work_date)
-└── timestamps
+id, organization_id, employee_id, work_date date NOT NULL,
+UNIQUE(organization_id, employee_id, work_date),
+shift_id (FK shifts, nullable), check_in_time, check_out_time,
+device_check_in_time, device_check_out_time (timestamptz),
+late_minutes, early_leave_minutes, overtime_minutes, paid_break_minutes,
+unpaid_break_minutes, worked_minutes (int),
+attendance_status text DEFAULT 'present'  -- không có CHECK constraint, quy ước dùng:
+  -- present | late | absent | early_leave | leave | sick | holiday | half_day
+is_approved boolean DEFAULT false, approval_notes, created_at, updated_at, deleted_at
+```
+⚠️ `/hr/payroll` tính live: coi mọi status khác `absent`/`leave`/`sick`/`holiday` là ngày công (kể cả `late`/`early_leave`), chỉ trừ lương đi trễ khi `late_minutes > 15`.
 
-attendance_adjustments
-├── id
-├── organization_id (FK)
-├── employee_id (FK)
-├── attendance_id (FK)
-├── adjustment_type
-├── reason, adjusted_value
-├── requested_by (FK: auth.users)
-├── approved_by (FK: auth.users)
-├── status (pending, approved, rejected)
-└── timestamps
+### `attendance_summaries` (bảng phẳng, KHÔNG tự tính)
+```
+id, organization_id, employee_id, full_name, employee_code,
+date date NOT NULL, UNIQUE(employee_id, date),
+total_days, present_days, absent_days, late_days, early_leave_days int DEFAULT 0,
+overtime_hours numeric DEFAULT 0, created_at
+```
+Trang `/attendance/monthly` đọc trực tiếp bảng này — phải tự `INSERT`/`UPDATE` tổng hợp từ `attendance_records` mỗi khi cần dữ liệu mới (không có trigger).
 
-attendance_summary
-├── id
-├── organization_id (FK)
-├── employee_id (FK)
-├── year, month
-├── total_working_days, present_days
-├── absent_days, leave_days, holiday_days
-├── sick_days
-├── late_count, early_leave_count
-├── total_overtime_minutes, total_worked_minutes
-├── UNIQUE (organization_id, employee_id, year, month)
-└── computed_at, updated_at
+### `attendance_adjustments`
+```
+id, organization_id, employee_id, attendance_id (FK attendance_records, nullable),
+adjustment_type text NOT NULL, reason text NOT NULL, adjusted_value text (nullable),
+requested_by / approved_by uuid (FK auth.users), status text DEFAULT 'pending',
+created_at, updated_at, deleted_at
+```
+⚠️ KHÔNG có cột `adjustment_date` hay `notes` — nếu thấy code/tài liệu cũ nhắc 2 cột này là sai (đã sửa ở `attendance.adjustments.tsx`, 14/08/2026).
+
+### `overtime_records`
+```
+id, organization_id, employee_id, overtime_date date NOT NULL,
+duration_hours numeric DEFAULT 0, rate_multiplier numeric DEFAULT 1,
+status text DEFAULT 'pending' CHECK (IN pending/approved/paid),
+reason, notes, created_at, updated_at
 ```
 
----
-
-### PHASE 4: Device Synchronization (→ To Deploy)
-
+### `salary_config`
 ```
-device_configs
-├── id
-├── organization_id (unique FK)
-├── device_ip_address, device_port
-├── device_username, device_password_encrypted
-├── connection_method (network, usb, api)
-├── device_type (zkteco, hikvision, other)
-├── sync_interval_minutes
-├── auto_sync_enabled
-├── last_sync_time
-├── is_connected
-├── last_test_time, test_result
-└── timestamps
-
-device_sync_logs
-├── id
-├── organization_id (FK)
-├── sync_type (initial, incremental, full_resync)
-├── status (started, completed, failed)
-├── error_message
-├── records_found, records_imported
-├── records_skipped, records_failed
-├── started_at, completed_at
-├── duration_seconds
-└── created_at
-
-device_sync_mappings
-├── id
-├── organization_id (FK)
-├── device_user_id
-├── employee_id (FK)
-├── is_active
-├── last_sync_time
-├── sync_status (pending, synced, error)
-├── UNIQUE (organization_id, device_user_id)
-└── timestamps
+id, organization_id, employee_id uuid UNIQUE NOT NULL,
+base_salary, allowance, bonus, late_deduction, absence_deduction,
+insurance_deduction numeric DEFAULT 0, created_at, updated_at
 ```
 
----
-
-### PHASE 5: Appointments & Scheduling (→ To Deploy)
-
+### `payroll_records`
 ```
-services
-├── id
-├── organization_id (FK)
-├── name, code, description
-├── category
-├── default_duration_minutes
-├── requires_professional
-├── can_reserve_slot
-├── display_order
-├── is_active, deleted_at
-└── timestamps
-
-patients
-├── id
-├── organization_id (FK)
-├── patient_code (unique)
-├── full_name, phone, email
-├── date_of_birth, gender, address
-├── avatar_url
-├── insurance_number, insurance_provider
-├── medical_notes, allergies
-├── first_visit_date, last_visit_date
-├── is_active, deleted_at
-└── timestamps
-
-appointments
-├── id
-├── organization_id (FK)
-├── patient_id (FK)
-├── assigned_dentist_id (FK: employees)
-├── service_id (FK)
-├── appointment_date
-├── start_time, end_time, duration_minutes
-├── status (scheduled, confirmed, completed, cancelled)
-├── confirmation_status
-├── notes, treatment_notes
-├── reminder_sent, reminder_sent_at
-├── cancelled_at, cancellation_reason
-└── timestamps
-
-appointment_reminders
-├── id
-├── organization_id (FK)
-├── appointment_id (FK)
-├── reminder_type (sms, email, call, whatsapp)
-├── send_hours_before
-├── status (pending, sent, failed)
-├── sent_at, error_message
-└── timestamps
+id, organization_id, employee_id, month int CHECK(1-12), year int,
+UNIQUE(employee_id, month, year),
+worked_days, late_days, absent_days int DEFAULT 0,
+base_salary, late_deduction, absence_deduction, insurance, net_salary numeric DEFAULT 0,
+status text DEFAULT 'pending' CHECK (IN pending/calculated/approved/paid),
+approved_at, created_at
 ```
 
----
-
-### PHASE 6: Reporting & Analytics (→ To Deploy)
-
+### `super_admin_sessions`
 ```
-report_configs
-├── id
-├── organization_id (FK)
-├── report_name, report_type
-├── description
-├── filter_settings (JSONB)
-├── columns (JSONB array)
-├── schedule_enabled
-├── schedule_frequency, schedule_day_*
-├── schedule_hour, schedule_minute
-├── email_recipients (text array)
-├── is_active, deleted_at
-└── timestamps
-
-generated_reports
-├── id
-├── organization_id (FK)
-├── report_config_id (FK)
-├── report_name, report_type
-├── data_rows
-├── file_url, file_format
-├── generated_by (FK: auth.users)
-├── filters_applied (JSONB)
-└── timestamps
-
-export_logs
-├── id
-├── organization_id (FK)
-├── export_type, export_format
-├── file_name, file_size_bytes
-├── file_url
-├── rows_exported, errors
-├── exported_by (FK: auth.users)
-├── export_date_range (JSONB)
-└── created_at
-
-kpi_metrics
-├── id
-├── organization_id (FK)
-├── metric_date
-├── metric_type
-├── employee_id (FK)
-├── department_id (FK)
-├── metric_value, target_value, variance
-└── timestamps
+user_id uuid PK (FK auth.users), active_organization_id uuid NOT NULL (FK organizations),
+updated_at
 ```
 
----
-
-### PHASE 7: Finalization & Enhancements (→ To Deploy)
-
+### `clinic_profiles`
 ```
-notifications
-├── id
-├── organization_id (FK)
-├── user_id (FK: auth.users)
-├── notification_type
-├── title, message
-├── data (JSONB)
-├── read_at, is_read
-├── action_url, action_text
-└── timestamps
-
-system_backups
-├── id
-├── organization_id (FK)
-├── backup_type, backup_scope
-├── file_url, file_size_bytes
-├── backup_status, error_message
-├── triggered_by
-├── backup_date, completed_at
-├── next_backup_date
-└── created_at
-
-system_events
-├── id
-├── organization_id (FK)
-├── event_type, event_category
-├── severity (info, warning, error, critical)
-├── actor_id (FK: auth.users)
-├── actor_email
-├── subject, description
-├── affected_records, changes (JSONB)
-├── source_ip, user_agent
-└── created_at
-
-notification_templates
-├── id
-├── organization_id (FK)
-├── template_name, template_type
-├── trigger_event
-├── subject, body
-├── variables (JSONB)
-├── is_active
-└── timestamps
-
-api_keys
-├── id
-├── organization_id (FK)
-├── key_name, key_hash (unique)
-├── created_by (FK: auth.users)
-├── last_used_at, expires_at
-├── scopes (text array)
-├── is_active
-└── timestamps
-
-integration_logs
-├── id
-├── organization_id (FK)
-├── integration_name, integration_type
-├── action, status
-├── request_data, response_data (JSONB)
-├── error_message
-├── execution_time_ms
-└── created_at
+id, organization_id uuid UNIQUE NOT NULL, name text NOT NULL,
+short_name, legal_name, logo_url, cover_url, address/ward/district/city,
+phone/hotline/appointment_phone, website/facebook/zalo, working_hours/lunch_break,
+weekly_days_off, tax_code, timezone/language/date_format/time_format,
+grace_period_minutes, các cột chính sách (attendance_policy, overtime_policy, ...),
+description, footer_info, created_at, updated_at
 ```
+Chỉ `organization_id` và `name` là bắt buộc — mọi trường khác có default/nullable.
 
----
+## Bảng khác đang tồn tại (chưa audit đầy đủ cột — xem trực tiếp migration hoặc `psql \d`)
 
-## Summary Statistics
+`user_profiles`, `user_roles`, `departments`, `positions`, `shifts`, `devices`, `device_logs`, `device_configs`, `device_sync_logs`, `device_sync_mappings`, `appointments`, `patients`, `services`, `appointment_reminders`, `reports`, `error_reports`, `audit_logs`, `app_settings`.
 
-| Phase | Tables | Indexes | Features |
-|-------|--------|---------|----------|
-| 1 | 5 | 3 | Auth, Org, Profiles, Settings |
-| 2 | 4 | 2 | Departments, Positions, Shifts, Employees |
-| 3 | 3 | 4 | Attendance, Adjustments, Summary |
-| 4 | 3 | 4 | Device Configs, Sync Logs, Mappings |
-| 5 | 4 | 6 | Services, Patients, Appointments, Reminders |
-| 6 | 4 | 4 | Reports, Exports, KPIs |
-| 7 | 6 | 5 | Notifications, Backups, Events, Templates, API, Logs |
-| **Total** | **28** | **28** | **Complete System** |
+## Dữ liệu thật đang có (14/08/2026)
 
----
+- 2 `organizations`: `viet-smile` (VIETSMILE, dental) và `gzv` (GZV_PLATFORM, hub Super Admin, không có dữ liệu khám bệnh).
+- Việt Smile: 4 `departments`, 5 `positions`, 4 `shifts`, 8 `employees` (EMP001–EMP008, dữ liệu mẫu — xem migration `20260814100000_seed_viet_smile_demo_data.sql`), 1 tháng `attendance_records`/`attendance_summaries`/`overtime_records`/`salary_config`/`payroll_records` demo.
 
-## Key Relationships
+## Về các file migration trong repo
 
-```
-Organization (root)
-├── User Profiles
-│   └── User Roles
-├── Clinic Profile
-├── Departments
-│   ├── Positions
-│   └── Employees
-│       ├── Attendance Records
-│       ├── Attendance Adjustments
-│       └── Appointments
-├── Shifts
-│   └── Attendance Records
-├── Services
-│   └── Appointments
-├── Patients
-│   └── Appointments
-│       └── Appointment Reminders
-├── Device Configs
-│   ├── Device Sync Logs
-│   └── Device Sync Mappings
-├── Report Configs
-│   └── Generated Reports
-└── Notification Templates
-    └── Notifications
-```
-
----
-
-## Field Enums
-
-**app_role**: administrator, manager, receptionist, employee
-
-**employment_type**: full_time, part_time, contract, intern
-
-**employment_status**: probation, active, on_leave, suspended, terminated
-
-**appointment_status**: scheduled, confirmed, in_progress, completed, cancelled, no_show
-
-**confirmation_status**: unconfirmed, confirmed, rejected
-
-**backup_type**: full, incremental, selective
-
-**notification_type**: sms, email, call, whatsapp
-
-**event_severity**: info, warning, error, critical
-
----
-
-## RLS Summary
-
-✓ All tables have Row Level Security enabled
-✓ Managers can see all org data
-✓ Employees see own records + org public data
-✓ Administrators have full access
-✓ Service role bypasses RLS
-
----
-
-Generated for: Phòng Khám GZV System Clinic Suite
-System: clinic-flow
-Prepared: August 2026
+Không có bảng `supabase_migrations.schema_migrations` — dự án này áp dụng migration thủ công (dán SQL hoặc chạy trực tiếp qua `psql`), **không dùng `supabase db push`**. Hệ quả: nhiều file `.sql` trong `supabase/migrations/` có thể **chưa từng chạy** trên DB thật (ví dụ: toàn bộ chain `20260813100000` → `20260813140000` bị phát hiện chưa áp dụng ngày 14/08/2026, chỉ tồn tại dưới dạng file). Khi cần biết schema thật, luôn kiểm tra trực tiếp bằng `psql \d <table>`, không tin tuyệt đối vào tên file migration.

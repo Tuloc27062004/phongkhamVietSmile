@@ -4,6 +4,7 @@ import type {
 import {
   Activity,
   BadgeCheck,
+  BookOpen,
   Building2,
   CalendarDays,
   CalendarRange,
@@ -118,6 +119,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { title: "Hồ sơ phòng khám", to: "/system/clinic-profile", icon: Building2, roles: STAFF },
       { title: "Tài khoản & Cấp quyền", to: "/system/users", icon: UserCog, roles: ADMIN },
       { title: "Cài đặt & Audit Logs", to: "/system/settings", icon: Settings, roles: ADMIN },
+      { title: "Hướng dẫn sử dụng", to: "/system/guide", icon: BookOpen, roles: ALL },
     ],
   },
 ];

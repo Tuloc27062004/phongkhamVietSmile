@@ -73,6 +73,7 @@ type NewCheckIn = {
 };
 
 function ManualAttendancePage() {
+  const { org } = Route.useRouteContext();
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0] ?? ""
   );
@@ -138,7 +139,7 @@ function ManualAttendancePage() {
 
       const { error } = await supabase.from("attendance_records").insert([
         {
-          organization_id: "org_default",
+          organization_id: org.id,
           employee_id: formData.employee_id,
           work_date: formData.work_date,
           check_in_time: `${formData.work_date}T${formData.check_in_time}:00`,

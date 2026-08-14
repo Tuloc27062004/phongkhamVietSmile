@@ -7,8 +7,8 @@ import {
   Clock,
   AlertCircle,
   CheckCircle,
-  Download,
   Filter,
+  Printer,
   Search,
   TrendingDown,
   Zap,
@@ -68,10 +68,25 @@ interface PayrollData {
 }
 
 function PayrollPage() {
+  const { org } = Route.useRouteContext();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [printTarget, setPrintTarget] = useState<PayrollData | null>(null);
+
+  const printTable = () => {
+    setPrintTarget(null);
+    setTimeout(() => window.print(), 50);
+  };
+
+  const printPayslip = (payroll: PayrollData) => {
+    setPrintTarget(payroll);
+    setTimeout(() => {
+      window.print();
+      setPrintTarget(null);
+    }, 50);
+  };
 
   const payrollQuery = useQuery({
     queryKey: ["payroll", selectedMonth, selectedYear],
@@ -122,17 +137,23 @@ function PayrollPage() {
 
         const payroll = payrollMap.get(key)!;
 
-        if (record.attendance_status === "present") {
+        if (record.attendance_status === "absent") {
+          payroll.absent_days++;
+          payroll.absence_deduction += payroll.base_salary / 26;
+        } else if (
+          record.attendance_status === "leave" ||
+          record.attendance_status === "sick" ||
+          record.attendance_status === "holiday"
+        ) {
+          payroll.paid_days++;
+          payroll.worked_days++;
+        } else {
+          // present, late, early_leave, half_day — all count as a worked day
           payroll.worked_days++;
           if ((record.late_minutes || 0) > 15) {
             payroll.late_days++;
             payroll.late_deduction += (payroll.base_salary / 26 / 8 / 60) * (record.late_minutes || 0);
           }
-        } else if (record.attendance_status === "absent") {
-          payroll.absent_days++;
-          payroll.absence_deduction += payroll.base_salary / 26;
-        } else if (record.attendance_status === "leave") {
-          payroll.paid_days++;
         }
       });
 
@@ -196,7 +217,8 @@ function PayrollPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <>
+    <div className="space-y-6 print:hidden">
       <PageHeader
         title="Tính Lương"
         description="Tính lương tự động dựa trên chấm công, trừ lương đi trễ, vắng mặt, bảo hiểm."
@@ -230,9 +252,9 @@ function PayrollPage() {
           </SelectContent>
         </Select>
 
-        <Button variant="outline">
-          <Download className="w-4 h-4 mr-2" />
-          Tải Xuống
+        <Button variant="outline" onClick={printTable} disabled={filteredPayroll.length === 0}>
+          <Printer className="w-4 h-4 mr-2" />
+          In bảng lương
         </Button>
       </div>
 
@@ -361,15 +383,25 @@ function PayrollPage() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => approveMutation.mutate(payroll)}
-                        disabled={approveMutation.isPending || payroll.status === "approved"}
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        {payroll.status === "approved" ? "Đã duyệt" : "Duyệt"}
-                      </Button>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => approveMutation.mutate(payroll)}
+                          disabled={approveMutation.isPending || payroll.status === "approved"}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          {payroll.status === "approved" ? "Đã duyệt" : "Duyệt"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          title="In phiếu lương"
+                          onClick={() => printPayslip(payroll)}
+                        >
+                          <Printer className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -378,6 +410,159 @@ function PayrollPage() {
           </div>
         </div>
       )}
+    </div>
+
+    <div className="hidden print:block">
+      {printTarget ? (
+        <PayslipPrint clinicName={org.name} payroll={printTarget} />
+      ) : (
+        <PayrollTablePrint
+          clinicName={org.name}
+          month={selectedMonth}
+          year={selectedYear}
+          rows={filteredPayroll}
+        />
+      )}
+    </div>
+    </>
+  );
+}
+
+function money(n: number) {
+  return `${Math.round(n).toLocaleString("vi-VN")}đ`;
+}
+
+function PayrollTablePrint({
+  clinicName,
+  month,
+  year,
+  rows,
+}: {
+  clinicName: string;
+  month: number;
+  year: number;
+  rows: PayrollData[];
+}) {
+  const totalNet = rows.reduce((sum, r) => sum + r.net_salary, 0);
+  return (
+    <div className="p-8 text-black">
+      <h1 className="text-xl font-bold">{clinicName}</h1>
+      <h2 className="mt-1 text-lg font-semibold">
+        BẢNG LƯƠNG THÁNG {month}/{year}
+      </h2>
+      <table className="mt-6 w-full border-collapse text-sm">
+        <thead>
+          <tr className="border-b-2 border-black">
+            <th className="py-1 text-left">Mã NV</th>
+            <th className="py-1 text-left">Họ tên</th>
+            <th className="py-1 text-right">Công</th>
+            <th className="py-1 text-right">Trễ</th>
+            <th className="py-1 text-right">Vắng</th>
+            <th className="py-1 text-right">Lương CB</th>
+            <th className="py-1 text-right">Trừ</th>
+            <th className="py-1 text-right">Thực lãnh</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.id} className="border-b border-gray-300">
+              <td className="py-1">{r.employee_code}</td>
+              <td className="py-1">{r.full_name}</td>
+              <td className="py-1 text-right">{r.worked_days}</td>
+              <td className="py-1 text-right">{r.late_days}</td>
+              <td className="py-1 text-right">{r.absent_days}</td>
+              <td className="py-1 text-right">{money(r.base_salary)}</td>
+              <td className="py-1 text-right">
+                {money(r.late_deduction + r.absence_deduction + r.insurance)}
+              </td>
+              <td className="py-1 text-right font-semibold">{money(r.net_salary)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr className="border-t-2 border-black font-bold">
+            <td colSpan={7} className="py-2 text-right">
+              Tổng thực lãnh
+            </td>
+            <td className="py-2 text-right">{money(totalNet)}</td>
+          </tr>
+        </tfoot>
+      </table>
+      <p className="mt-10 text-right text-sm">
+        Ngày in: {new Date().toLocaleDateString("vi-VN")}
+      </p>
+    </div>
+  );
+}
+
+function PayslipPrint({ clinicName, payroll }: { clinicName: string; payroll: PayrollData }) {
+  return (
+    <div className="p-8 text-black">
+      <h1 className="text-xl font-bold">{clinicName}</h1>
+      <h2 className="mt-1 text-lg font-semibold">
+        PHIẾU LƯƠNG THÁNG {payroll.month}/{payroll.year}
+      </h2>
+
+      <div className="mt-6 space-y-1 text-sm">
+        <p>
+          <span className="font-medium">Mã nhân viên:</span> {payroll.employee_code}
+        </p>
+        <p>
+          <span className="font-medium">Họ và tên:</span> {payroll.full_name}
+        </p>
+      </div>
+
+      <table className="mt-6 w-full border-collapse text-sm">
+        <tbody>
+          <tr className="border-b border-gray-300">
+            <td className="py-1.5">Số ngày công</td>
+            <td className="py-1.5 text-right">{payroll.worked_days} ngày</td>
+          </tr>
+          <tr className="border-b border-gray-300">
+            <td className="py-1.5">Số lần đi trễ</td>
+            <td className="py-1.5 text-right">{payroll.late_days} lần</td>
+          </tr>
+          <tr className="border-b border-gray-300">
+            <td className="py-1.5">Số ngày vắng mặt</td>
+            <td className="py-1.5 text-right">{payroll.absent_days} ngày</td>
+          </tr>
+          <tr className="border-b border-gray-300">
+            <td className="py-1.5">Lương cơ bản</td>
+            <td className="py-1.5 text-right">{money(payroll.base_salary)}</td>
+          </tr>
+          <tr className="border-b border-gray-300">
+            <td className="py-1.5">Trừ đi trễ</td>
+            <td className="py-1.5 text-right">-{money(payroll.late_deduction)}</td>
+          </tr>
+          <tr className="border-b border-gray-300">
+            <td className="py-1.5">Trừ vắng mặt</td>
+            <td className="py-1.5 text-right">-{money(payroll.absence_deduction)}</td>
+          </tr>
+          <tr className="border-b border-gray-300">
+            <td className="py-1.5">Bảo hiểm</td>
+            <td className="py-1.5 text-right">-{money(payroll.insurance)}</td>
+          </tr>
+          <tr className="border-t-2 border-black font-bold">
+            <td className="py-2">Thực lãnh</td>
+            <td className="py-2 text-right">{money(payroll.net_salary)}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="mt-16 grid grid-cols-2 gap-8 text-center text-sm">
+        <div>
+          <p className="font-medium">Người lập phiếu</p>
+          <p className="mt-16 text-xs text-gray-500">(Ký, ghi rõ họ tên)</p>
+        </div>
+        <div>
+          <p className="font-medium">Nhân viên nhận lương</p>
+          <p className="mt-16 text-xs text-gray-500">(Ký, ghi rõ họ tên)</p>
+        </div>
+      </div>
+
+      <p className="mt-10 text-right text-sm">
+        Ngày in: {new Date().toLocaleDateString("vi-VN")}
+      </p>
     </div>
   );
 }

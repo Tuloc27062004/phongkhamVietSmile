@@ -50,6 +50,7 @@ import { Route as AuthenticatedClinicSlugSystemAgentRouteImport } from './routes
 import { Route as AuthenticatedClinicSlugSystemAuditLogsRouteImport } from './routes/_authenticated/$clinicSlug/system.audit-logs'
 import { Route as AuthenticatedClinicSlugSystemClinicProfileRouteImport } from './routes/_authenticated/$clinicSlug/system.clinic-profile'
 import { Route as AuthenticatedClinicSlugSystemDevicesRouteImport } from './routes/_authenticated/$clinicSlug/system.devices'
+import { Route as AuthenticatedClinicSlugSystemGuideRouteImport } from './routes/_authenticated/$clinicSlug/system.guide'
 import { Route as AuthenticatedClinicSlugSystemSettingsRouteImport } from './routes/_authenticated/$clinicSlug/system.settings'
 import { Route as AuthenticatedClinicSlugSystemSyncRouteImport } from './routes/_authenticated/$clinicSlug/system.sync'
 import { Route as AuthenticatedClinicSlugSystemUsersRouteImport } from './routes/_authenticated/$clinicSlug/system.users'
@@ -297,6 +298,12 @@ const AuthenticatedClinicSlugSystemDevicesRoute =
     path: '/system/devices',
     getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
+const AuthenticatedClinicSlugSystemGuideRoute =
+  AuthenticatedClinicSlugSystemGuideRouteImport.update({
+    id: '/system/guide',
+    path: '/system/guide',
+    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
+  } as any)
 const AuthenticatedClinicSlugSystemSettingsRoute =
   AuthenticatedClinicSlugSystemSettingsRouteImport.update({
     id: '/system/settings',
@@ -362,6 +369,7 @@ export interface FileRoutesByFullPath {
   '/$clinicSlug/system/audit-logs': typeof AuthenticatedClinicSlugSystemAuditLogsRoute
   '/$clinicSlug/system/clinic-profile': typeof AuthenticatedClinicSlugSystemClinicProfileRoute
   '/$clinicSlug/system/devices': typeof AuthenticatedClinicSlugSystemDevicesRoute
+  '/$clinicSlug/system/guide': typeof AuthenticatedClinicSlugSystemGuideRoute
   '/$clinicSlug/system/settings': typeof AuthenticatedClinicSlugSystemSettingsRoute
   '/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
   '/$clinicSlug/system/users': typeof AuthenticatedClinicSlugSystemUsersRoute
@@ -408,6 +416,7 @@ export interface FileRoutesByTo {
   '/$clinicSlug/system/audit-logs': typeof AuthenticatedClinicSlugSystemAuditLogsRoute
   '/$clinicSlug/system/clinic-profile': typeof AuthenticatedClinicSlugSystemClinicProfileRoute
   '/$clinicSlug/system/devices': typeof AuthenticatedClinicSlugSystemDevicesRoute
+  '/$clinicSlug/system/guide': typeof AuthenticatedClinicSlugSystemGuideRoute
   '/$clinicSlug/system/settings': typeof AuthenticatedClinicSlugSystemSettingsRoute
   '/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
   '/$clinicSlug/system/users': typeof AuthenticatedClinicSlugSystemUsersRoute
@@ -456,6 +465,7 @@ export interface FileRoutesById {
   '/_authenticated/$clinicSlug/system/audit-logs': typeof AuthenticatedClinicSlugSystemAuditLogsRoute
   '/_authenticated/$clinicSlug/system/clinic-profile': typeof AuthenticatedClinicSlugSystemClinicProfileRoute
   '/_authenticated/$clinicSlug/system/devices': typeof AuthenticatedClinicSlugSystemDevicesRoute
+  '/_authenticated/$clinicSlug/system/guide': typeof AuthenticatedClinicSlugSystemGuideRoute
   '/_authenticated/$clinicSlug/system/settings': typeof AuthenticatedClinicSlugSystemSettingsRoute
   '/_authenticated/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
   '/_authenticated/$clinicSlug/system/users': typeof AuthenticatedClinicSlugSystemUsersRoute
@@ -504,6 +514,7 @@ export interface FileRouteTypes {
     | '/$clinicSlug/system/audit-logs'
     | '/$clinicSlug/system/clinic-profile'
     | '/$clinicSlug/system/devices'
+    | '/$clinicSlug/system/guide'
     | '/$clinicSlug/system/settings'
     | '/$clinicSlug/system/sync'
     | '/$clinicSlug/system/users'
@@ -550,6 +561,7 @@ export interface FileRouteTypes {
     | '/$clinicSlug/system/audit-logs'
     | '/$clinicSlug/system/clinic-profile'
     | '/$clinicSlug/system/devices'
+    | '/$clinicSlug/system/guide'
     | '/$clinicSlug/system/settings'
     | '/$clinicSlug/system/sync'
     | '/$clinicSlug/system/users'
@@ -597,6 +609,7 @@ export interface FileRouteTypes {
     | '/_authenticated/$clinicSlug/system/audit-logs'
     | '/_authenticated/$clinicSlug/system/clinic-profile'
     | '/_authenticated/$clinicSlug/system/devices'
+    | '/_authenticated/$clinicSlug/system/guide'
     | '/_authenticated/$clinicSlug/system/settings'
     | '/_authenticated/$clinicSlug/system/sync'
     | '/_authenticated/$clinicSlug/system/users'
@@ -899,6 +912,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClinicSlugSystemDevicesRouteImport
       parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
+    '/_authenticated/$clinicSlug/system/guide': {
+      id: '/_authenticated/$clinicSlug/system/guide'
+      path: '/system/guide'
+      fullPath: '/$clinicSlug/system/guide'
+      preLoaderRoute: typeof AuthenticatedClinicSlugSystemGuideRouteImport
+      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
+    }
     '/_authenticated/$clinicSlug/system/settings': {
       id: '/_authenticated/$clinicSlug/system/settings'
       path: '/system/settings'
@@ -984,6 +1004,7 @@ interface AuthenticatedClinicSlugRouteRouteChildren {
   AuthenticatedClinicSlugSystemAuditLogsRoute: typeof AuthenticatedClinicSlugSystemAuditLogsRoute
   AuthenticatedClinicSlugSystemClinicProfileRoute: typeof AuthenticatedClinicSlugSystemClinicProfileRoute
   AuthenticatedClinicSlugSystemDevicesRoute: typeof AuthenticatedClinicSlugSystemDevicesRoute
+  AuthenticatedClinicSlugSystemGuideRoute: typeof AuthenticatedClinicSlugSystemGuideRoute
   AuthenticatedClinicSlugSystemSettingsRoute: typeof AuthenticatedClinicSlugSystemSettingsRoute
   AuthenticatedClinicSlugSystemSyncRoute: typeof AuthenticatedClinicSlugSystemSyncRoute
   AuthenticatedClinicSlugSystemUsersRoute: typeof AuthenticatedClinicSlugSystemUsersRoute
@@ -1057,6 +1078,8 @@ const AuthenticatedClinicSlugRouteRouteChildren: AuthenticatedClinicSlugRouteRou
       AuthenticatedClinicSlugSystemClinicProfileRoute,
     AuthenticatedClinicSlugSystemDevicesRoute:
       AuthenticatedClinicSlugSystemDevicesRoute,
+    AuthenticatedClinicSlugSystemGuideRoute:
+      AuthenticatedClinicSlugSystemGuideRoute,
     AuthenticatedClinicSlugSystemSettingsRoute:
       AuthenticatedClinicSlugSystemSettingsRoute,
     AuthenticatedClinicSlugSystemSyncRoute:

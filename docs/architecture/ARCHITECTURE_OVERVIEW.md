@@ -1,509 +1,104 @@
-# Clinic Flow - System Architecture Overview
+# GZV Clinic Platform — Kiến Trúc Hệ Thống
 
-## 📐 Complete System Map
+> Tài liệu này mô tả đúng trạng thái code/DB thực tế tại thời điểm cập nhật (14/08/2026), không phải kế hoạch hay mô tả marketing.
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                      CLINIC FLOW - Bá Lộc NHAN VĂN                 │
-│                                                                          │
-│  Web Frontend (React 19 + TypeScript)                                   │
-│  ┌────────────────────────────────────────────────────────────────┐   │
-│  │                      🎯 Main Dashboard                          │   │
-│  │                                                                 │   │
-│  │  ┌──────────────────┐  ┌──────────────────┐  ┌─────────────┐  │   │
-│  │  │  ATTENDANCE (3)  │  │APPOINTMENTS (5)  │  │ REPORTS (6) │  │   │
-│  │  │                  │  │                  │  │             │  │   │
-│  │  │ ├─ Daily         │  │ ├─ Calendar      │  │ ├─ Attendance│ │   │
-│  │  │ ├─ Monthly       │  │ ├─ List          │  │ ├─ Appointments
-│  │  │ ├─ Logs          │  │ ├─ Reminders     │  │ └─ Analytics
-│  │  │ ├─ Adjustments   │  │ └─ Customers     │  │             │  │   │
-│  │  │ └─ Overtime      │  │                  │  │             │  │   │
-│  │  └──────────────────┘  └──────────────────┘  └─────────────┘  │   │
-│  │                                                                 │   │
-│  │  ┌──────────────────┐  ┌──────────────────┐                   │   │
-│  │  │ SYSTEM (4, 7)    │  │ EMPLOYEES (1-2)  │                   │   │
-│  │  │                  │  │                  │                   │   │
-│  │  │ ├─ Devices       │  │ ├─ List           │                  │   │
-│  │  │ ├─ Sync Status   │  │ ├─ Departments    │                  │   │
-│  │  │ ├─ Audit Logs    │  │ ├─ Positions      │                  │   │
-│  │  │ └─ Settings      │  │ └─ Shifts         │                  │   │
-│  │  └──────────────────┘  └──────────────────┘                   │   │
-│  │                                                                 │   │
-│  └────────────────────────────────────────────────────────────────┘   │
-│                                                                         │
-│  ┌────────────────────────────────────────────────────────────────┐   │
-│  │              React Query (Caching & State)                     │   │
-│  │          TanStack Router (Client-Side Routing)                 │   │
-│  └────────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────┘
-                                 ⬇️ API
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     SUPABASE (PostgreSQL Backend)                       │
-│                                                                          │
-│  Authentication & Authorization                                        │
-│  ├─ JWT Tokens                                                         │
-│  ├─ Session Management                                                 │
-│  └─ Role-Based Access Control (RBAC)                                  │
-│                                                                          │
-│  Data Layer (15+ Tables)                                               │
-│  ├─ Employees (with status, device_user_id)                           │
-│  ├─ Departments                                                        │
-│  ├─ Positions                                                          │
-│  ├─ Shifts                                                             │
-│  ├─ Attendance Records                                                 │
-│  ├─ Attendance Summaries                                               │
-│  ├─ Attendance Adjustments                                             │
-│  ├─ Device Logs (raw biometric data)                                   │
-│  ├─ Devices (machine management)                                       │
-│  ├─ Overtime Records                                                   │
-│  ├─ Appointments                                                       │
-│  ├─ Services                                                           │
-│  ├─ Patients                                                           │
-│  ├─ Reports                                                            │
-│  └─ Audit Logs                                                         │
-│                                                                          │
-│  Row-Level Security (RLS) ✅                                            │
-│  ├─ Users see only their own data                                      │
-│  ├─ Managers see department data                                       │
-│  └─ Admins see all data                                                │
-└─────────────────────────────────────────────────────────────────────────┘
-                                 ⬇️ External Systems
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    BIOMETRIC DEVICES (Phase 4)                          │
-│                                                                          │
-│  Device Management                                                     │
-│  ├─ ZKTeco / Hikvision / Face Recognition                             │
-│  ├─ Real-time synchronization                                          │
-│  ├─ Temperature & Mask Detection                                       │
-│  └─ Error Logging & Troubleshooting                                    │
-│                                                                          │
-│  Windows Agent (Phase 4)                                               │
-│  ├─ Scheduled data sync                                                │
-│  ├─ Device status monitoring                                           │
-│  └─ Cloud synchronization                                              │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+## 1. Tech Stack
 
----
+| Layer | Công nghệ |
+|---|---|
+| UI Framework | React 19 + TypeScript |
+| App Framework | TanStack Start (SSR, `src/start.ts` + `src/server.ts`) |
+| Routing | TanStack Router — file-based, typed, chạy trên Cloudflare (nitro target) |
+| Data fetching | TanStack Query (React Query) |
+| Database | Supabase (PostgreSQL + Auth + Row Level Security) |
+| Styling | Tailwind CSS v4 |
+| Components | shadcn/ui (Radix UI primitives) |
 
-## 🎯 Phase Breakdown
+## 2. Mô hình đa tenant (Multi-Tenant)
 
-### Phase 1 (✅ Complete)
-- User authentication
-- Role-based access control
-- Clinic profile management
-- Base navigation structure
-
-### Phase 2 (✅ Complete)
-- Employee management
-- Department management
-- Position management
-- Shift management
-
-### Phase 3 (✅ NEW)
-**UI Pages Created:**
-1. Daily Attendance Tracking
-2. Monthly Attendance Summary
-3. Device Log Viewer
-4. Attendance Adjustments
-5. Overtime Management
-
-**Features:**
-- Real-time attendance dashboard
-- Statistics and analytics
-- Excel export
-- Approval workflow
-
-### Phase 4 (✅ NEW)
-**UI Pages Created:**
-1. System Devices Management
-
-**Features:**
-- Device inventory
-- Status monitoring
-- Last sync tracking
-- User sync count
-
-### Phase 5 (✅ NEW)
-**UI Pages Created:**
-1. Appointments Calendar
-2. Appointments List
-
-**Features:**
-- Day/calendar view
-- Patient management
-- Service tracking
-- Confirmation workflow
-
-### Phase 6 (✅ NEW)
-**UI Pages Created:**
-1. Attendance Reports
-
-**Features:**
-- Report generation
-- Multi-format export
-- Report history
-- Scheduled reports
-
-### Phase 7 (🔄 Backend Ready)
-- Notifications
-- Audit logging
-- Backup management
-- API key management
-- Integration logging
-
----
-
-## 🗄️ Database Schema
-
-### Core Tables
-
-```sql
--- Employees
-employees
-├── id (PK)
-├── employee_code
-├── full_name
-├── email
-├── phone
-├── device_user_id
-├── employment_status
-└── relationships: departments, positions, shifts
-
--- Attendance
-attendance_records
-├── id (PK)
-├── employee_id (FK)
-├── date
-├── check_in_time
-├── check_out_time
-├── status
-└── duration_minutes
-
-attendance_summaries
-├── id (PK)
-├── employee_id (FK)
-├── date
-├── present_days
-├── absent_days
-├── late_days
-└── overtime_hours
-
--- Devices
-devices
-├── id (PK)
-├── device_name
-├── serial_number
-├── status
-├── last_sync
-└── users_synced
-
-device_logs
-├── id (PK)
-├── device_id (FK)
-├── event_time
-├── event_type
-└── raw_data (JSON)
-
--- Appointments
-appointments
-├── id (PK)
-├── appointment_date
-├── appointment_time
-├── patient_name
-├── patient_phone
-├── service_id (FK)
-└── status
-
--- Reports
-reports
-├── id (PK)
-├── report_name
-├── report_type
-├── file_format
-└── status
-```
-
----
-
-## 🔄 Data Flow
-
-### Attendance Workflow
-```
-Employee → Biometric Device
-    ⬇️
-Device Logs (raw data stored)
-    ⬇️
-Attendance Records (processed)
-    ⬇️
-Attendance Summaries (aggregated)
-    ⬇️
-Monthly Reports (final output)
-    ⬇️
-Payroll System (HR uses for salary)
-```
-
-### Appointment Workflow
-```
-Reception → Create Appointment
-    ⬇️
-Service + Patient Linked
-    ⬇️
-Appointment Confirmed/Scheduled
-    ⬇️
-Reminder Sent (if enabled)
-    ⬇️
-Patient Arrives (marked in system)
-    ⬇️
-Appointment Completed
-```
-
-### Device Sync Workflow
-```
-Biometric Device → Windows Agent (Phase 4)
-    ⬇️
-Agent Sends to Cloud
-    ⬇️
-Device Logs Stored in DB
-    ⬇️
-Processed into Attendance Records
-    ⬇️
-Dashboard Shows Real-time Data
-```
-
----
-
-## 🎨 UI Component Hierarchy
+Một nền tảng phục vụ nhiều phòng khám/bệnh viện, cách ly dữ liệu bằng `organization_id` + Postgres RLS.
 
 ```
-App
-├── Route Tree (TanStack Router)
-│   ├── Root Layout
-│   │   ├── Auth Pages
-│   │   │   ├── Login
-│   │   │   └── Register
-│   │   │
-│   │   └── Authenticated Pages
-│   │       ├── Dashboard
-│   │       ├── Employees Module
-│   │       │   ├── Employee List
-│   │       │   ├── Departments
-│   │       │   ├── Positions
-│   │       │   └── Shifts
-│   │       │
-│   │       ├── Attendance Module (NEW)
-│   │       │   ├── Daily Attendance
-│   │       │   ├── Monthly Summary
-│   │       │   ├── Device Logs
-│   │       │   ├── Adjustments
-│   │       │   └── Overtime
-│   │       │
-│   │       ├── Appointments Module (NEW)
-│   │       │   ├── Calendar View
-│   │       │   ├── List View
-│   │       │   ├── Reminders
-│   │       │   └── Patients
-│   │       │
-│   │       ├── Reports Module (NEW)
-│   │       │   ├── Attendance Reports
-│   │       │   ├── Appointment Reports
-│   │       │   └── Analytics
-│   │       │
-│   │       └── System Module (NEW)
-│   │           ├── Devices
-│   │           ├── Sync Status
-│   │           ├── Clinic Profile
-│   │           ├── Users
-│   │           ├── Settings
-│   │           └── Audit Logs
-│   │
-│   └── Shared Components
-│       ├── AppShell
-│       ├── AppSidebar
-│       ├── PageHeader
-│       ├── Cards & Tables
-│       └── UI Components (shadcn/ui)
-│
-└── Data Layer
-    ├── React Query (Caching)
-    ├── Supabase Client
-    └── API Integration
+public.organizations
+├── id, name, slug (unique), code (unique, nullable)
+├── clinic_category (enum: dental/general/obgyn/pediatrics/dermatology/
+│                     ophthalmology/ent/aesthetics/rehab/hospital)
+├── is_active, max_employees, max_doctors, max_devices, feature_flags (jsonb)
 ```
 
----
+**Hai tenant thật đang tồn tại:**
+- `viet-smile` (code `VIETSMILE`) — "Nha khoa Việt Smile", tenant thật duy nhất có dữ liệu vận hành (nhân sự, chấm công, lương).
+- `gzv` (code `GZV_PLATFORM`) — tổ chức rỗng, chỉ dùng làm "nhà" cho 2 tài khoản Super Admin, không có dữ liệu khám bệnh.
 
-## 🔐 Security Layers
+**Cơ chế RLS/switching:**
+- `public.current_org_id()` — hàm trung tâm mọi RLS policy đều gọi. Với user thường: trả về `user_profiles.organization_id` (org nhà). Với Super Admin: trả về org đang "switch" tới (lưu ở `public.super_admin_sessions`), nếu chưa switch thì cũng trả về org nhà.
+- `public.is_super_admin()` — true khi org nhà của user có `code = 'GZV_PLATFORM'` và user có role `administrator`.
+- RPC `super_admin_switch_clinic_by_slug(slug)` — đổi org đang active; `get_organization_by_slug(slug)` — tra cứu org theo slug (dùng khi resolve route); `super_admin_create_clinic(name, slug, code, clinic_category)` — tạo tenant mới (org + `clinic_profiles`) trong 1 transaction.
 
-```
-┌─ Frontend Security
-│  ├─ TypeScript Type Safety
-│  ├─ XSS Prevention (Sanitized HTML)
-│  ├─ CSRF Protection (Supabase handles)
-│  └─ Environment Variables (no secrets exposed)
-│
-├─ API Security
-│  ├─ JWT Authentication
-│  ├─ Row-Level Security (RLS) Policies
-│  ├─ Parameterized Queries (SQL Injection Prevention)
-│  └─ Rate Limiting (Supabase built-in)
-│
-└─ Data Security
-   ├─ Encryption at Rest (Supabase)
-   ├─ Encryption in Transit (HTTPS/TLS)
-   ├─ Audit Logging (All changes tracked)
-   └─ Backup & Recovery (Supabase managed)
-```
-
----
-
-## 📊 Performance Optimizations
-
-### Caching Strategy
-```
-Real-time Data (minutes 0-1)
-├─ Device logs
-├─ Check-in/out events
-└─ Appointment confirmations
-
-Frequently Accessed (hours 1-4)
-├─ Employee lists
-├─ Attendance records
-└─ Device status
-
-Rarely Changed (days 1-7)
-├─ Department/Position/Shift lists
-├─ Clinic settings
-└─ Report history
-```
-
-### Query Optimization
-- ✅ Indexed fields: `employee_id`, `date`, `device_id`
-- ✅ Joined queries to minimize API calls
-- ✅ Pagination for large datasets
-- ✅ Aggregated summaries pre-calculated
-
----
-
-## 🌐 Deployment Architecture
+## 3. Routing
 
 ```
-User Browser
-    ⬇️
-Vercel Edge (CDN)
-    ⬇️
-Next.js Application Server
-    ⬇️
-Supabase API Gateway
-    ⬇️
-PostgreSQL Database
+src/routes/
+  __root.tsx                              # root SSR shell
+  index.tsx                               # trang landing (không cần đăng nhập)
+  auth.tsx                                # đăng nhập/đăng ký, điều hướng theo org nhà sau login
+  _authenticated/
+    route.tsx                             # CHỈ kiểm tra đăng nhập (supabase.auth.getUser())
+    $clinicSlug/
+      route.tsx                           # resolve slug -> org, đồng bộ current_org_id(),
+      │                                    #   redirect nhân viên lạc slug về org của họ,
+      │                                    #   render AppShell (sidebar/breadcrumb/switcher)
+      dashboard.tsx                       # -> /$slug/dashboard
+      admin.dashboard.tsx                 # -> /$slug/admin/dashboard (Super Admin control center)
+      employees.tsx, departments.tsx, positions.tsx, shifts.tsx
+      attendance.{daily,monthly,manual,checkin,logs,adjustments,overtime}.tsx
+      appointments.{calendar,booking}.tsx, appointments.tsx, rooms.tsx
+      hr.{payroll,salary,assignments}.tsx
+      reports.{attendance,appointments,export}.tsx
+      system.{devices,clinic-profile,settings,users,audit-logs,agent,sync}.tsx
+      doctor.{dashboard,profile,schedule}.tsx, patient.profile.tsx
+      issues.{report,my-reports}.tsx
 ```
 
----
+Mọi URL trong ứng dụng (trừ `/`, `/auth`) đều có dạng `/$clinicSlug/...`, ví dụ `/viet-smile/dashboard`, `/gzv/admin/dashboard`. Nav links dùng hook `useClinicPath()`/`useClinicRelativePath()` (`src/hooks/use-clinic-path.ts`) để tự thêm/bỏ prefix slug — `src/lib/permissions.ts` (danh sách nav + phân quyền theo role) cố tình giữ **không** có slug để dùng chung cho mọi phòng khám.
 
-## 📈 Scalability Plan
+## 4. Vai trò & phân quyền
 
-### Current (Phase 1-6)
-- Up to 500 employees
-- Up to 1000 daily appointments
-- 10+ biometric devices
+`app_role`: `administrator`, `manager`, `receptionist`, `employee`, `doctor`, `patient` (định nghĩa tại `src/lib/permissions.ts`). Super Admin không phải một role riêng — là `administrator` của org `GZV_PLATFORM` (kiểm tra qua `is_super_admin()`).
 
-### Phase 7+ (Scalable)
-- 5000+ employees (with search optimization)
-- 10000+ daily appointments (with pagination)
-- 100+ biometric devices (with distributed sync)
+## 5. Luồng dữ liệu Nhân sự → Chấm công → Lương
 
-### Optimization Steps
-1. Add database indexes as data grows
-2. Implement GraphQL for efficient queries
-3. Add caching layer (Redis)
-4. Deploy multiple instances
-5. Use read replicas for reports
+```
+employees (department_id, position_id, default_shift_id)
+    ↓
+attendance_records (1 dòng/nhân viên/ngày, attendance_status:
+    present | late | absent | early_leave | leave | sick | holiday | half_day)
+    ↓ (KHÔNG có trigger tự động — phải tổng hợp thủ công)
+attendance_summaries (cache theo kỳ, để hiển thị nhanh ở /attendance/monthly)
+    ↓
+salary_config (lương cơ bản/phụ cấp/bảo hiểm mỗi nhân viên)
+    ↓
+/hr/payroll: TÍNH TRỰC TIẾP (live) từ attendance_records + salary_config mỗi lần mở trang,
+    KHÔNG đọc từ payroll_records — bấm "Duyệt" mới ghi (upsert) vào payroll_records.
+```
 
----
+**Quan trọng**: `attendance_summaries`/`payroll_records` không có gì tự động tính lại khi `attendance_records` thay đổi — mọi báo cáo lịch sử phải tự chạy lại tổng hợp (xem migration `20260814100000_seed_viet_smile_demo_data.sql` làm ví dụ).
 
-## 🚀 Tech Stack Summary
+## 6. Tình trạng các tính năng (trung thực, không phóng đại)
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **UI Framework** | React 19 | Interactive UI |
-| **Language** | TypeScript | Type Safety |
-| **Routing** | TanStack Router | Client-side routing |
-| **State** | React Query | Data caching & sync |
-| **Database** | Supabase/PostgreSQL | Data persistence |
-| **API Client** | Supabase JS | Database queries |
-| **Styling** | Tailwind CSS | Component styling |
-| **Icons** | Lucide React | UI icons |
-| **Components** | shadcn/ui | Pre-built components |
-| **Deployment** | Vercel | Cloud hosting |
+| Module | Trạng thái |
+|---|---|
+| Đăng nhập, RBAC, multi-tenant switching | Hoạt động đầy đủ |
+| Nhân sự/Phòng ban/Chức danh/Ca làm (xem danh sách) | Hoạt động — **chưa có form Thêm/Sửa trên UI** (nút "Thêm" đang disable), phải seed qua SQL |
+| Chấm công (daily/monthly/manual/checkin/logs/adjustments/overtime) | Hoạt động đầy đủ với schema thật |
+| Tính lương `/hr/payroll` | Hoạt động, tính live theo chấm công; có "In bảng lương" / "In phiếu lương" qua `window.print()` |
+| Xuất báo cáo `/reports/export` | **Chỉ CSV hoạt động thật** — nút Excel/PDF là `alert()` giả, chưa có thư viện xlsx/pdf |
+| `/reports/attendance`, `/reports/appointments` | Xem danh sách được, nút "Tải" chưa nối hành động |
+| Tạo phòng khám mới (Super Admin) | Hoạt động — Dialog trong `/gzv/admin/dashboard`, gọi RPC `super_admin_create_clinic` |
+| Thiết bị vân tay/FaceID | Có bảng `devices`/`device_logs`, UI xem log — chưa tích hợp phần cứng thật |
 
----
+## 7. Bảo mật
 
-## ✅ Quality Checklist
-
-### Code Quality
-- [x] TypeScript for type safety
-- [x] Consistent code style
-- [x] Error handling on all pages
-- [x] Loading/empty states implemented
-- [x] Responsive design verified
-
-### Performance
-- [x] React Query caching
-- [x] Optimized re-renders
-- [x] Code splitting ready
-- [x] Image optimization ready
-- [x] Database query optimization
-
-### Accessibility
-- [x] Semantic HTML
-- [x] ARIA labels
-- [x] Keyboard navigation
-- [x] Color contrast tested
-- [x] Screen reader compatible
-
-### Security
-- [x] No sensitive data in client code
-- [x] All queries parameterized
-- [x] RLS policies enforced
-- [x] Environment variables secured
-- [x] HTTPS enforced
-
----
-
-## 🎓 Developer Guide
-
-### Adding a New Page
-1. Create route file: `src/routes/_authenticated/path.tsx`
-2. Define data query with `useQuery`
-3. Add route to navigation in `lib/permissions.ts`
-4. Style with Tailwind + shadcn/ui components
-5. Deploy to production
-
-### Extending Features
-1. Add database table migration
-2. Update Supabase queries
-3. Create new component/page
-4. Add filtering/searching as needed
-5. Test with real data
-
-### Debugging
-- Check browser console for errors
-- Use React Query DevTools
-- Inspect network requests
-- Verify Supabase connection
-- Check user permissions/RLS
-
----
-
-## 📞 Support Contacts
-
-- **Lead Developer:** [Your Name]
-- **Database Admin:** [DBA Name]
-- **DevOps:** [DevOps Name]
-- **Product Owner:** [PO Name]
-
----
-
-**System Status: ✅ Production Ready**
-
-All components integrated and tested. Ready for enterprise deployment!
+- RLS bật trên toàn bộ bảng nghiệp vụ, khoá theo `current_org_id()`.
+- Secrets (mật khẩu DB, service role key) **không** được commit — xem [docs/setup/DATABASE_CONNECTIONS.md](../setup/DATABASE_CONNECTIONS.md) và `.env.example` ở gốc repo.
+- Không có migration tracking tự động (`supabase_migrations` schema không tồn tại) — migration được áp dụng thủ công (SQL Editor hoặc `psql` trực tiếp), **không phải mọi file trong `supabase/migrations/` chắc chắn đã chạy trên DB thật** — luôn kiểm tra DB thật trước khi dựa vào giả định từ tên file migration.
