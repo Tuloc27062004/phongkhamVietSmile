@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   Building2,
   CalendarClock,
+  CheckCircle2,
   Clock,
-  Info,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -12,6 +12,7 @@ import {
 import { ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useClinicPath } from "@/hooks/use-clinic-path";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/$clinicSlug/dashboard")({
@@ -46,22 +47,32 @@ const dateLabel = () =>
   }).format(new Date());
 
 function DashboardPage() {
+  const buildPath = useClinicPath();
   const overview = useQuery({
     queryKey: ["dashboard-overview"],
     queryFn: async () => {
-      const [employees, departments, shifts, clinic] = await Promise.all([
+      const today = new Date().toISOString().split("T")[0] ?? "";
+      const [employees, departments, shifts, clinic, todayAttendance] = await Promise.all([
         supabase.from("employees").select("id, employment_status", { count: "exact" }).is("deleted_at", null),
         supabase.from("departments").select("id", { count: "exact", head: true }).is("deleted_at", null),
         supabase.from("shifts").select("id", { count: "exact", head: true }).eq("is_active", true),
         supabase.from("clinic_profiles").select("name, working_hours, weekly_days_off").maybeSingle(),
+        supabase
+          .from("attendance_records")
+          .select("attendance_status", { count: "exact" })
+          .eq("work_date", today),
       ]);
 
       if (employees.error) throw employees.error;
       if (departments.error) throw departments.error;
       if (shifts.error) throw shifts.error;
       if (clinic.error) throw clinic.error;
+      if (todayAttendance.error) throw todayAttendance.error;
 
       const active = (employees.data ?? []).filter((row) => row.employment_status === "active").length;
+      const presentToday = (todayAttendance.data ?? []).filter(
+        (row) => row.attendance_status !== "absent",
+      ).length;
 
       return {
         employeeCount: employees.count ?? 0,
@@ -69,6 +80,8 @@ function DashboardPage() {
         departmentCount: departments.count ?? 0,
         shiftCount: shifts.count ?? 0,
         clinic: clinic.data,
+        attendanceToday: todayAttendance.count ?? 0,
+        presentToday,
       };
     },
   });
@@ -80,11 +93,13 @@ function DashboardPage() {
         description={`${dateLabel()} • ${overview.data?.clinic?.name ?? "Phòng khám"}`}
         actions={
           <>
-            <Button variant="outline" disabled>
-              <CalendarClock className="mr-2 size-4" />
-              Tạo lịch hẹn
+            <Button variant="outline" asChild>
+              <Link to={buildPath("/appointments/booking")}>
+                <CalendarClock className="mr-2 size-4" />
+                Tạo lịch hẹn
+              </Link>
             </Button>
-            <Button disabled>
+            <Button disabled title="Chưa có form thêm nhân viên trên UI">
               <UserPlus className="mr-2 size-4" />
               Thêm nhân viên
             </Button>
@@ -129,20 +144,38 @@ function DashboardPage() {
             <div className="surface-card p-6 lg:col-span-2">
               <h2 className="text-base font-semibold">Lộ trình triển khai</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Giai đoạn 1 đã hoàn tất. Các số liệu vận hành hằng ngày sẽ xuất hiện tại đây khi các
-                giai đoạn tiếp theo được bật.
+                Cập nhật trạng thái thật của từng giai đoạn — không phóng đại.
               </p>
               <ol className="mt-4 space-y-3 text-sm">
-                {[
-                  ["Giai đoạn 1", "Nền tảng, đăng nhập, phân quyền, hồ sơ phòng khám", true],
-                  ["Giai đoạn 2", "Quản lý nhân viên, phòng ban, chức danh, ca làm việc", false],
-                  ["Giai đoạn 3", "Chấm công, bảng công tháng, điều chỉnh công, Excel", false],
-                  ["Giai đoạn 4", "Agent đồng bộ máy chấm công trên Windows", false],
-                  ["Giai đoạn 5-7", "Lịch hẹn, nhắc lịch, báo cáo và hoàn thiện", false],
-                ].map(([phase, text, done]) => (
-                  <li key={phase as string} className="flex items-start gap-3">
-                    <Badge variant={done ? "default" : "secondary"}>{phase as string}</Badge>
-                    <span className="text-muted-foreground">{text as string}</span>
+                {(
+                  [
+                    ["Giai đoạn 1", "Nền tảng, đăng nhập, phân quyền, hồ sơ phòng khám", "done"],
+                    [
+                      "Giai đoạn 2",
+                      "Nhân viên, phòng ban, chức danh, ca làm việc — xem được đầy đủ; chưa có form thêm/sửa trên UI",
+                      "partial",
+                    ],
+                    [
+                      "Giai đoạn 3",
+                      "Chấm công, bảng công tháng, điều chỉnh công, tính & in lương — hoạt động đầy đủ; xuất CSV thật, Excel/PDF chưa có",
+                      "partial",
+                    ],
+                    ["Giai đoạn 4", "Agent đồng bộ máy chấm công trên Windows", "pending"],
+                    [
+                      "Giai đoạn 5-7",
+                      "Lịch hẹn & đặt lịch đã hoạt động; nhắc lịch tự động và báo cáo nâng cao chưa hoàn thiện",
+                      "partial",
+                    ],
+                  ] as const
+                ).map(([phase, text, status]) => (
+                  <li key={phase} className="flex items-start gap-3">
+                    <Badge variant={status === "done" ? "default" : status === "partial" ? "secondary" : "outline"}>
+                      {status === "done" ? "Hoàn tất" : status === "partial" ? "Một phần" : "Chưa bắt đầu"}
+                    </Badge>
+                    <span className="text-muted-foreground">
+                      <span className="font-medium text-foreground">{phase}: </span>
+                      {text}
+                    </span>
                   </li>
                 ))}
               </ol>
@@ -150,13 +183,17 @@ function DashboardPage() {
 
             <div className="surface-card p-6">
               <div className="flex size-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
-                <Info className="size-5" />
+                <CheckCircle2 className="size-5" />
               </div>
-              <h2 className="mt-4 text-base font-semibold">Chưa có dữ liệu chấm công</h2>
+              <h2 className="mt-4 text-base font-semibold">Chấm công hôm nay</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Máy chấm công chưa được kết nối. Dữ liệu đi trễ, về sớm và tăng ca sẽ hiển thị sau
-                khi hoàn tất giai đoạn 3 và 4.
+                {overview.data && overview.data.attendanceToday > 0
+                  ? `${overview.data.presentToday}/${overview.data.attendanceToday} nhân viên đã có mặt hôm nay.`
+                  : "Chưa có bản ghi chấm công cho hôm nay."}
               </p>
+              <Button variant="outline" size="sm" className="mt-4" asChild>
+                <Link to={buildPath("/attendance/daily")}>Xem chi tiết chấm công</Link>
+              </Button>
             </div>
           </section>
         </>
