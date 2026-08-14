@@ -39,7 +39,6 @@ import { Route as AuthenticatedClinicSlugDoctorScheduleRouteImport } from './rou
 import { Route as AuthenticatedClinicSlugHrAssignmentsRouteImport } from './routes/_authenticated/$clinicSlug/hr.assignments'
 import { Route as AuthenticatedClinicSlugHrPayrollRouteImport } from './routes/_authenticated/$clinicSlug/hr.payroll'
 import { Route as AuthenticatedClinicSlugHrSalaryRouteImport } from './routes/_authenticated/$clinicSlug/hr.salary'
-import { Route as AuthenticatedClinicSlugIssuesMyReportsRouteImport } from './routes/_authenticated/$clinicSlug/issues.my-reports'
 import { Route as AuthenticatedClinicSlugIssuesReportRouteImport } from './routes/_authenticated/$clinicSlug/issues.report'
 import { Route as AuthenticatedClinicSlugPatientProfileRouteImport } from './routes/_authenticated/$clinicSlug/patient.profile'
 import { Route as AuthenticatedClinicSlugReportsAppointmentsRouteImport } from './routes/_authenticated/$clinicSlug/reports.appointments'
@@ -47,9 +46,7 @@ import { Route as AuthenticatedClinicSlugReportsAttendanceRouteImport } from './
 import { Route as AuthenticatedClinicSlugReportsExportRouteImport } from './routes/_authenticated/$clinicSlug/reports.export'
 import { Route as AuthenticatedClinicSlugStaffProfilesRouteImport } from './routes/_authenticated/$clinicSlug/staff.profiles'
 import { Route as AuthenticatedClinicSlugSystemAgentRouteImport } from './routes/_authenticated/$clinicSlug/system.agent'
-import { Route as AuthenticatedClinicSlugSystemAuditLogsRouteImport } from './routes/_authenticated/$clinicSlug/system.audit-logs'
 import { Route as AuthenticatedClinicSlugSystemClinicProfileRouteImport } from './routes/_authenticated/$clinicSlug/system.clinic-profile'
-import { Route as AuthenticatedClinicSlugSystemDevicesRouteImport } from './routes/_authenticated/$clinicSlug/system.devices'
 import { Route as AuthenticatedClinicSlugSystemGuideRouteImport } from './routes/_authenticated/$clinicSlug/system.guide'
 import { Route as AuthenticatedClinicSlugSystemSettingsRouteImport } from './routes/_authenticated/$clinicSlug/system.settings'
 import { Route as AuthenticatedClinicSlugSystemSyncRouteImport } from './routes/_authenticated/$clinicSlug/system.sync'
@@ -232,12 +229,6 @@ const AuthenticatedClinicSlugHrSalaryRoute =
     path: '/hr/salary',
     getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedClinicSlugIssuesMyReportsRoute =
-  AuthenticatedClinicSlugIssuesMyReportsRouteImport.update({
-    id: '/issues/my-reports',
-    path: '/issues/my-reports',
-    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
-  } as any)
 const AuthenticatedClinicSlugIssuesReportRoute =
   AuthenticatedClinicSlugIssuesReportRouteImport.update({
     id: '/issues/report',
@@ -280,22 +271,10 @@ const AuthenticatedClinicSlugSystemAgentRoute =
     path: '/system/agent',
     getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
-const AuthenticatedClinicSlugSystemAuditLogsRoute =
-  AuthenticatedClinicSlugSystemAuditLogsRouteImport.update({
-    id: '/system/audit-logs',
-    path: '/system/audit-logs',
-    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
-  } as any)
 const AuthenticatedClinicSlugSystemClinicProfileRoute =
   AuthenticatedClinicSlugSystemClinicProfileRouteImport.update({
     id: '/system/clinic-profile',
     path: '/system/clinic-profile',
-    getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
-  } as any)
-const AuthenticatedClinicSlugSystemDevicesRoute =
-  AuthenticatedClinicSlugSystemDevicesRouteImport.update({
-    id: '/system/devices',
-    path: '/system/devices',
     getParentRoute: () => AuthenticatedClinicSlugRouteRoute,
   } as any)
 const AuthenticatedClinicSlugSystemGuideRoute =
@@ -358,7 +337,6 @@ export interface FileRoutesByFullPath {
   '/$clinicSlug/hr/assignments': typeof AuthenticatedClinicSlugHrAssignmentsRoute
   '/$clinicSlug/hr/payroll': typeof AuthenticatedClinicSlugHrPayrollRoute
   '/$clinicSlug/hr/salary': typeof AuthenticatedClinicSlugHrSalaryRoute
-  '/$clinicSlug/issues/my-reports': typeof AuthenticatedClinicSlugIssuesMyReportsRoute
   '/$clinicSlug/issues/report': typeof AuthenticatedClinicSlugIssuesReportRoute
   '/$clinicSlug/patient/profile': typeof AuthenticatedClinicSlugPatientProfileRoute
   '/$clinicSlug/reports/appointments': typeof AuthenticatedClinicSlugReportsAppointmentsRoute
@@ -366,9 +344,7 @@ export interface FileRoutesByFullPath {
   '/$clinicSlug/reports/export': typeof AuthenticatedClinicSlugReportsExportRoute
   '/$clinicSlug/staff/profiles': typeof AuthenticatedClinicSlugStaffProfilesRoute
   '/$clinicSlug/system/agent': typeof AuthenticatedClinicSlugSystemAgentRoute
-  '/$clinicSlug/system/audit-logs': typeof AuthenticatedClinicSlugSystemAuditLogsRoute
   '/$clinicSlug/system/clinic-profile': typeof AuthenticatedClinicSlugSystemClinicProfileRoute
-  '/$clinicSlug/system/devices': typeof AuthenticatedClinicSlugSystemDevicesRoute
   '/$clinicSlug/system/guide': typeof AuthenticatedClinicSlugSystemGuideRoute
   '/$clinicSlug/system/settings': typeof AuthenticatedClinicSlugSystemSettingsRoute
   '/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
@@ -405,7 +381,6 @@ export interface FileRoutesByTo {
   '/$clinicSlug/hr/assignments': typeof AuthenticatedClinicSlugHrAssignmentsRoute
   '/$clinicSlug/hr/payroll': typeof AuthenticatedClinicSlugHrPayrollRoute
   '/$clinicSlug/hr/salary': typeof AuthenticatedClinicSlugHrSalaryRoute
-  '/$clinicSlug/issues/my-reports': typeof AuthenticatedClinicSlugIssuesMyReportsRoute
   '/$clinicSlug/issues/report': typeof AuthenticatedClinicSlugIssuesReportRoute
   '/$clinicSlug/patient/profile': typeof AuthenticatedClinicSlugPatientProfileRoute
   '/$clinicSlug/reports/appointments': typeof AuthenticatedClinicSlugReportsAppointmentsRoute
@@ -413,9 +388,7 @@ export interface FileRoutesByTo {
   '/$clinicSlug/reports/export': typeof AuthenticatedClinicSlugReportsExportRoute
   '/$clinicSlug/staff/profiles': typeof AuthenticatedClinicSlugStaffProfilesRoute
   '/$clinicSlug/system/agent': typeof AuthenticatedClinicSlugSystemAgentRoute
-  '/$clinicSlug/system/audit-logs': typeof AuthenticatedClinicSlugSystemAuditLogsRoute
   '/$clinicSlug/system/clinic-profile': typeof AuthenticatedClinicSlugSystemClinicProfileRoute
-  '/$clinicSlug/system/devices': typeof AuthenticatedClinicSlugSystemDevicesRoute
   '/$clinicSlug/system/guide': typeof AuthenticatedClinicSlugSystemGuideRoute
   '/$clinicSlug/system/settings': typeof AuthenticatedClinicSlugSystemSettingsRoute
   '/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
@@ -454,7 +427,6 @@ export interface FileRoutesById {
   '/_authenticated/$clinicSlug/hr/assignments': typeof AuthenticatedClinicSlugHrAssignmentsRoute
   '/_authenticated/$clinicSlug/hr/payroll': typeof AuthenticatedClinicSlugHrPayrollRoute
   '/_authenticated/$clinicSlug/hr/salary': typeof AuthenticatedClinicSlugHrSalaryRoute
-  '/_authenticated/$clinicSlug/issues/my-reports': typeof AuthenticatedClinicSlugIssuesMyReportsRoute
   '/_authenticated/$clinicSlug/issues/report': typeof AuthenticatedClinicSlugIssuesReportRoute
   '/_authenticated/$clinicSlug/patient/profile': typeof AuthenticatedClinicSlugPatientProfileRoute
   '/_authenticated/$clinicSlug/reports/appointments': typeof AuthenticatedClinicSlugReportsAppointmentsRoute
@@ -462,9 +434,7 @@ export interface FileRoutesById {
   '/_authenticated/$clinicSlug/reports/export': typeof AuthenticatedClinicSlugReportsExportRoute
   '/_authenticated/$clinicSlug/staff/profiles': typeof AuthenticatedClinicSlugStaffProfilesRoute
   '/_authenticated/$clinicSlug/system/agent': typeof AuthenticatedClinicSlugSystemAgentRoute
-  '/_authenticated/$clinicSlug/system/audit-logs': typeof AuthenticatedClinicSlugSystemAuditLogsRoute
   '/_authenticated/$clinicSlug/system/clinic-profile': typeof AuthenticatedClinicSlugSystemClinicProfileRoute
-  '/_authenticated/$clinicSlug/system/devices': typeof AuthenticatedClinicSlugSystemDevicesRoute
   '/_authenticated/$clinicSlug/system/guide': typeof AuthenticatedClinicSlugSystemGuideRoute
   '/_authenticated/$clinicSlug/system/settings': typeof AuthenticatedClinicSlugSystemSettingsRoute
   '/_authenticated/$clinicSlug/system/sync': typeof AuthenticatedClinicSlugSystemSyncRoute
@@ -503,7 +473,6 @@ export interface FileRouteTypes {
     | '/$clinicSlug/hr/assignments'
     | '/$clinicSlug/hr/payroll'
     | '/$clinicSlug/hr/salary'
-    | '/$clinicSlug/issues/my-reports'
     | '/$clinicSlug/issues/report'
     | '/$clinicSlug/patient/profile'
     | '/$clinicSlug/reports/appointments'
@@ -511,9 +480,7 @@ export interface FileRouteTypes {
     | '/$clinicSlug/reports/export'
     | '/$clinicSlug/staff/profiles'
     | '/$clinicSlug/system/agent'
-    | '/$clinicSlug/system/audit-logs'
     | '/$clinicSlug/system/clinic-profile'
-    | '/$clinicSlug/system/devices'
     | '/$clinicSlug/system/guide'
     | '/$clinicSlug/system/settings'
     | '/$clinicSlug/system/sync'
@@ -550,7 +517,6 @@ export interface FileRouteTypes {
     | '/$clinicSlug/hr/assignments'
     | '/$clinicSlug/hr/payroll'
     | '/$clinicSlug/hr/salary'
-    | '/$clinicSlug/issues/my-reports'
     | '/$clinicSlug/issues/report'
     | '/$clinicSlug/patient/profile'
     | '/$clinicSlug/reports/appointments'
@@ -558,9 +524,7 @@ export interface FileRouteTypes {
     | '/$clinicSlug/reports/export'
     | '/$clinicSlug/staff/profiles'
     | '/$clinicSlug/system/agent'
-    | '/$clinicSlug/system/audit-logs'
     | '/$clinicSlug/system/clinic-profile'
-    | '/$clinicSlug/system/devices'
     | '/$clinicSlug/system/guide'
     | '/$clinicSlug/system/settings'
     | '/$clinicSlug/system/sync'
@@ -598,7 +562,6 @@ export interface FileRouteTypes {
     | '/_authenticated/$clinicSlug/hr/assignments'
     | '/_authenticated/$clinicSlug/hr/payroll'
     | '/_authenticated/$clinicSlug/hr/salary'
-    | '/_authenticated/$clinicSlug/issues/my-reports'
     | '/_authenticated/$clinicSlug/issues/report'
     | '/_authenticated/$clinicSlug/patient/profile'
     | '/_authenticated/$clinicSlug/reports/appointments'
@@ -606,9 +569,7 @@ export interface FileRouteTypes {
     | '/_authenticated/$clinicSlug/reports/export'
     | '/_authenticated/$clinicSlug/staff/profiles'
     | '/_authenticated/$clinicSlug/system/agent'
-    | '/_authenticated/$clinicSlug/system/audit-logs'
     | '/_authenticated/$clinicSlug/system/clinic-profile'
-    | '/_authenticated/$clinicSlug/system/devices'
     | '/_authenticated/$clinicSlug/system/guide'
     | '/_authenticated/$clinicSlug/system/settings'
     | '/_authenticated/$clinicSlug/system/sync'
@@ -835,13 +796,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClinicSlugHrSalaryRouteImport
       parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/$clinicSlug/issues/my-reports': {
-      id: '/_authenticated/$clinicSlug/issues/my-reports'
-      path: '/issues/my-reports'
-      fullPath: '/$clinicSlug/issues/my-reports'
-      preLoaderRoute: typeof AuthenticatedClinicSlugIssuesMyReportsRouteImport
-      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
-    }
     '/_authenticated/$clinicSlug/issues/report': {
       id: '/_authenticated/$clinicSlug/issues/report'
       path: '/issues/report'
@@ -891,25 +845,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClinicSlugSystemAgentRouteImport
       parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
-    '/_authenticated/$clinicSlug/system/audit-logs': {
-      id: '/_authenticated/$clinicSlug/system/audit-logs'
-      path: '/system/audit-logs'
-      fullPath: '/$clinicSlug/system/audit-logs'
-      preLoaderRoute: typeof AuthenticatedClinicSlugSystemAuditLogsRouteImport
-      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
-    }
     '/_authenticated/$clinicSlug/system/clinic-profile': {
       id: '/_authenticated/$clinicSlug/system/clinic-profile'
       path: '/system/clinic-profile'
       fullPath: '/$clinicSlug/system/clinic-profile'
       preLoaderRoute: typeof AuthenticatedClinicSlugSystemClinicProfileRouteImport
-      parentRoute: typeof AuthenticatedClinicSlugRouteRoute
-    }
-    '/_authenticated/$clinicSlug/system/devices': {
-      id: '/_authenticated/$clinicSlug/system/devices'
-      path: '/system/devices'
-      fullPath: '/$clinicSlug/system/devices'
-      preLoaderRoute: typeof AuthenticatedClinicSlugSystemDevicesRouteImport
       parentRoute: typeof AuthenticatedClinicSlugRouteRoute
     }
     '/_authenticated/$clinicSlug/system/guide': {
@@ -993,7 +933,6 @@ interface AuthenticatedClinicSlugRouteRouteChildren {
   AuthenticatedClinicSlugHrAssignmentsRoute: typeof AuthenticatedClinicSlugHrAssignmentsRoute
   AuthenticatedClinicSlugHrPayrollRoute: typeof AuthenticatedClinicSlugHrPayrollRoute
   AuthenticatedClinicSlugHrSalaryRoute: typeof AuthenticatedClinicSlugHrSalaryRoute
-  AuthenticatedClinicSlugIssuesMyReportsRoute: typeof AuthenticatedClinicSlugIssuesMyReportsRoute
   AuthenticatedClinicSlugIssuesReportRoute: typeof AuthenticatedClinicSlugIssuesReportRoute
   AuthenticatedClinicSlugPatientProfileRoute: typeof AuthenticatedClinicSlugPatientProfileRoute
   AuthenticatedClinicSlugReportsAppointmentsRoute: typeof AuthenticatedClinicSlugReportsAppointmentsRoute
@@ -1001,9 +940,7 @@ interface AuthenticatedClinicSlugRouteRouteChildren {
   AuthenticatedClinicSlugReportsExportRoute: typeof AuthenticatedClinicSlugReportsExportRoute
   AuthenticatedClinicSlugStaffProfilesRoute: typeof AuthenticatedClinicSlugStaffProfilesRoute
   AuthenticatedClinicSlugSystemAgentRoute: typeof AuthenticatedClinicSlugSystemAgentRoute
-  AuthenticatedClinicSlugSystemAuditLogsRoute: typeof AuthenticatedClinicSlugSystemAuditLogsRoute
   AuthenticatedClinicSlugSystemClinicProfileRoute: typeof AuthenticatedClinicSlugSystemClinicProfileRoute
-  AuthenticatedClinicSlugSystemDevicesRoute: typeof AuthenticatedClinicSlugSystemDevicesRoute
   AuthenticatedClinicSlugSystemGuideRoute: typeof AuthenticatedClinicSlugSystemGuideRoute
   AuthenticatedClinicSlugSystemSettingsRoute: typeof AuthenticatedClinicSlugSystemSettingsRoute
   AuthenticatedClinicSlugSystemSyncRoute: typeof AuthenticatedClinicSlugSystemSyncRoute
@@ -1056,8 +993,6 @@ const AuthenticatedClinicSlugRouteRouteChildren: AuthenticatedClinicSlugRouteRou
     AuthenticatedClinicSlugHrPayrollRoute:
       AuthenticatedClinicSlugHrPayrollRoute,
     AuthenticatedClinicSlugHrSalaryRoute: AuthenticatedClinicSlugHrSalaryRoute,
-    AuthenticatedClinicSlugIssuesMyReportsRoute:
-      AuthenticatedClinicSlugIssuesMyReportsRoute,
     AuthenticatedClinicSlugIssuesReportRoute:
       AuthenticatedClinicSlugIssuesReportRoute,
     AuthenticatedClinicSlugPatientProfileRoute:
@@ -1072,12 +1007,8 @@ const AuthenticatedClinicSlugRouteRouteChildren: AuthenticatedClinicSlugRouteRou
       AuthenticatedClinicSlugStaffProfilesRoute,
     AuthenticatedClinicSlugSystemAgentRoute:
       AuthenticatedClinicSlugSystemAgentRoute,
-    AuthenticatedClinicSlugSystemAuditLogsRoute:
-      AuthenticatedClinicSlugSystemAuditLogsRoute,
     AuthenticatedClinicSlugSystemClinicProfileRoute:
       AuthenticatedClinicSlugSystemClinicProfileRoute,
-    AuthenticatedClinicSlugSystemDevicesRoute:
-      AuthenticatedClinicSlugSystemDevicesRoute,
     AuthenticatedClinicSlugSystemGuideRoute:
       AuthenticatedClinicSlugSystemGuideRoute,
     AuthenticatedClinicSlugSystemSettingsRoute:
