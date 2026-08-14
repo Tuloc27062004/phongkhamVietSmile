@@ -60,10 +60,20 @@ interface Appointment {
   service_id?: string;
   notes?: string;
   reminder_sent?: boolean;
+  payment_status?: string;
   patients?: { id: string; full_name: string; phone: string; email: string };
   employees?: { id: string; full_name: string };
   services?: { id: string; name: string; default_duration_minutes: number };
 }
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  cash: "Tiền mặt",
+  bank_transfer: "Chuyển khoản",
+  card: "Quẹt thẻ",
+  momo: "MoMo",
+  zalopay: "ZaloPay",
+  other: "Khác",
+};
 
 function AppointmentBookingPage() {
   const { session } = useAuthSession();
@@ -79,6 +89,10 @@ function AppointmentBookingPage() {
   const [time, setTime] = useState(searchParams.time ?? "09:00");
   const [notes, setNotes] = useState("");
   const [showReminderForm, setShowReminderForm] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [totalAmount, setTotalAmount] = useState("");
+  const [paidAmount, setPaidAmount] = useState("0");
+  const [followUpDate, setFollowUpDate] = useState("");
 
   // Fetch patients
   const patientsQuery = useQuery({
@@ -153,6 +167,7 @@ function AppointmentBookingPage() {
           service_id,
           notes,
           reminder_sent,
+          payment_status,
           patients:patient_id (
             id,
             full_name,
@@ -193,6 +208,9 @@ function AppointmentBookingPage() {
       const endMinutes = hours * 60 + minutes + duration;
       const endTime = `${String(Math.floor(endMinutes / 60) % 24).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
 
+      const total = Number(totalAmount) || duration * 3000;
+      const paid = Number(paidAmount) || 0;
+
       const { data, error } = await supabase
         .from("appointments")
         .insert({
@@ -207,6 +225,12 @@ function AppointmentBookingPage() {
           room_id: selectedRoom || null,
           status: "scheduled",
           reminder_sent: false,
+          payment_method: paymentMethod || null,
+          total_amount: total,
+          paid_amount: paid,
+          payment_status: paid <= 0 ? "unpaid" : paid >= total ? "paid" : "partial",
+          paid_at: paid > 0 ? new Date().toISOString() : null,
+          follow_up_date: followUpDate || null,
         })
         .select();
 
@@ -221,6 +245,10 @@ function AppointmentBookingPage() {
       setTime("09:00");
       setSelectedRoom("");
       setNotes("");
+      setPaymentMethod("");
+      setTotalAmount("");
+      setPaidAmount("0");
+      setFollowUpDate("");
       appointmentsQuery.refetch();
     },
     onError: (error: any) => {
@@ -377,6 +405,44 @@ function AppointmentBookingPage() {
               </Select>
             </div>
 
+            {/* Payment */}
+            <div className="space-y-2 border-t pt-4">
+              <Label className="flex items-center gap-2 font-semibold">Thanh toán</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs font-normal">Tổng chi phí (đ)</Label>
+                  <Input
+                    type="number"
+                    placeholder="Tự tính theo dịch vụ"
+                    value={totalAmount}
+                    onChange={(e) => setTotalAmount(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-normal">Đã trả / đặt cọc (đ)</Label>
+                  <Input type="number" value={paidAmount} onChange={(e) => setPaidAmount(e.target.value)} />
+                </div>
+              </div>
+              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Hình thức thanh toán..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Follow-up */}
+            <div className="space-y-2">
+              <Label>Hẹn tái khám (tùy chọn)</Label>
+              <Input type="date" value={followUpDate} onChange={(e) => setFollowUpDate(e.target.value)} />
+            </div>
+
             {/* Notes */}
             <div className="space-y-2">
               <Label>Ghi chú</Label>
@@ -462,6 +528,22 @@ function AppointmentBookingPage() {
                                 : appointment.status === "no-show"
                                   ? "Vắng mặt"
                                   : "Hủy"}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className={
+                              appointment.payment_status === "paid"
+                                ? "border-green-300 text-green-700"
+                                : appointment.payment_status === "partial"
+                                  ? "border-yellow-300 text-yellow-700"
+                                  : "border-red-300 text-red-700"
+                            }
+                          >
+                            {appointment.payment_status === "paid"
+                              ? "Đã TT"
+                              : appointment.payment_status === "partial"
+                                ? "Đặt cọc"
+                                : "Chưa TT"}
                           </Badge>
                         </div>
 

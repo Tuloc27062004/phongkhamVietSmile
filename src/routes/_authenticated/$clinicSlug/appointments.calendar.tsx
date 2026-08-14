@@ -71,6 +71,7 @@ type ApptRow = {
   start_time: string;
   end_time: string | null;
   status: string;
+  payment_status: string;
   notes: string | null;
   room_id: string | null;
   reminder_sent: boolean;
@@ -79,6 +80,20 @@ type ApptRow = {
   service_name: string;
   doctor_name: string;
 };
+
+function startOfMonth(iso: string) {
+  const date = new Date(`${iso}T00:00:00`);
+  return toISOFromParts(date.getFullYear(), date.getMonth(), 1);
+}
+
+function endOfMonth(iso: string) {
+  const date = new Date(`${iso}T00:00:00`);
+  return toISOFromParts(date.getFullYear(), date.getMonth() + 1, 0);
+}
+
+function toISOFromParts(year: number, month: number, day: number) {
+  return toISO(new Date(year, month, day));
+}
 
 function toISO(date: Date) {
   return date.toISOString().split("T")[0] ?? "";
@@ -109,7 +124,7 @@ function minutesOf(value: string) {
 function AppointmentsCalendarPage() {
   const queryClient = useQueryClient();
   const buildPath = useClinicPath();
-  const [view, setView] = useState<"day" | "week">("day");
+  const [view, setView] = useState<"day" | "week" | "month">("day");
   const [selectedDate, setSelectedDate] = useState(toISO(new Date()));
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -119,8 +134,16 @@ function AppointmentsCalendarPage() {
     () => Array.from({ length: 7 }, (_, index) => shiftDate(weekStart, index)),
     [weekStart],
   );
-  const rangeStart = view === "day" ? selectedDate : weekStart;
-  const rangeEnd = view === "day" ? selectedDate : shiftDate(weekStart, 6);
+  const monthStart = startOfMonth(selectedDate);
+  const monthEnd = endOfMonth(selectedDate);
+  const monthGridStart = startOfWeek(monthStart);
+  const monthDays = useMemo(
+    () => Array.from({ length: 42 }, (_, index) => shiftDate(monthGridStart, index)),
+    [monthGridStart],
+  );
+  const rangeStart = view === "day" ? selectedDate : view === "week" ? weekStart : monthGridStart;
+  const rangeEnd =
+    view === "day" ? selectedDate : view === "week" ? shiftDate(weekStart, 6) : shiftDate(monthGridStart, 41);
 
   const roomsQuery = useQuery({
     queryKey: ["treatment-rooms"],
@@ -156,7 +179,7 @@ function AppointmentsCalendarPage() {
       const { data, error } = await supabase
         .from("appointments")
         .select(
-          "id, appointment_date, start_time, end_time, status, notes, room_id, reminder_sent, patients(full_name, phone), services(name), employees:assigned_dentist_id(full_name)",
+          "id, appointment_date, start_time, end_time, status, payment_status, notes, room_id, reminder_sent, patients(full_name, phone), services(name), employees:assigned_dentist_id(full_name)",
         )
         .gte("appointment_date", rangeStart)
         .lte("appointment_date", rangeEnd)
@@ -170,6 +193,7 @@ function AppointmentsCalendarPage() {
           start_time: string;
           end_time: string | null;
           status: string;
+          payment_status: string | null;
           notes: string | null;
           room_id: string | null;
           reminder_sent: boolean;
@@ -183,6 +207,7 @@ function AppointmentsCalendarPage() {
           start_time: record.start_time,
           end_time: record.end_time,
           status: record.status,
+          payment_status: record.payment_status ?? "unpaid",
           notes: record.notes,
           room_id: record.room_id,
           reminder_sent: record.reminder_sent,
@@ -277,7 +302,11 @@ function AppointmentsCalendarPage() {
               variant="outline"
               size="icon"
               aria-label="Lùi"
-              onClick={() => setSelectedDate(shiftDate(selectedDate, view === "day" ? -1 : -7))}
+              onClick={() =>
+                setSelectedDate(
+                  shiftDate(selectedDate, view === "day" ? -1 : view === "week" ? -7 : -30),
+                )
+              }
             >
               <ChevronLeft className="size-4" />
             </Button>
@@ -291,7 +320,11 @@ function AppointmentsCalendarPage() {
               variant="outline"
               size="icon"
               aria-label="Tiến"
-              onClick={() => setSelectedDate(shiftDate(selectedDate, view === "day" ? 1 : 7))}
+              onClick={() =>
+                setSelectedDate(
+                  shiftDate(selectedDate, view === "day" ? 1 : view === "week" ? 7 : 30),
+                )
+              }
             >
               <ChevronRight className="size-4" />
             </Button>
@@ -300,10 +333,11 @@ function AppointmentsCalendarPage() {
             </Button>
           </div>
 
-          <Tabs value={view} onValueChange={(value) => setView(value as "day" | "week")}>
+          <Tabs value={view} onValueChange={(value) => setView(value as "day" | "week" | "month")}>
             <TabsList>
               <TabsTrigger value="day">Theo ngày</TabsTrigger>
               <TabsTrigger value="week">Theo tuần</TabsTrigger>
+              <TabsTrigger value="month">Theo tháng</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -343,6 +377,16 @@ function AppointmentsCalendarPage() {
         <LoadingState rows={6} />
       ) : errorMessage ? (
         <ErrorState description={errorMessage} />
+      ) : view === "month" ? (
+        <MonthView
+          days={monthDays}
+          monthAnchor={selectedDate}
+          appointments={filtered}
+          onPickDay={(day) => {
+            setSelectedDate(day);
+            setView("day");
+          }}
+        />
       ) : view === "week" ? (
         <WeekView days={weekDays} appointments={filtered} onPickDay={(day) => {
           setSelectedDate(day);
@@ -456,7 +500,10 @@ function FragmentRow({
         return (
           <div key={`${room.id}-${slotTime}`} className="border-b border-l border-border p-1.5">
             <div className={`rounded-lg p-2 ${config.className}`}>
-              <p className="truncate text-sm font-semibold">{booked.patient_name}</p>
+              <div className="flex items-center justify-between gap-1">
+                <p className="truncate text-sm font-semibold">{booked.patient_name}</p>
+                <PaymentDot status={booked.payment_status} />
+              </div>
               <p className="truncate text-xs opacity-80">
                 {hhmm(booked.start_time)}–{hhmm(booked.end_time)} · {booked.service_name}
               </p>
@@ -542,6 +589,85 @@ function WeekView({
   );
 }
 
+const WEEKDAY_HEADERS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+
+function MonthView({
+  days,
+  monthAnchor,
+  appointments,
+  onPickDay,
+}: {
+  days: string[];
+  monthAnchor: string;
+  appointments: ApptRow[];
+  onPickDay: (day: string) => void;
+}) {
+  const anchorMonth = new Date(`${monthAnchor}T00:00:00`).getMonth();
+  const today = toISO(new Date());
+
+  return (
+    <div className="min-w-0 overflow-x-auto pb-2">
+      <div className="grid min-w-[720px] grid-cols-7 gap-2">
+        {WEEKDAY_HEADERS.map((label) => (
+          <div key={label} className="px-1 text-center text-xs font-semibold uppercase text-muted-foreground">
+            {label}
+          </div>
+        ))}
+        {days.map((day) => {
+          const items = appointments.filter((item) => item.appointment_date === day);
+          const date = new Date(`${day}T00:00:00`);
+          const inMonth = date.getMonth() === anchorMonth;
+          const isToday = day === today;
+          return (
+            <button
+              type="button"
+              key={day}
+              onClick={() => onPickDay(day)}
+              className={`quiet-card min-w-0 min-h-24 rounded-lg border p-2 text-left transition hover:border-primary/50 ${
+                inMonth ? "bg-card" : "bg-muted/30 opacity-60"
+              } ${isToday ? "border-primary" : "border-border"}`}
+            >
+              <p className={`text-xs font-semibold ${isToday ? "text-primary" : ""}`}>{date.getDate()}</p>
+              <div className="mt-1 space-y-0.5">
+                {items.slice(0, 3).map((item) => {
+                  const config = STATUS_CONFIG[item.status] ?? STATUS_CONFIG["scheduled"]!;
+                  return (
+                    <div key={item.id} className="flex items-center gap-1 truncate text-[11px]">
+                      <span className={`size-1.5 shrink-0 rounded-full ${config.dot}`} />
+                      <span className="truncate">{hhmm(item.start_time)} {item.patient_name}</span>
+                    </div>
+                  );
+                })}
+                {items.length > 3 && (
+                  <p className="text-[11px] text-muted-foreground">+{items.length - 3} hẹn khác</p>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const PAYMENT_STATUS_LABELS: Record<string, { label: string; className: string }> = {
+  unpaid: { label: "Chưa TT", className: "bg-red-100 text-red-800" },
+  partial: { label: "Đặt cọc", className: "bg-yellow-100 text-yellow-800" },
+  paid: { label: "Đã TT", className: "bg-green-100 text-green-800" },
+};
+
+function PaymentDot({ status }: { status: string }) {
+  const config = PAYMENT_STATUS_LABELS[status] ?? PAYMENT_STATUS_LABELS["unpaid"]!;
+  return (
+    <span
+      title={config.label}
+      className={`inline-block size-2.5 shrink-0 rounded-full ${
+        status === "paid" ? "bg-green-500" : status === "partial" ? "bg-yellow-500" : "bg-red-500"
+      }`}
+    />
+  );
+}
+
 function AgendaCard({
   appointment,
   roomName,
@@ -552,6 +678,7 @@ function AgendaCard({
   onUpdate: (status: string) => void;
 }) {
   const config = STATUS_CONFIG[appointment.status] ?? STATUS_CONFIG["scheduled"]!;
+  const paymentConfig = PAYMENT_STATUS_LABELS[appointment.payment_status] ?? PAYMENT_STATUS_LABELS["unpaid"]!;
   return (
     <Card className="quiet-card min-w-0 p-4">
       <div className="flex min-w-0 items-start justify-between gap-3">
@@ -576,7 +703,10 @@ function AgendaCard({
             {appointment.doctor_name} · {appointment.service_name}
           </p>
         </div>
-        <Badge className={`${config.className} shrink-0 border-0`}>{config.label}</Badge>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <Badge className={`${config.className} border-0`}>{config.label}</Badge>
+          <Badge className={`${paymentConfig.className} border-0`}>{paymentConfig.label}</Badge>
+        </div>
       </div>
       {appointment.status === "scheduled" && (
         <div className="mt-3 flex gap-2">

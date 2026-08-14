@@ -173,16 +173,22 @@ export type Database = {
           deleted_at: string | null
           duration_minutes: number | null
           end_time: string
+          follow_up_date: string | null
           id: string
           notes: string | null
           organization_id: string
+          paid_amount: number
+          paid_at: string | null
           patient_id: string
+          payment_method: string | null
+          payment_status: string
           reminder_sent: boolean
           reminder_sent_at: string | null
           room_id: string | null
           service_id: string | null
           start_time: string
           status: string
+          total_amount: number
           treatment_notes: string | null
           updated_at: string
         }
@@ -196,16 +202,22 @@ export type Database = {
           deleted_at?: string | null
           duration_minutes?: number | null
           end_time: string
+          follow_up_date?: string | null
           id?: string
           notes?: string | null
           organization_id: string
+          paid_amount?: number
+          paid_at?: string | null
           patient_id: string
+          payment_method?: string | null
+          payment_status?: string
           reminder_sent?: boolean
           reminder_sent_at?: string | null
           room_id?: string | null
           service_id?: string | null
           start_time: string
           status?: string
+          total_amount?: number
           treatment_notes?: string | null
           updated_at?: string
         }
@@ -219,16 +231,22 @@ export type Database = {
           deleted_at?: string | null
           duration_minutes?: number | null
           end_time?: string
+          follow_up_date?: string | null
           id?: string
           notes?: string | null
           organization_id?: string
+          paid_amount?: number
+          paid_at?: string | null
           patient_id?: string
+          payment_method?: string | null
+          payment_status?: string
           reminder_sent?: boolean
           reminder_sent_at?: string | null
           room_id?: string | null
           service_id?: string | null
           start_time?: string
           status?: string
+          total_amount?: number
           treatment_notes?: string | null
           updated_at?: string
         }
