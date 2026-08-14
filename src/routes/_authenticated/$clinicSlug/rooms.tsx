@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { CalendarDays, DoorOpen, Plus, Save, Trash2 } from "lucide-react";
+import { CalendarDays, DoorOpen, List, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/page-state";
@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useClinicPath } from "@/hooks/use-clinic-path";
 import { useAuthSession, useSessionProfile } from "@/hooks/use-session";
@@ -54,6 +55,7 @@ function RoomsPage() {
   const canEdit = hasAnyRole(profileQuery.data?.roles ?? [], ["administrator", "manager"]);
 
   const [newRoom, setNewRoom] = useState({ name: "", code: "", equipment: "" });
+  const [view, setView] = useState<"list" | "timeline">("list");
 
   const roomsQuery = useQuery({
     queryKey: ["rooms-admin"],
@@ -88,7 +90,9 @@ function RoomsPage() {
         organization_id: organizationId,
         name: newRoom.name.trim(),
         code: newRoom.code.trim() || null,
-        equipment: newRoom.equipment.trim() || null,
+        equipment: newRoom.equipment.trim()
+          ? newRoom.equipment.split(",").map((item) => item.trim()).filter(Boolean)
+          : null,
         display_order: (roomsQuery.data?.length ?? 0) + 1,
       });
       if (error) throw error;
@@ -186,12 +190,26 @@ function RoomsPage() {
         title="Phòng & khung giờ"
         description="Mỗi phòng là một luồng slot đặt hẹn. Cấu hình ở đây sẽ hiển thị ngay trên calendar lịch khám."
         actions={
-          <Button asChild variant="outline" className="w-full sm:w-auto">
-            <Link to={buildPath("/appointments/calendar")}>
-              <CalendarDays className="mr-2 size-4" />
-              Xem calendar
-            </Link>
-          </Button>
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            <Tabs value={view} onValueChange={(value) => setView(value as "list" | "timeline")}>
+              <TabsList>
+                <TabsTrigger value="list">
+                  <List className="mr-1.5 size-3.5" />
+                  Danh sách
+                </TabsTrigger>
+                <TabsTrigger value="timeline">
+                  <CalendarDays className="mr-1.5 size-3.5" />
+                  Timeline
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Link to={buildPath("/appointments/calendar")}>
+                <CalendarDays className="mr-2 size-4" />
+                Xem calendar
+              </Link>
+            </Button>
+          </div>
         }
       />
 
@@ -239,6 +257,8 @@ function RoomsPage() {
 
       {rooms.length === 0 ? (
         <EmptyState title="Chưa có phòng" description="Thêm phòng điều trị đầu tiên để bắt đầu." />
+      ) : view === "timeline" ? (
+        <TimelineView rooms={rooms} slots={slotsQuery.data ?? []} />
       ) : (
         <div className="space-y-4">
           {rooms.map((room) => (
@@ -250,16 +270,24 @@ function RoomsPage() {
                     <span className="truncate">{room.name}</span>
                     {room.code && <Badge variant="secondary">{room.code}</Badge>}
                   </p>
-                  <p className="mt-1 truncate text-xs text-muted-foreground">
-                    {room.equipment || "Chưa mô tả thiết bị"}
-                  </p>
+                  {room.equipment && room.equipment.length > 0 ? (
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {room.equipment.map((item) => (
+                        <Badge key={item} variant="outline" className="text-xs font-normal">
+                          {item}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-1 truncate text-xs text-muted-foreground">Chưa mô tả thiết bị</p>
+                  )}
                 </div>
                 {canEdit && (
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-2 text-xs text-muted-foreground">
                       Hoạt động
                       <Switch
-                        checked={room.is_active}
+                        checked={room.is_active ?? true}
                         onCheckedChange={(checked) =>
                           toggleRoom.mutate({ id: room.id, isActive: checked })
                         }
@@ -307,6 +335,78 @@ function RoomsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function TimelineView({
+  rooms,
+  slots,
+}: {
+  rooms: { id: string; name: string; code: string | null; is_active: boolean | null }[];
+  slots: { room_id: string; weekday: number; start_time: string; end_time: string; is_active: boolean | null }[];
+}) {
+  return (
+    <Card className="quiet-card min-w-0 overflow-x-auto p-4">
+      <table className="w-full min-w-[720px] border-collapse text-sm">
+        <thead>
+          <tr>
+            <th className="w-40 border-b border-border/70 p-2 text-left text-xs font-semibold text-muted-foreground">
+              Phòng
+            </th>
+            {WEEKDAYS.map((day) => (
+              <th
+                key={day.value}
+                className="border-b border-border/70 p-2 text-center text-xs font-semibold text-muted-foreground"
+              >
+                {day.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rooms.map((room) => (
+            <tr key={room.id} className="border-b border-border/50 last:border-0">
+              <td className="p-2 align-top">
+                <p className="flex items-center gap-1.5 truncate font-medium">
+                  <DoorOpen className="size-3.5 shrink-0 text-primary" />
+                  <span className="truncate">{room.name}</span>
+                </p>
+                {room.code && (
+                  <Badge variant="secondary" className="mt-1 text-[10px]">
+                    {room.code}
+                  </Badge>
+                )}
+                {!room.is_active && (
+                  <Badge variant="outline" className="mt-1 ml-1 text-[10px] text-muted-foreground">
+                    Tạm ngưng
+                  </Badge>
+                )}
+              </td>
+              {WEEKDAYS.map((day) => {
+                const slot = slots.find((item) => item.room_id === room.id && item.weekday === day.value);
+                return (
+                  <td key={day.value} className="p-1.5 text-center align-top">
+                    {slot ? (
+                      <span
+                        className={`inline-block w-full rounded-md px-1.5 py-1 text-[11px] font-medium ${
+                          slot.is_active && room.is_active
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Card>
   );
 }
 

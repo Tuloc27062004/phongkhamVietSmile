@@ -2522,52 +2522,64 @@ export type Database = {
       }
       treatment_rooms: {
         Row: {
-          capacity: number
+          branch_id: string | null
+          capacity: number | null
           code: string | null
-          color: string | null
-          created_at: string
+          color_code: string | null
+          created_at: string | null
           deleted_at: string | null
           description: string | null
-          display_order: number
-          equipment: string | null
+          display_order: number | null
+          equipment: string[] | null
           id: string
-          is_active: boolean
+          is_active: boolean | null
+          location: string | null
           name: string
+          notes: string | null
           organization_id: string
-          room_type: string
-          updated_at: string
+          room_type: string | null
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
-          capacity?: number
+          branch_id?: string | null
+          capacity?: number | null
           code?: string | null
-          color?: string | null
-          created_at?: string
+          color_code?: string | null
+          created_at?: string | null
           deleted_at?: string | null
           description?: string | null
-          display_order?: number
-          equipment?: string | null
+          display_order?: number | null
+          equipment?: string[] | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
+          location?: string | null
           name: string
+          notes?: string | null
           organization_id: string
-          room_type?: string
-          updated_at?: string
+          room_type?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
-          capacity?: number
+          branch_id?: string | null
+          capacity?: number | null
           code?: string | null
-          color?: string | null
-          created_at?: string
+          color_code?: string | null
+          created_at?: string | null
           deleted_at?: string | null
           description?: string | null
-          display_order?: number
-          equipment?: string | null
+          display_order?: number | null
+          equipment?: string[] | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
+          location?: string | null
           name?: string
+          notes?: string | null
           organization_id?: string
-          room_type?: string
-          updated_at?: string
+          room_type?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
