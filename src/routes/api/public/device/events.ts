@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
+import { computeAttendanceFromShift, type ShiftWindow } from "@/lib/shift-attendance";
+
 /**
  * Endpoint nhận dữ liệu chấm công thật từ Windows Agent (ZKTeco/Hikvision...).
  * Agent đọc log vân tay/khuôn mặt từ máy chấm công rồi POST lên đây.
@@ -146,6 +148,45 @@ export const Route = createFileRoute("/api/public/device/events")({
           }
         }
 
+        // Ca làm việc được gán cho từng nhân viên — để tính đúng đi trễ/về sớm theo đúng ca,
+        // thay vì đoán mò. Nhân viên chưa được gán ca (Nhân sự > Phân công công việc) sẽ không
+        // bị tính trễ/sớm — chỉ ghi nhận giờ vào/ra thô.
+        const employeeIds = [...new Set([...employeeByDeviceUser.values()])];
+        const shiftByEmployeeId = new Map<string, ({ id: string } & ShiftWindow) | null>();
+        if (employeeIds.length > 0) {
+          const { data: employeeShiftRows } = await supabaseAdmin
+            .from("employees")
+            .select(
+              "id, default_shift_id, shift:shifts!default_shift_id(id, start_time, end_time, grace_period_minutes, late_threshold_minutes, early_leave_threshold_minutes, crosses_midnight)",
+            )
+            .in("id", employeeIds);
+          for (const row of employeeShiftRows ?? []) {
+            const shift = row.shift as unknown as {
+              id: string;
+              start_time: string;
+              end_time: string;
+              grace_period_minutes: number;
+              late_threshold_minutes: number;
+              early_leave_threshold_minutes: number;
+              crosses_midnight: boolean;
+            } | null;
+            shiftByEmployeeId.set(
+              row.id,
+              shift
+                ? {
+                    id: shift.id,
+                    startTime: shift.start_time,
+                    endTime: shift.end_time,
+                    gracePeriodMinutes: shift.grace_period_minutes,
+                    lateThresholdMinutes: shift.late_threshold_minutes,
+                    earlyLeaveThresholdMinutes: shift.early_leave_threshold_minutes,
+                    crossesMidnight: shift.crosses_midnight,
+                  }
+                : null,
+            );
+          }
+        }
+
         for (const event of payload.events) {
           const employeeId = employeeByDeviceUser.get(event.device_user_id) ?? null;
           const date = workDate(event.event_time);
@@ -201,17 +242,28 @@ export const Route = createFileRoute("/api/public/device/events")({
 
           const eventMs = new Date(event.event_time).getTime();
 
+          const shift = shiftByEmployeeId.get(employeeId) ?? null;
+
           if (!record) {
             const isCheckOut = direction === "check_out";
+            const checkInIso = isCheckOut ? null : event.event_time;
+            const computed = computeAttendanceFromShift({
+              workDate: date,
+              checkInIso,
+              checkOutIso: isCheckOut ? event.event_time : null,
+              shift,
+            });
             const { error } = await supabaseAdmin.from("attendance_records").insert({
               organization_id: orgId,
               employee_id: employeeId,
               work_date: date,
-              check_in_time: isCheckOut ? null : event.event_time,
+              shift_id: shift?.id ?? null,
+              check_in_time: checkInIso,
               check_out_time: isCheckOut ? event.event_time : null,
-              device_check_in_time: isCheckOut ? null : event.event_time,
+              device_check_in_time: checkInIso,
               device_check_out_time: isCheckOut ? event.event_time : null,
-              attendance_status: "present",
+              late_minutes: computed.lateMinutes,
+              attendance_status: computed.status,
             });
             if (error) failed += 1;
             else imported += 1;
@@ -225,12 +277,15 @@ export const Route = createFileRoute("/api/public/device/events")({
 
           const update: {
             attendance_status: string;
+            shift_id: string | null;
             check_in_time?: string;
             device_check_in_time?: string;
             check_out_time?: string;
             device_check_out_time?: string;
             worked_minutes?: number;
-          } = { attendance_status: "present" };
+            late_minutes: number;
+            early_leave_minutes: number;
+          } = { attendance_status: "present", shift_id: shift?.id ?? null, late_minutes: 0, early_leave_minutes: 0 };
 
           const treatAsCheckIn =
             direction === "check_in" && (currentIn === null || eventMs < currentIn);
@@ -246,14 +301,20 @@ export const Route = createFileRoute("/api/public/device/events")({
             continue;
           }
 
-          const finalIn = new Date(
-            update.check_in_time ?? record.check_in_time ?? event.event_time,
-          ).getTime();
-          const finalOut = update.check_out_time
-            ? new Date(update.check_out_time).getTime()
-            : currentOut;
-          if (finalOut && finalOut > finalIn) {
-            update.worked_minutes = Math.round((finalOut - finalIn) / 60000);
+          const finalInIso = update.check_in_time ?? record.check_in_time ?? event.event_time;
+          const finalOutIso = update.check_out_time ?? record.check_out_time ?? null;
+
+          const computed = computeAttendanceFromShift({
+            workDate: date,
+            checkInIso: finalInIso,
+            checkOutIso: finalOutIso,
+            shift,
+          });
+          update.late_minutes = computed.lateMinutes;
+          update.early_leave_minutes = computed.earlyLeaveMinutes;
+          update.attendance_status = computed.status;
+          if (computed.workedMinutes !== null) {
+            update.worked_minutes = computed.workedMinutes;
           }
 
           const { error } = await supabaseAdmin

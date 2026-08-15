@@ -59,12 +59,19 @@ type AttendanceRecord = {
   check_in_time: string | null;
   check_out_time: string | null;
   attendance_status: "present" | "absent" | "late" | "early_leave" | "half_day";
+  late_minutes: number | null;
+  early_leave_minutes: number | null;
   worked_minutes: number | null;
   approval_notes: string | null;
   employee: {
     full_name: string;
     employee_code: string;
   };
+  shift: {
+    name: string;
+    start_time: string;
+    end_time: string;
+  } | null;
 };
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -88,7 +95,7 @@ function AttendanceDailyPage() {
       const { data, error } = await supabase
         .from("attendance_records")
         .select(
-          "id, employee_id, work_date, check_in_time, check_out_time, attendance_status, worked_minutes, approval_notes, employee:employees(full_name, employee_code)",
+          "id, employee_id, work_date, check_in_time, check_out_time, attendance_status, late_minutes, early_leave_minutes, worked_minutes, approval_notes, employee:employees(full_name, employee_code), shift:shifts(name, start_time, end_time)",
         )
         .eq("work_date", selectedDate)
         .order("created_at", { ascending: false });
@@ -259,6 +266,7 @@ function AttendanceDailyPage() {
               <TableRow>
                 <TableHead>Mã NV</TableHead>
                 <TableHead>Họ và tên</TableHead>
+                <TableHead>Ca làm việc</TableHead>
                 <TableHead>Giờ vào</TableHead>
                 <TableHead>Giờ ra</TableHead>
                 <TableHead>Thời lượng</TableHead>
@@ -271,6 +279,11 @@ function AttendanceDailyPage() {
                 <TableRow key={record.id}>
                   <TableCell className="font-medium">{record.employee.employee_code}</TableCell>
                   <TableCell>{record.employee.full_name}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {record.shift
+                      ? `${record.shift.name} (${record.shift.start_time.slice(0, 5)}–${record.shift.end_time.slice(0, 5)})`
+                      : "—"}
+                  </TableCell>
                   <TableCell className="text-sm">
                     <div className="flex items-center gap-1">
                       <LogIn className="size-3.5 text-green-600" />
@@ -289,6 +302,10 @@ function AttendanceDailyPage() {
                   <TableCell>
                     <Badge className={STATUS_LABELS[record.attendance_status]?.color}>
                       {STATUS_LABELS[record.attendance_status]?.label || record.attendance_status}
+                      {record.attendance_status === "late" && record.late_minutes ? ` (${record.late_minutes}p)` : ""}
+                      {record.attendance_status === "early_leave" && record.early_leave_minutes
+                        ? ` (${record.early_leave_minutes}p)`
+                        : ""}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">

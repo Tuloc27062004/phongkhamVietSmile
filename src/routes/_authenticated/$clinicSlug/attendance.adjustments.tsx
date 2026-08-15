@@ -1,12 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Check, Plus, Search, Trash2, X } from "lucide-react";
+import { AlertTriangle, Check, Plus, Search, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useClinicPath } from "@/hooks/use-clinic-path";
 import {
   Dialog,
   DialogContent,
@@ -105,6 +107,7 @@ const EMPTY_NEW_ADJUSTMENT: NewAdjustmentForm = {
 function AttendanceAdjustmentsPage() {
   const { org } = Route.useRouteContext();
   const { session } = useAuthSession();
+  const buildPath = useClinicPath();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [showForm, setShowForm] = useState(false);
@@ -235,6 +238,25 @@ function AttendanceAdjustmentsPage() {
           </Button>
         }
       />
+
+      <Card className="quiet-card mb-4 min-w-0 border-warning/25 bg-warning/10 p-4 text-sm">
+        <div className="flex gap-3">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+          <div>
+            <p className="font-medium text-warning-foreground">
+              Trang này chỉ là sổ yêu cầu/phê duyệt — "Phê duyệt" không tự sửa bản ghi chấm công
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Sau khi phê duyệt một yêu cầu ở đây, bạn vẫn phải vào{" "}
+              <Link to={buildPath("/attendance/checkin")} className="font-medium text-primary underline">
+                Chấm công → Chấm công thủ công
+              </Link>{" "}
+              để sửa trực tiếp giờ vào/ra hoặc trạng thái của nhân viên — chỉ thay đổi ở đó mới được tính vào
+              bảng lương.
+            </p>
+          </div>
+        </div>
+      </Card>
 
       {/* Filters */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">

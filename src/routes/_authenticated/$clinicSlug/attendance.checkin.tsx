@@ -47,12 +47,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthSession } from "@/hooks/use-session";
 import { hasAnyRole, type AppRole } from "@/lib/permissions";
+import { computeAttendanceFromShift, formatShiftWindow, type ShiftWindow } from "@/lib/shift-attendance";
 
 export const Route = createFileRoute("/_authenticated/$clinicSlug/attendance/checkin")({
   head: () => ({
@@ -138,7 +138,7 @@ function CheckInTab() {
       const { data, error } = await supabase
         .from("employees")
         .select(
-          "id, full_name, employee_code, avatar_url, organization_id, device_user_id, department:departments(name)",
+          "id, full_name, employee_code, avatar_url, organization_id, device_user_id, department:departments(name), shift:shifts!default_shift_id(id, start_time, end_time, grace_period_minutes, late_threshold_minutes, early_leave_threshold_minutes, crosses_midnight)",
         )
         .or(`user_id.eq.${session?.user.id},email.eq.${session?.user.email ?? ""}`)
         .maybeSingle();
@@ -148,6 +148,17 @@ function CheckInTab() {
   });
 
   const employeeId = myEmployee?.id;
+  const myShift: ({ id: string } & ShiftWindow) | null = myEmployee?.shift
+    ? {
+        id: myEmployee.shift.id,
+        startTime: myEmployee.shift.start_time,
+        endTime: myEmployee.shift.end_time,
+        gracePeriodMinutes: myEmployee.shift.grace_period_minutes,
+        lateThresholdMinutes: myEmployee.shift.late_threshold_minutes,
+        earlyLeaveThresholdMinutes: myEmployee.shift.early_leave_threshold_minutes,
+        crossesMidnight: myEmployee.shift.crosses_midnight,
+      }
+    : null;
 
   const todayRecord = useQuery({
     queryKey: ["today-attendance", employeeId],
@@ -215,33 +226,63 @@ function CheckInTab() {
       const existing = todayRecord.data;
 
       if (!existing) {
+        const computed = computeAttendanceFromShift({
+          workDate: date,
+          checkInIso: now,
+          checkOutIso: null,
+          shift: myShift,
+        });
         const { error } = await supabase.from("attendance_records").insert({
           organization_id: myEmployee.organization_id,
           employee_id: myEmployee.id,
           work_date: date,
+          shift_id: myShift?.id ?? null,
           check_in_time: now,
-          attendance_status: "present",
+          late_minutes: computed.lateMinutes,
+          attendance_status: computed.status,
         });
         if (error) throw error;
-        return "Đã ghi nhận giờ vào";
+        return computed.status === "late"
+          ? `Đã ghi nhận giờ vào — đi trễ ${computed.lateMinutes} phút`
+          : "Đã ghi nhận giờ vào — đúng giờ";
       }
 
       if (!existing.check_in_time) {
+        const computed = computeAttendanceFromShift({
+          workDate: date,
+          checkInIso: now,
+          checkOutIso: null,
+          shift: myShift,
+        });
         const { error } = await supabase
           .from("attendance_records")
-          .update({ check_in_time: now, attendance_status: "present" })
+          .update({ check_in_time: now, shift_id: myShift?.id ?? null, late_minutes: computed.lateMinutes, attendance_status: computed.status })
           .eq("id", existing.id);
         if (error) throw error;
-        return "Đã ghi nhận giờ vào";
+        return computed.status === "late"
+          ? `Đã ghi nhận giờ vào — đi trễ ${computed.lateMinutes} phút`
+          : "Đã ghi nhận giờ vào — đúng giờ";
       }
 
-      const worked = Math.round((Date.parse(now) - Date.parse(existing.check_in_time)) / 60000);
+      const computed = computeAttendanceFromShift({
+        workDate: date,
+        checkInIso: existing.check_in_time,
+        checkOutIso: now,
+        shift: myShift,
+      });
       const { error } = await supabase
         .from("attendance_records")
-        .update({ check_out_time: now, worked_minutes: worked > 0 ? worked : 0 })
+        .update({
+          check_out_time: now,
+          worked_minutes: computed.workedMinutes ?? 0,
+          early_leave_minutes: computed.earlyLeaveMinutes,
+          attendance_status: computed.status,
+        })
         .eq("id", existing.id);
       if (error) throw error;
-      return "Đã ghi nhận giờ ra";
+      return computed.status === "early_leave"
+        ? `Đã ghi nhận giờ ra — về sớm ${computed.earlyLeaveMinutes} phút`
+        : "Đã ghi nhận giờ ra";
     },
     onSuccess: (message) => {
       toast.success(message);
@@ -288,6 +329,13 @@ function CheckInTab() {
                 <p className="text-sm text-muted-foreground">
                   {myEmployee.department?.name ?? "Chưa gán phòng ban"} · Mã trên máy:{" "}
                   {myEmployee.device_user_id ?? "chưa ánh xạ"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Ca làm việc:{" "}
+                  <span className={myShift ? "font-medium text-foreground" : "font-medium text-warning-foreground"}>
+                    {formatShiftWindow(myEmployee.shift)}
+                  </span>
+                  {!myShift && " — liên hệ quản lý để được gán ca"}
                 </p>
               </div>
             </div>
@@ -419,6 +467,9 @@ type ManualCheckIn = {
   work_date: string;
   check_in_time: string | null;
   check_out_time: string | null;
+  attendance_status: string;
+  late_minutes: number | null;
+  early_leave_minutes: number | null;
   reason: string | null;
   employee: {
     full_name: string;
@@ -426,36 +477,108 @@ type ManualCheckIn = {
   };
 };
 
+// "auto" = hệ thống tự tính đúng giờ/đi trễ/về sớm theo ca được gán cho nhân viên.
+// Các lựa chọn còn lại là nghỉ cả ngày (hoặc nửa ngày) — không suy luận từ giờ vào/ra.
+type StatusMode = "auto" | "half_day" | "absent" | "leave" | "sick" | "holiday";
+
 type NewCheckIn = {
   employee_id: string;
   work_date: string;
   check_in_time: string;
-  check_out_time?: string;
+  check_out_time: string;
+  status_mode: StatusMode;
   reason: string;
 };
+
+const EMPTY_CHECKIN_FORM: NewCheckIn = {
+  employee_id: "",
+  work_date: "",
+  check_in_time: "",
+  check_out_time: "",
+  status_mode: "auto",
+  reason: "",
+};
+
+// Hiển thị MỌI trạng thái có thể có trong dữ liệu (kể cả các trạng thái do hệ thống tự suy ra).
+const ATTENDANCE_STATUS_LABELS: Record<string, string> = {
+  present: "Có mặt (đúng giờ)",
+  late: "Đi trễ",
+  early_leave: "Về sớm",
+  half_day: "Nửa ngày",
+  absent: "Vắng mặt (trừ lương theo công thức)",
+  leave: "Nghỉ phép (có lương)",
+  sick: "Nghỉ ốm (có lương)",
+  holiday: "Nghỉ lễ (có lương)",
+};
+
+// Lựa chọn khi tạo/sửa bản ghi — chỉ "auto" và "half_day" cần giờ vào/ra.
+const STATUS_MODE_LABELS: Record<StatusMode, string> = {
+  auto: "Tự động (theo giờ vào/ra so với ca được gán)",
+  half_day: "Nửa ngày",
+  absent: "Vắng mặt (trừ lương theo công thức)",
+  leave: "Nghỉ phép (có lương)",
+  sick: "Nghỉ ốm (có lương)",
+  holiday: "Nghỉ lễ (có lương)",
+};
+
+const MODES_WITHOUT_TIME = new Set<StatusMode>(["absent", "leave", "sick", "holiday"]);
+const DERIVED_STATUSES = new Set(["present", "late", "early_leave"]);
+
+function statusToMode(status: string): StatusMode {
+  return DERIVED_STATUSES.has(status) ? "auto" : (status as StatusMode);
+}
+
+function toTimeInput(iso: string | null): string {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
+}
 
 function ManualAttendanceTab() {
   const { org } = Route.useRouteContext();
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0] ?? "");
   const [search, setSearch] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-  const [formData, setFormData] = useState<NewCheckIn>({
-    employee_id: "",
-    work_date: selectedDate,
-    check_in_time: "",
-    check_out_time: "",
-    reason: "",
-  });
-  const [successMessage, setSuccessMessage] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<NewCheckIn>({ ...EMPTY_CHECKIN_FORM, work_date: selectedDate });
   const queryClient = useQueryClient();
 
   const { data: employees } = useQuery({
-    queryKey: ["all-employees"],
+    queryKey: ["all-employees-with-shift"],
     queryFn: async () => {
-      const { data } = await supabase.from("employees").select("id, full_name, employee_code").order("full_name");
+      const { data } = await supabase
+        .from("employees")
+        .select(
+          "id, full_name, employee_code, shift:shifts!default_shift_id(id, start_time, end_time, grace_period_minutes, late_threshold_minutes, early_leave_threshold_minutes, crosses_midnight)",
+        )
+        .order("full_name");
       return data || [];
     },
   });
+
+  const selectedEmployee = employees?.find((e) => e.id === formData.employee_id);
+  const selectedShift: ({ id: string } & ShiftWindow) | null = selectedEmployee?.shift
+    ? {
+        id: selectedEmployee.shift.id,
+        startTime: selectedEmployee.shift.start_time,
+        endTime: selectedEmployee.shift.end_time,
+        gracePeriodMinutes: selectedEmployee.shift.grace_period_minutes,
+        lateThresholdMinutes: selectedEmployee.shift.late_threshold_minutes,
+        earlyLeaveThresholdMinutes: selectedEmployee.shift.early_leave_threshold_minutes,
+        crossesMidnight: selectedEmployee.shift.crosses_midnight,
+      }
+    : null;
+
+  const preview =
+    formData.status_mode === "auto" && formData.work_date && formData.check_in_time
+      ? computeAttendanceFromShift({
+          workDate: formData.work_date,
+          checkInIso: `${formData.work_date}T${formData.check_in_time}:00+07:00`,
+          checkOutIso: formData.check_out_time ? `${formData.work_date}T${formData.check_out_time}:00+07:00` : null,
+          shift: selectedShift,
+        })
+      : null;
 
   const { data: manualAttendance, isLoading, isError, error } = useQuery({
     queryKey: ["manual-attendance", selectedDate],
@@ -463,7 +586,7 @@ function ManualAttendanceTab() {
       const { data } = await supabase
         .from("attendance_records")
         .select(
-          "id, employee_id, work_date, check_in_time, check_out_time, approval_notes, employee:employees(full_name, employee_code)",
+          "id, employee_id, work_date, check_in_time, check_out_time, attendance_status, late_minutes, early_leave_minutes, approval_notes, employee:employees(full_name, employee_code)",
         )
         .eq("work_date", selectedDate)
         .order("created_at", { ascending: false });
@@ -474,42 +597,140 @@ function ManualAttendanceTab() {
         work_date: r.work_date,
         check_in_time: r.check_in_time,
         check_out_time: r.check_out_time,
+        attendance_status: r.attendance_status,
+        late_minutes: r.late_minutes,
+        early_leave_minutes: r.early_leave_minutes,
         reason: r.approval_notes,
         employee: r.employee,
       })) as unknown as ManualCheckIn[];
     },
   });
 
+  const openCreate = () => {
+    setEditingId(null);
+    setFormData({ ...EMPTY_CHECKIN_FORM, work_date: selectedDate });
+    setOpenDialog(true);
+  };
+
+  const openEdit = (record: ManualCheckIn) => {
+    setEditingId(record.id);
+    setFormData({
+      employee_id: record.employee_id,
+      work_date: record.work_date,
+      check_in_time: toTimeInput(record.check_in_time),
+      check_out_time: toTimeInput(record.check_out_time),
+      status_mode: statusToMode(record.attendance_status || "present"),
+      reason: record.reason || "",
+    });
+    setOpenDialog(true);
+  };
+
+  const buildPayload = (data: NewCheckIn) => {
+    const checkInIso = data.check_in_time ? `${data.work_date}T${data.check_in_time}:00+07:00` : null;
+    const checkOutIso = data.check_out_time ? `${data.work_date}T${data.check_out_time}:00+07:00` : null;
+    const base = {
+      organization_id: org.id,
+      employee_id: data.employee_id,
+      work_date: data.work_date,
+      approval_notes: data.reason || null,
+      is_approved: true,
+    };
+
+    if (data.status_mode === "auto") {
+      const computed = computeAttendanceFromShift({
+        workDate: data.work_date,
+        checkInIso,
+        checkOutIso,
+        shift: selectedShift,
+      });
+      return {
+        ...base,
+        shift_id: selectedShift?.id ?? null,
+        check_in_time: checkInIso,
+        check_out_time: checkOutIso,
+        late_minutes: computed.lateMinutes,
+        early_leave_minutes: computed.earlyLeaveMinutes,
+        worked_minutes: computed.workedMinutes,
+        attendance_status: computed.status,
+      };
+    }
+
+    if (data.status_mode === "half_day") {
+      const worked =
+        checkInIso && checkOutIso
+          ? Math.max(0, Math.round((Date.parse(checkOutIso) - Date.parse(checkInIso)) / 60000))
+          : null;
+      return {
+        ...base,
+        shift_id: selectedShift?.id ?? null,
+        check_in_time: checkInIso,
+        check_out_time: checkOutIso,
+        late_minutes: 0,
+        early_leave_minutes: 0,
+        worked_minutes: worked,
+        attendance_status: "half_day",
+      };
+    }
+
+    // absent / leave / sick / holiday — nghỉ nguyên ngày, không có giờ vào/ra, không gán ca.
+    return {
+      ...base,
+      shift_id: null,
+      check_in_time: null,
+      check_out_time: null,
+      late_minutes: 0,
+      early_leave_minutes: 0,
+      worked_minutes: null,
+      attendance_status: data.status_mode,
+    };
+  };
+
+  const explainSaveError = (err: unknown): string => {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message.includes("duplicate key") || message.includes("23505")) {
+      return "Nhân viên này đã có bản ghi chấm công cho ngày đã chọn. Hãy bấm \"Sửa\" trên bản ghi đó thay vì tạo mới.";
+    }
+    return message;
+  };
+
   const createCheckInMutation = useMutation({
     mutationFn: async (data: NewCheckIn) => {
-      if (!formData.employee_id) throw new Error("Vui lòng chọn nhân viên");
-      if (!formData.check_in_time) throw new Error("Vui lòng nhập giờ vào");
-
-      const { error } = await supabase.from("attendance_records").insert([
-        {
-          organization_id: org.id,
-          employee_id: formData.employee_id,
-          work_date: formData.work_date,
-          check_in_time: `${formData.work_date}T${formData.check_in_time}:00`,
-          check_out_time: formData.check_out_time ? `${formData.work_date}T${formData.check_out_time}:00` : null,
-          approval_notes: formData.reason,
-          is_approved: true,
-          attendance_status: "present",
-        },
-      ]);
-
+      if (!data.employee_id) throw new Error("Vui lòng chọn nhân viên");
+      if (data.status_mode === "auto" && !data.check_in_time) {
+        throw new Error("Vui lòng nhập giờ vào");
+      }
+      const { error } = await supabase.from("attendance_records").insert([buildPayload(data)]);
       if (error) throw error;
     },
     onSuccess: () => {
-      setSuccessMessage("Đã thêm chấm công thủ công thành công");
-      queryClient.invalidateQueries({ queryKey: ["manual-attendance"] });
+      toast.success("Đã thêm chấm công thủ công");
+      void queryClient.invalidateQueries({ queryKey: ["manual-attendance"] });
       setOpenDialog(false);
-      setFormData({ employee_id: "", work_date: selectedDate, check_in_time: "", check_out_time: "", reason: "" });
-      setTimeout(() => setSuccessMessage(""), 3000);
+      setFormData({ ...EMPTY_CHECKIN_FORM, work_date: selectedDate });
     },
-    onError: (err) => {
-      console.error("[v0] Error:", err);
+    onError: (err) => toast.error(explainSaveError(err)),
+  });
+
+  const updateCheckInMutation = useMutation({
+    mutationFn: async (data: NewCheckIn) => {
+      if (!editingId) throw new Error("Không tìm thấy bản ghi cần sửa");
+      if (data.status_mode === "auto" && !data.check_in_time) {
+        throw new Error("Vui lòng nhập giờ vào");
+      }
+      const { error } = await supabase
+        .from("attendance_records")
+        .update(buildPayload(data))
+        .eq("id", editingId);
+      if (error) throw error;
     },
+    onSuccess: () => {
+      toast.success("Đã cập nhật bản ghi chấm công");
+      void queryClient.invalidateQueries({ queryKey: ["manual-attendance"] });
+      setOpenDialog(false);
+      setEditingId(null);
+      setFormData({ ...EMPTY_CHECKIN_FORM, work_date: selectedDate });
+    },
+    onError: (err) => toast.error(explainSaveError(err)),
   });
 
   const deleteCheckInMutation = useMutation({
@@ -518,10 +739,10 @@ function ManualAttendanceTab() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["manual-attendance"] });
-      setSuccessMessage("Đã xóa bản ghi chấm công");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      void queryClient.invalidateQueries({ queryKey: ["manual-attendance"] });
+      toast.success("Đã xóa bản ghi chấm công");
     },
+    onError: (err: Error) => toast.error(err.message),
   });
 
   const filtered = (manualAttendance ?? []).filter((record) => {
@@ -540,15 +761,6 @@ function ManualAttendanceTab() {
 
   return (
     <div>
-      {successMessage && (
-        <Card className="surface-card mb-6 border-l-4 border-l-green-500 bg-green-50 p-4">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 className="size-5 text-green-600" />
-            <p className="text-green-800">{successMessage}</p>
-          </div>
-        </Card>
-      )}
-
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 gap-2">
           <div className="flex-1">
@@ -578,17 +790,20 @@ function ManualAttendanceTab() {
           </div>
         </div>
 
+        <Button className="mt-6 sm:mt-0" onClick={openCreate}>
+          <Plus className="mr-2 size-4" />
+          Thêm chấm công thủ công
+        </Button>
+
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-          <DialogTrigger asChild>
-            <Button className="mt-6 sm:mt-0">
-              <Plus className="mr-2 size-4" />
-              Thêm chấm công thủ công
-            </Button>
-          </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Thêm chấm công thủ công</DialogTitle>
-              <DialogDescription>Nhập thông tin chấm công cho nhân viên.</DialogDescription>
+              <DialogTitle>{editingId ? "Sửa bản ghi chấm công" : "Thêm chấm công thủ công"}</DialogTitle>
+              <DialogDescription>
+                {editingId
+                  ? "Chỉnh sửa trực tiếp bản ghi chấm công — thay đổi này sẽ được tính vào bảng lương ngay."
+                  : "Nhập thông tin chấm công cho nhân viên."}
+              </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
@@ -597,7 +812,8 @@ function ManualAttendanceTab() {
                 <select
                   value={formData.employee_id}
                   onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  disabled={Boolean(editingId)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-60"
                 >
                   <option value="">-- Chọn nhân viên --</option>
                   {employees?.map((emp: any) => (
@@ -606,6 +822,12 @@ function ManualAttendanceTab() {
                     </option>
                   ))}
                 </select>
+                {formData.employee_id && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Ca được gán: <span className={selectedShift ? "font-medium text-foreground" : "font-medium text-warning-foreground"}>{formatShiftWindow(selectedEmployee?.shift ?? null)}</span>
+                    {!selectedShift && " — không thể tự tính đi trễ/về sớm khi chưa gán ca (Nhân sự → Phân công công việc)"}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -614,31 +836,69 @@ function ManualAttendanceTab() {
                   type="date"
                   value={formData.work_date}
                   onChange={(e) => setFormData({ ...formData, work_date: e.target.value })}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  disabled={Boolean(editingId)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-60"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-2 block text-sm font-medium">Giờ vào *</label>
-                  <input
-                    type="time"
-                    value={formData.check_in_time}
-                    onChange={(e) => setFormData({ ...formData, check_in_time: e.target.value })}
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium">Giờ ra</label>
-                  <input
-                    type="time"
-                    value={formData.check_out_time}
-                    onChange={(e) => setFormData({ ...formData, check_out_time: e.target.value })}
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  />
-                </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium">Trạng thái *</label>
+                <select
+                  value={formData.status_mode}
+                  onChange={(e) => setFormData({ ...formData, status_mode: e.target.value as StatusMode })}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  {Object.entries(STATUS_MODE_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                {MODES_WITHOUT_TIME.has(formData.status_mode) && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Trạng thái này không cần giờ vào/ra — nghỉ nguyên ngày.
+                  </p>
+                )}
               </div>
+
+              {!MODES_WITHOUT_TIME.has(formData.status_mode) && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">Giờ vào *</label>
+                    <input
+                      type="time"
+                      value={formData.check_in_time}
+                      onChange={(e) => setFormData({ ...formData, check_in_time: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">Giờ ra</label>
+                    <input
+                      type="time"
+                      value={formData.check_out_time}
+                      onChange={(e) => setFormData({ ...formData, check_out_time: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {preview && (
+                <div
+                  className={`rounded-md border p-3 text-xs ${
+                    preview.status === "present"
+                      ? "border-success/25 bg-success/10 text-success"
+                      : "border-warning/25 bg-warning/10 text-warning-foreground"
+                  }`}
+                >
+                  {preview.status === "present" && "Đúng giờ theo ca đã gán."}
+                  {preview.status === "late" && `Đi trễ ${preview.lateMinutes} phút so với ca ${formatShiftWindow(selectedEmployee?.shift ?? null)}.`}
+                  {preview.status === "early_leave" && `Về sớm ${preview.earlyLeaveMinutes} phút so với ca ${formatShiftWindow(selectedEmployee?.shift ?? null)}.`}
+                  {" "}Sẽ được lưu là "{ATTENDANCE_STATUS_LABELS[preview.status]}".
+                </div>
+              )}
 
               <div>
                 <label className="mb-2 block text-sm font-medium">Lý do</label>
@@ -651,11 +911,17 @@ function ManualAttendanceTab() {
               </div>
 
               <Button
-                onClick={() => createCheckInMutation.mutate(formData)}
-                disabled={createCheckInMutation.isPending}
+                onClick={() =>
+                  editingId ? updateCheckInMutation.mutate(formData) : createCheckInMutation.mutate(formData)
+                }
+                disabled={createCheckInMutation.isPending || updateCheckInMutation.isPending}
                 className="w-full"
               >
-                {createCheckInMutation.isPending ? "Đang lưu..." : "Lưu"}
+                {createCheckInMutation.isPending || updateCheckInMutation.isPending
+                  ? "Đang lưu..."
+                  : editingId
+                    ? "Lưu thay đổi"
+                    : "Lưu"}
               </Button>
             </div>
           </DialogContent>
@@ -679,6 +945,7 @@ function ManualAttendanceTab() {
                 <TableHead>Mã NV</TableHead>
                 <TableHead>Họ và tên</TableHead>
                 <TableHead>Ngày</TableHead>
+                <TableHead>Trạng thái</TableHead>
                 <TableHead>Giờ vào</TableHead>
                 <TableHead>Giờ ra</TableHead>
                 <TableHead>Lý do</TableHead>
@@ -691,6 +958,15 @@ function ManualAttendanceTab() {
                   <TableCell className="font-medium">{record.employee.employee_code}</TableCell>
                   <TableCell>{record.employee.full_name}</TableCell>
                   <TableCell>{record.work_date}</TableCell>
+                  <TableCell className="text-sm">
+                    <Badge variant={record.attendance_status === "absent" ? "destructive" : "secondary"}>
+                      {ATTENDANCE_STATUS_LABELS[record.attendance_status] ?? record.attendance_status}
+                      {record.attendance_status === "late" && record.late_minutes ? ` (${record.late_minutes}p)` : ""}
+                      {record.attendance_status === "early_leave" && record.early_leave_minutes
+                        ? ` (${record.early_leave_minutes}p)`
+                        : ""}
+                    </Badge>
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <LogIn className="size-3.5 text-green-600" />
@@ -707,18 +983,23 @@ function ManualAttendanceTab() {
                     {record.reason || "—"}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (confirm("Xóa bản ghi chấm công này? Không thể hoàn tác.")) {
-                          deleteCheckInMutation.mutate(record.id);
-                        }
-                      }}
-                      disabled={deleteCheckInMutation.isPending}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(record)}>
+                        <Edit className="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm("Xóa bản ghi chấm công này? Không thể hoàn tác.")) {
+                            deleteCheckInMutation.mutate(record.id);
+                          }
+                        }}
+                        disabled={deleteCheckInMutation.isPending}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
