@@ -1229,10 +1229,25 @@ function PayrollTab() {
             <Printer className="mr-2 size-4" />
             In bảng lương
           </Button>
-          <Button variant="outline" onClick={exportExcel} disabled={filteredPayroll.length === 0}>
-            <FileSpreadsheet className="mr-2 size-4" />
-            Xuất Excel
-          </Button>
+          <ExportButton
+            data={filteredPayroll.map((r) => ({
+              ...r,
+              net_salary_formatted: Math.round(r.net_salary).toLocaleString("vi-VN") + "đ",
+              gross_salary_formatted: Math.round(r.gross_salary).toLocaleString("vi-VN") + "đ",
+              status_label: r.status === "approved" ? "Đã duyệt" : "Chưa duyệt",
+            }))}
+            columns={[
+              { header: "Mã NV", key: "employee_code", width: 10 },
+              { header: "Họ và tên", key: "full_name", width: 20 },
+              { header: "Ngày công", key: "worked_days", width: 10 },
+              { header: "Lương gộp", key: "gross_salary_formatted", width: 15 },
+              { header: "Thực lãnh", key: "net_salary_formatted", width: 15 },
+              { header: "Trạng thái", key: "status_label", width: 15 },
+            ]}
+            filename={`Bang_luong_thang_${selectedMonth}_${selectedYear}`}
+            title={`Bảng Lương Tháng ${selectedMonth}/${selectedYear}`}
+            disabled={filteredPayroll.length === 0}
+          />
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
