@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { EmployeeProfilePanel } from "@/components/employee-profile-panel";
+import { ExportButton } from "@/components/export-button";
 import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -183,12 +184,32 @@ function EmployeesPage() {
         title="Nhân viên"
         description="Danh bạ nhân sự phòng khám. Nhấn vào một dòng để xem/sửa hồ sơ chi tiết."
         actions={
-          canEdit && (
-            <Button onClick={() => setShowAddForm(true)}>
-              <Plus className="mr-2 size-4" />
-              Thêm nhân viên
-            </Button>
-          )
+          <div className="flex gap-2">
+            <ExportButton
+              data={filtered.map((e) => ({
+                ...e,
+                position: e.positions?.name ?? "",
+                department: e.departments?.name ?? "",
+                status_label: STATUS_LABELS[e.employment_status] ?? e.employment_status,
+              }))}
+              columns={[
+                { header: "Mã NV", key: "employee_code", width: 15 },
+                { header: "Họ và tên", key: "full_name", width: 25 },
+                { header: "Chức vụ", key: "position", width: 20 },
+                { header: "Phòng ban", key: "department", width: 20 },
+                { header: "Điện thoại", key: "phone", width: 15 },
+                { header: "Trạng thái", key: "status_label", width: 15 },
+              ]}
+              filename="Danh_sach_nhan_vien"
+              title="Danh Sách Nhân Viên"
+            />
+            {canEdit && (
+              <Button onClick={() => setShowAddForm(true)}>
+                <Plus className="mr-2 size-4" />
+                Thêm nhân viên
+              </Button>
+            )}
+          </div>
         }
       />
 

@@ -10,10 +10,15 @@ import {
   Printer,
   Search,
   TrendingUp,
+  CheckCircle,
+  Clock,
+  Save,
+  FileClock,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/page-state";
+import { ExportButton } from "@/components/export-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -226,35 +231,30 @@ function MonthlySummaryTab() {
     { total_days: 0, present_days: 0, absent_days: 0, late_days: 0, early_leave_days: 0, overtime_hours: 0 },
   );
 
-  const handleExport = () => {
-    const header = ["Mã NV", "Họ và tên", "Tổng ngày", "Có mặt", "Vắng mặt", "Đi trễ", "Về sớm", "Tăng ca (giờ)"];
-    const body = filtered.map((r) => [
-      r.employee_code,
-      r.full_name,
-      r.total_days,
-      r.present_days,
-      r.absent_days,
-      r.late_days,
-      r.early_leave_days,
-      Math.round(r.overtime_hours * 10) / 10,
-    ]);
-    const sheetData = [[`BẢNG CÔNG THÁNG ${month}/${year}`], [], header, ...body];
-    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-    worksheet["!cols"] = header.map((h) => ({ wch: Math.max(12, h.length + 2) }));
-    worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: header.length - 1 } }];
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, `Thang ${month}-${year}`);
-    XLSX.writeFile(workbook, `bang-cong-thang-${month}-${year}.xlsx`);
-    toast.success("Đã xuất file Excel");
-  };
+
 
   return (
     <div>
       <div className="mb-4 flex justify-end">
-        <Button onClick={handleExport} disabled={!filtered.length}>
-          <FileSpreadsheet className="mr-2 size-4" />
-          Xuất Excel
-        </Button>
+        <ExportButton
+          data={filtered.map((r) => ({
+            ...r,
+            overtime_hours_formatted: Math.round(r.overtime_hours * 10) / 10,
+          }))}
+          columns={[
+            { header: "Mã NV", key: "employee_code", width: 15 },
+            { header: "Họ và tên", key: "full_name", width: 25 },
+            { header: "Tổng ngày", key: "total_days", width: 10 },
+            { header: "Có mặt", key: "present_days", width: 10 },
+            { header: "Vắng mặt", key: "absent_days", width: 10 },
+            { header: "Đi trễ", key: "late_days", width: 10 },
+            { header: "Về sớm", key: "early_leave_days", width: 10 },
+            { header: "Tăng ca (giờ)", key: "overtime_hours_formatted", width: 15 },
+          ]}
+          filename={`Bang_cong_thang_${month}_${year}`}
+          title={`Bảng Công Tháng ${month}/${year}`}
+          disabled={!filtered.length}
+        />
       </div>
 
       {monthlySummary.isLoading ? (

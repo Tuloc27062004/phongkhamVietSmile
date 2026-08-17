@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ExportButton } from "@/components/export-button";
 import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -1192,79 +1193,7 @@ function PayrollTab() {
     totalNetSalary: filteredPayroll.reduce((sum, p) => sum + p.net_salary, 0),
   };
 
-  const exportExcel = () => {
-    const header = [
-      "Mã NV",
-      "Họ tên",
-      "Phòng ban",
-      "Ngày công",
-      "Số lần trễ",
-      "Phút trễ",
-      "Vắng (ngày)",
-      "Tăng ca (giờ)",
-      "Lương cơ bản",
-      "Phụ cấp",
-      "Thưởng",
-      "Lương tăng ca",
-      "Doanh thu (hoa hồng)",
-      "Hoa hồng",
-      "Lương gộp",
-      "Trừ đi trễ",
-      "Trừ vắng mặt",
-      "Bảo hiểm",
-      "Thuế TNCN",
-      "Thực lãnh",
-      "Trạng thái",
-    ];
-    const body = filteredPayroll.map((r) => [
-      r.employee_code,
-      r.full_name,
-      r.department_name,
-      r.worked_days,
-      r.late_days,
-      r.late_minutes,
-      r.absent_days,
-      Math.round((r.overtime_minutes / 60) * 10) / 10,
-      Math.round(r.base_salary),
-      Math.round(r.allowance),
-      Math.round(r.bonus),
-      Math.round(r.overtime_pay),
-      Math.round(r.commission_revenue),
-      Math.round(r.commission_pay),
-      Math.round(r.gross_salary),
-      Math.round(r.late_deduction),
-      Math.round(r.absence_deduction),
-      Math.round(r.insurance),
-      Math.round(r.tax),
-      Math.round(r.net_salary),
-      r.status === "approved" ? "Đã duyệt" : "Chưa duyệt",
-    ]);
-    const totalRow = Array(header.length).fill("");
-    totalRow[1] = "TỔNG CỘNG";
-    totalRow[header.length - 2] = Math.round(stats.totalNetSalary);
 
-    const sheetData: (string | number)[][] = [
-      [org.name],
-      [`BẢNG LƯƠNG THÁNG ${selectedMonth}/${selectedYear}`],
-      [],
-      header,
-      ...body,
-      [],
-      totalRow,
-    ];
-
-    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-    worksheet["!cols"] = header.map((h) => ({ wch: Math.max(12, h.length + 2) }));
-    worksheet["!merges"] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: header.length - 1 } },
-      { s: { r: 1, c: 0 }, e: { r: 1, c: header.length - 1 } },
-    ];
-
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, `Thang ${selectedMonth}-${selectedYear}`);
-    XLSX.writeFile(workbook, `Bang-luong-thang-${selectedMonth}-${selectedYear}.xlsx`);
-    toast.success("Đã xuất file Excel");
-  };
 
   return (
     <>

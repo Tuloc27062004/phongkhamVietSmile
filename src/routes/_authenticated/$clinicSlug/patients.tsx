@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 
 import { AvatarUploadField } from "@/components/avatar-upload-field";
+import { ExportButton } from "@/components/export-button";
 import { PageHeader, ErrorState, LoadingState, EmptyState } from "@/components/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -325,15 +326,40 @@ function PatientsPage() {
         title="Quản lý bệnh nhân"
         description="Xem, chỉnh sửa hồ sơ bệnh nhân, lịch sử điều trị và thanh toán."
         actions={
-          <Button
-            onClick={() => {
-              setForm({ ...EMPTY_FORM, id: crypto.randomUUID(), patient_code: genPatientCode() });
-              setShowAddForm(true);
-            }}
-          >
-            <Plus className="mr-2 size-4" />
-            Thêm bệnh nhân
-          </Button>
+          <div className="flex gap-2">
+            <ExportButton
+              data={patients.map((p) => ({
+                ...p,
+                patient_code: p.patient_code,
+                full_name: p.full_name,
+                phone: p.phone ?? "",
+                email: p.email ?? "",
+                date_of_birth: p.date_of_birth ? new Date(p.date_of_birth).toLocaleDateString("vi-VN") : "",
+                gender: p.gender === "male" ? "Nam" : p.gender === "female" ? "Nữ" : "Khác",
+                total_visits: stats[p.id]?.count || 0,
+              }))}
+              columns={[
+                { header: "Mã BN", key: "patient_code", width: 15 },
+                { header: "Họ và tên", key: "full_name", width: 25 },
+                { header: "Điện thoại", key: "phone", width: 15 },
+                { header: "Email", key: "email", width: 20 },
+                { header: "Ngày sinh", key: "date_of_birth", width: 15 },
+                { header: "Giới tính", key: "gender", width: 10 },
+                { header: "Số lần khám", key: "total_visits", width: 10 },
+              ]}
+              filename="Danh_sach_benh_nhan"
+              title="Danh Sách Bệnh Nhân"
+            />
+            <Button
+              onClick={() => {
+                setForm({ ...EMPTY_FORM, id: crypto.randomUUID(), patient_code: genPatientCode() });
+                setShowAddForm(true);
+              }}
+            >
+              <Plus className="mr-2 size-4" />
+              Thêm bệnh nhân
+            </Button>
+          </div>
         }
       />
 

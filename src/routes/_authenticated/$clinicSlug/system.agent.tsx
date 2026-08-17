@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Copy, KeyRound, Plus, ShieldAlert, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -40,9 +40,9 @@ export const Route = createFileRoute("/_authenticated/$clinicSlug/system/agent")
   component: SystemAgentPage,
 });
 
-const ENDPOINT = "https://project--106cf23f-86be-4167-aa18-ca234f4873f4.lovable.app/api/public/device/events";
+const SAMPLE_PATH = "/api/public/device/events";
 
-const SAMPLE = `POST ${ENDPOINT}
+const SAMPLE = `POST <địa-chỉ-triển-khai-của-bạn>${SAMPLE_PATH}
 Content-Type: application/json
 x-api-key: <KHÓA_AGENT>
 
@@ -66,6 +66,11 @@ function SystemAgentPage() {
   const revoke = useServerFn(revokeAgentKey);
   const [name, setName] = useState("Windows Agent");
   const [freshKey, setFreshKey] = useState<string | null>(null);
+  // window chỉ có ở client — tính đúng địa chỉ đang triển khai thay vì hardcode một domain cũ.
+  const [endpoint, setEndpoint] = useState<string | null>(null);
+  useEffect(() => {
+    setEndpoint(`${window.location.origin}${SAMPLE_PATH}`);
+  }, []);
 
   const keysQuery = useQuery({
     queryKey: ["agent-keys"],
@@ -175,7 +180,7 @@ function SystemAgentPage() {
                           <Badge
                             className={
                               key.is_active
-                                ? "bg-green-100 text-green-800"
+                                ? "bg-success/10 text-success"
                                 : "bg-muted text-muted-foreground"
                             }
                           >
@@ -214,17 +219,24 @@ function SystemAgentPage() {
             Agent gọi endpoint dưới đây mỗi khi đọc được bản ghi mới trên máy chấm công.
           </p>
           <div className="mt-3 flex items-center gap-2">
-            <code className="grow break-all rounded bg-muted px-3 py-2 text-xs">{ENDPOINT}</code>
-            <Button size="sm" variant="outline" onClick={() => copy(ENDPOINT)}>
+            <code className="grow break-all rounded bg-muted px-3 py-2 text-xs">
+              {endpoint ?? "Đang xác định địa chỉ..."}
+            </code>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => endpoint && copy(endpoint)}
+              disabled={!endpoint}
+            >
               <Copy className="size-4" />
             </Button>
           </div>
           <pre className="mt-4 overflow-x-auto rounded-lg bg-muted p-3 text-xs leading-relaxed">
             {SAMPLE}
           </pre>
-          <div className="mt-4 flex gap-2 rounded-lg border border-yellow-500/40 bg-yellow-50 p-3">
-            <ShieldAlert className="size-4 shrink-0 text-yellow-600" />
-            <p className="text-xs text-yellow-800">
+          <div className="mt-4 flex gap-2 rounded-lg border border-warning/25 bg-warning/10 p-3">
+            <ShieldAlert className="size-4 shrink-0 text-warning" />
+            <p className="text-xs text-warning-foreground">
               <strong>device_user_id</strong> là mã người dùng trên máy chấm công. Hãy ánh xạ mã này
               với nhân viên tại trang “Trạng thái đồng bộ”; bản ghi chưa ánh xạ sẽ được lưu nhưng
               không tính công.

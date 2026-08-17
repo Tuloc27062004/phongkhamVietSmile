@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Award, Briefcase, Mail, Phone, Save, Star, X } from "lucide-react";
+import { Award, Briefcase, Fingerprint, Mail, Phone, Save, Star, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { AvatarUploadField } from "@/components/avatar-upload-field";
@@ -27,6 +27,7 @@ type EmployeeProfileRecord = {
   qualifications: string | null;
   employment_status: string;
   start_date: string | null;
+  device_user_id: string | null;
   departments: { name: string } | null;
   positions: { name: string } | null;
 };
@@ -39,6 +40,7 @@ type EditableDraft = {
   years_of_experience?: number;
   qualifications?: string;
   avatar_url?: string;
+  device_user_id?: string;
 };
 
 /** Read-only or editable employee profile content — embed inside a Dialog (team roster) or a full page (own profile). */
@@ -61,7 +63,7 @@ export function EmployeeProfilePanel({
       const { data, error } = await supabase
         .from("employees")
         .select(
-          "id, full_name, email, phone, avatar_url, profile_photo_url, professional_title, specialization, license_number, years_of_experience, qualifications, employment_status, start_date, departments(name), positions(name)",
+          "id, full_name, email, phone, avatar_url, profile_photo_url, professional_title, specialization, license_number, years_of_experience, qualifications, employment_status, start_date, device_user_id, departments(name), positions(name)",
         )
         .eq("id", employeeId)
         .maybeSingle();
@@ -79,6 +81,7 @@ export function EmployeeProfilePanel({
       if ("license_number" in values) payload.license_number = values.license_number || null;
       if ("qualifications" in values) payload.qualifications = values.qualifications || null;
       if ("years_of_experience" in values) payload.years_of_experience = values.years_of_experience ?? null;
+      if ("device_user_id" in values) payload.device_user_id = values.device_user_id || null;
       if (values.avatar_url !== undefined) {
         payload.avatar_url = values.avatar_url;
         payload.profile_photo_url = values.avatar_url;
@@ -237,6 +240,27 @@ export function EmployeeProfilePanel({
             />
           ) : (
             <p className="text-sm font-medium">{employee.professional_title || "Chưa cập nhật"}</p>
+          )}
+        </div>
+        <div className="space-y-1">
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Fingerprint className="size-3.5" /> Mã ID trên máy chấm công
+          </p>
+          {editing ? (
+            <>
+              <Input
+                value={draft.device_user_id ?? employee.device_user_id ?? ""}
+                onChange={(event) => setDraft((prev) => ({ ...prev, device_user_id: event.target.value }))}
+                placeholder="VD: 17 (mã đã đăng ký/enroll trên máy chấm công)"
+                className="h-8"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Phải khớp đúng ID nhân viên trên máy chấm công thật, nếu không dữ liệu chấm công của
+                người này sẽ luôn báo "chưa ánh xạ".
+              </p>
+            </>
+          ) : (
+            <p className="text-sm font-medium">{employee.device_user_id || "Chưa gán"}</p>
           )}
         </div>
       </div>

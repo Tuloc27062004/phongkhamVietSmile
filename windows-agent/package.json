@@ -1,0 +1,19 @@
+{
+  "name": "gzv-clinic-zkteco-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Windows Agent doc du lieu cham cong tu may cham cong ZKTeco (TCP/IP) va day len GZV Clinic Platform.",
+  "main": "agent.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node agent.js",
+    "test-connection": "node test-connection.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "node-zklib": "^1.0.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
