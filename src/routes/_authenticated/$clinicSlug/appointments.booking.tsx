@@ -1,5 +1,5 @@
 import { createFileRoute, useSearch } from "@tanstack/react-router";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Calendar,
   Clock,
@@ -66,6 +66,7 @@ interface Appointment {
 }
 
 function AppointmentBookingPage() {
+  const queryClient = useQueryClient();
   const { session } = useAuthSession();
   const profileQuery = useSessionProfile(session?.user.id);
   const searchParams = useSearch({ from: "/_authenticated/$clinicSlug/appointments/booking" });
@@ -101,7 +102,6 @@ function AppointmentBookingPage() {
         .from("employees")
         .select("id, full_name")
         .eq("employment_status", "active")
-        .eq("can_receive_appointments", true)
         .order("full_name");
       if (error) throw error;
       return data || [];
@@ -221,7 +221,10 @@ function AppointmentBookingPage() {
       setTime("09:00");
       setSelectedRoom("");
       setNotes("");
-      appointmentsQuery.refetch();
+      void appointmentsQuery.refetch();
+      void queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      void queryClient.invalidateQueries({ queryKey: ["appointments-calendar"] });
+      void queryClient.invalidateQueries({ queryKey: ["appointments-stats"] });
     },
     onError: (error: any) => {
       toast.error(error.message || "Lỗi khi đặt hẹn");
@@ -242,7 +245,7 @@ function AppointmentBookingPage() {
     },
     onSuccess: () => {
       toast.success("Gửi nhắc nhở thành công!");
-      appointmentsQuery.refetch();
+      void appointmentsQuery.refetch();
     },
     onError: (error: any) => {
       toast.error("Lỗi khi gửi nhắc nhở");
@@ -253,6 +256,8 @@ function AppointmentBookingPage() {
     patientsQuery.isLoading ||
     doctorsQuery.isLoading ||
     servicesQuery.isLoading ||
+    roomsQuery.isLoading ||
+    profileQuery.isLoading ||
     appointmentsQuery.isLoading
   ) {
     return <LoadingState />;
@@ -262,6 +267,8 @@ function AppointmentBookingPage() {
     patientsQuery.error ||
     doctorsQuery.error ||
     servicesQuery.error ||
+    roomsQuery.error ||
+    profileQuery.error ||
     appointmentsQuery.error
   ) {
     return <ErrorState description="Lỗi tải dữ liệu" />;
@@ -269,6 +276,18 @@ function AppointmentBookingPage() {
 
   const appointments = appointmentsQuery.data || [];
   const upcomingAppointments = appointments.filter((apt) => apt.status === "scheduled");
+  const missingSetup =
+    patientsQuery.data?.length === 0
+      ? "Chưa có bệnh nhân để đặt hẹn."
+      : doctorsQuery.data?.length === 0
+        ? "Chưa có nhân sự/bác sĩ đang hoạt động để nhận lịch."
+        : servicesQuery.data?.length === 0
+          ? "Chưa có dịch vụ để đặt hẹn."
+          : "";
+  const missingSelection =
+    !selectedPatient || !selectedDoctor || !selectedService
+      ? "Chọn đủ bệnh nhân, bác sĩ và dịch vụ rồi bấm Đặt hẹn."
+      : "";
 
   return (
     <div className="space-y-6">
@@ -390,9 +409,16 @@ function AppointmentBookingPage() {
             </div>
 
             {/* Submit Button */}
+            {missingSetup ? (
+              <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                {missingSetup}
+              </p>
+            ) : missingSelection ? (
+              <p className="text-sm text-muted-foreground">{missingSelection}</p>
+            ) : null}
             <Button
               onClick={() => createAppointmentMutation.mutate()}
-              disabled={createAppointmentMutation.isPending}
+              disabled={createAppointmentMutation.isPending || Boolean(missingSetup)}
               className="w-full h-10 text-base"
             >
               <Calendar className="w-4 h-4 mr-2" />

@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useClinicPath, useClinicRelativePath } from "@/hooks/use-clinic-path";
-import { visibleNavGroups, type AppRole } from "@/lib/permissions";
+import { bestNavMatch, visibleNavGroups, type AppRole } from "@/lib/permissions";
 
 type AppSidebarProps = {
   roles: AppRole[];
@@ -28,8 +28,7 @@ export function AppSidebar({ roles, clinicName, logoUrl }: AppSidebarProps) {
   const relativePath = useClinicRelativePath();
   const buildPath = useClinicPath();
   const groups = visibleNavGroups(roles);
-
-  const isActive = (to: string) => relativePath === to || relativePath.startsWith(`${to}/`);
+  const activeTo = bestNavMatch(relativePath, groups)?.item.to;
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -60,7 +59,7 @@ export function AppSidebar({ roles, clinicName, logoUrl }: AppSidebarProps) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => {
-                  const active = isActive(item.to);
+                  const active = activeTo === item.to;
                   return (
                     <SidebarMenuItem key={item.to}>
                       <SidebarMenuButton

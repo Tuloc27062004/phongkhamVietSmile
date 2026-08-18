@@ -140,11 +140,16 @@ export function visibleNavGroups(roles: AppRole[]): NavGroup[] {
   })).filter((group) => group.items.length > 0);
 }
 
+export function bestNavMatch(pathname: string, groups: NavGroup[] = NAV_GROUPS) {
+  return groups
+    .flatMap((group) =>
+      group.items
+        .filter((item) => pathname === item.to || pathname.startsWith(`${item.to}/`))
+        .map((item) => ({ group, item })),
+    )
+    .sort((a, b) => b.item.to.length - a.item.to.length)[0] ?? null;
+}
+
 export function routeRoles(pathname: string): AppRole[] | null {
-  for (const group of NAV_GROUPS) {
-    for (const item of group.items) {
-      if (pathname === item.to || pathname.startsWith(`${item.to}/`)) return item.roles;
-    }
-  }
-  return null;
+  return bestNavMatch(pathname)?.item.roles ?? null;
 }

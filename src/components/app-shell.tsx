@@ -26,7 +26,7 @@ import {
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useClinicPath, useClinicRelativePath } from "@/hooks/use-clinic-path";
 import { useSignOut, type SessionProfile } from "@/hooks/use-session";
-import { NAV_GROUPS, ROLE_LABELS, primaryRole } from "@/lib/permissions";
+import { NAV_GROUPS, ROLE_LABELS, bestNavMatch, primaryRole } from "@/lib/permissions";
 
 function initials(name: string) {
   return name
@@ -39,12 +39,9 @@ function initials(name: string) {
 
 function useBreadcrumbs() {
   const relativePath = useClinicRelativePath();
-  for (const group of NAV_GROUPS) {
-    for (const item of group.items) {
-      if (relativePath === item.to || relativePath.startsWith(`${item.to}/`)) {
-        return { group: group.label, page: item.title };
-      }
-    }
+  const match = bestNavMatch(relativePath, NAV_GROUPS);
+  if (match) {
+    return { group: match.group.label, page: match.item.title };
   }
   return { group: "Tổng quan", page: "Trang" };
 }

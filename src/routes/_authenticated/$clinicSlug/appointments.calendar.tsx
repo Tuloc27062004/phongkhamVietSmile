@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
@@ -17,7 +17,6 @@ import {
 import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/page-state";
-import { useClinicPath } from "@/hooks/use-clinic-path";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -108,7 +107,8 @@ function minutesOf(value: string) {
 
 function AppointmentsCalendarPage() {
   const queryClient = useQueryClient();
-  const buildPath = useClinicPath();
+  const { clinicSlug } = useParams({ from: "/_authenticated/$clinicSlug" });
+  const navigate = useNavigate();
   const [view, setView] = useState<"day" | "week">("day");
   const [selectedDate, setSelectedDate] = useState(toISO(new Date()));
   const [search, setSearch] = useState("");
@@ -257,14 +257,19 @@ function AppointmentsCalendarPage() {
         title="Lịch khám"
         description="Calendar theo phòng điều trị và khung giờ — nhấn vào ô trống để đặt hẹn ngay."
         actions={
-          <Button asChild className="w-full sm:w-auto">
-            <Link
-              to={buildPath("/appointments/booking")}
-              search={{ date: selectedDate, time: undefined, room: undefined }}
-            >
+          <Button
+            type="button"
+            className="w-full sm:w-auto"
+            onClick={() =>
+              void navigate({
+                to: "/$clinicSlug/appointments/booking",
+                params: { clinicSlug },
+                search: { date: selectedDate, time: undefined, room: undefined },
+              })
+            }
+          >
               <Plus className="mr-2 size-4" />
               Tạo hẹn mới
-            </Link>
           </Button>
         }
       />
@@ -428,7 +433,8 @@ function FragmentRow({
   appointments: ApptRow[];
   onUpdate: (id: string, status: string) => void;
 }) {
-  const buildPath = useClinicPath();
+  const { clinicSlug } = useParams({ from: "/_authenticated/$clinicSlug" });
+  const navigate = useNavigate();
   return (
     <>
       <div className="sticky left-0 z-10 border-b border-border bg-background px-2 py-3 text-xs text-muted-foreground">
@@ -440,16 +446,22 @@ function FragmentRow({
         );
         if (!booked) {
           return (
-            <Link
+            <button
+              type="button"
               key={`${room.id}-${slotTime}`}
-              to={buildPath("/appointments/booking")}
-              search={{ date, time: slotTime, room: room.id }}
+              onClick={() =>
+                void navigate({
+                  to: "/$clinicSlug/appointments/booking",
+                  params: { clinicSlug },
+                  search: { date, time: slotTime, room: room.id },
+                })
+              }
               className="group flex min-h-14 items-center justify-center border-b border-l border-border text-xs text-muted-foreground/60 transition-colors hover:bg-primary/5"
             >
               <span className="opacity-0 transition-opacity group-hover:opacity-100">
                 + Đặt {slotTime}
               </span>
-            </Link>
+            </button>
           );
         }
         const config = STATUS_CONFIG[booked.status] ?? STATUS_CONFIG["scheduled"]!;

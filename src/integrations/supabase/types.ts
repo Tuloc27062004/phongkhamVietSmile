@@ -1809,20 +1809,28 @@ export type Database = {
           created_at: string
           date_of_birth: string | null
           deleted_at: string | null
+          clinical_examination: string | null
+          dental_history: string | null
           email: string | null
           first_visit_date: string | null
           full_name: string
           gender: string | null
           id: string
+          identity_number: string | null
           insurance_number: string | null
           insurance_provider: string | null
           is_active: boolean
           last_visit_date: string | null
+          medical_history: string | null
           medical_notes: string | null
           organization_id: string
           patient_code: string
           phone: string | null
+          surgery_consent: string | null
+          treatment_progress: string | null
+          treatment_result: string | null
           updated_at: string
+          xray_image: string | null
         }
         Insert: {
           address?: string | null
@@ -1831,20 +1839,28 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           deleted_at?: string | null
+          clinical_examination?: string | null
+          dental_history?: string | null
           email?: string | null
           first_visit_date?: string | null
           full_name: string
           gender?: string | null
           id?: string
+          identity_number?: string | null
           insurance_number?: string | null
           insurance_provider?: string | null
           is_active?: boolean
           last_visit_date?: string | null
+          medical_history?: string | null
           medical_notes?: string | null
           organization_id: string
           patient_code: string
           phone?: string | null
+          surgery_consent?: string | null
+          treatment_progress?: string | null
+          treatment_result?: string | null
           updated_at?: string
+          xray_image?: string | null
         }
         Update: {
           address?: string | null
@@ -1853,20 +1869,28 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           deleted_at?: string | null
+          clinical_examination?: string | null
+          dental_history?: string | null
           email?: string | null
           first_visit_date?: string | null
           full_name?: string
           gender?: string | null
           id?: string
+          identity_number?: string | null
           insurance_number?: string | null
           insurance_provider?: string | null
           is_active?: boolean
           last_visit_date?: string | null
+          medical_history?: string | null
           medical_notes?: string | null
           organization_id?: string
           patient_code?: string
           phone?: string | null
+          surgery_consent?: string | null
+          treatment_progress?: string | null
+          treatment_result?: string | null
           updated_at?: string
+          xray_image?: string | null
         }
         Relationships: [
           {

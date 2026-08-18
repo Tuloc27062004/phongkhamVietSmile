@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
@@ -68,6 +68,8 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 function AppointmentsPage() {
+  const { clinicSlug } = useParams({ from: "/_authenticated/$clinicSlug" });
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<string>("all");
@@ -144,9 +146,17 @@ function AppointmentsPage() {
         title="Danh sách hẹn"
         description="Quản lý tất cả các lịch hẹn, chỉnh sửa, hủy và xác nhận."
         actions={
-          <Button>
-            <Plus className="mr-2 size-4" />
-            Tạo hẹn mới
+          <Button
+            type="button"
+            onClick={() =>
+              void navigate({
+                to: "/$clinicSlug/appointments/booking",
+                params: { clinicSlug },
+              })
+            }
+          >
+              <Plus className="mr-2 size-4" />
+              Tạo hẹn mới
           </Button>
         }
       />
